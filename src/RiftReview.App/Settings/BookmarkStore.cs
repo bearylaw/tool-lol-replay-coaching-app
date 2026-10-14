@@ -8,7 +8,7 @@ namespace RiftReview.App.Settings;
 /// <param name="Time">Game time in seconds.</param>
 /// <param name="Text">The note; may be empty.</param>
 /// <param name="CreatedUtc">When the bookmark was made.</param>
-/// <param name="Drawing">What the coach had drawn when making it, shown again on a jump to it.</param>
+/// <param name="Drawing">The camera and what the coach had drawn when making it, brought back on a jump to it.</param>
 internal sealed record Bookmark(Guid Id, double Time, string Text, DateTimeOffset CreatedUtc, BookmarkDrawing? Drawing = null);
 
 /// <summary>
@@ -20,7 +20,10 @@ internal sealed record Bookmark(Guid Id, double Time, string Text, DateTimeOffse
 /// <param name="Width">Line width as a share of the overlay's height.</param>
 internal sealed record SavedStroke(double[] Points, string Colour, double Width);
 
-/// <summary>A drawing kept with a bookmark, and where League's camera was so it lines up again.</summary>
+/// <summary>
+/// Where League's camera looked when the bookmark was made, and what was drawn then (possibly
+/// nothing); a jump to the bookmark brings both back.
+/// </summary>
 internal sealed record BookmarkDrawing(SavedStroke[] Strokes, RiftReview.Capture.CameraView? Camera);
 
 /// <summary>

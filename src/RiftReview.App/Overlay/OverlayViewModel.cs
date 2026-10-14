@@ -153,6 +153,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     private int ticks;
     private bool showBookmarks;
     private bool pausedForNote;
+    private bool ended;
     private int? focus;
     private readonly MatchTimeline? timeline;
 
@@ -401,6 +402,12 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         else if (item is not null)
         {
             Position = Math.Max(0, item.Time - BookmarkLead);
+            if (item.Bookmark.Drawing?.Camera is { } camera)
+            {
+                await SendSeekAsync();
+                await Task.Delay(SettleAfterSeek);
+                await Send(() => remote.SetCameraAsync(camera, CancellationToken.None));
+            }
         }
     }
 
@@ -508,9 +515,10 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
             await Send(() => remote.SetPausedAsync(true, CancellationToken.None));
         }
 
-        // What is drawn now belongs to this moment: keep it, and the camera it was drawn over.
+        // A new bookmark keeps where League's camera looks, and what is drawn now; an edit keeps the
+        // bookmark's own unless something is drawn now.
         var strokes = Drawing.Snapshot();
-        if (strokes.Count > 0)
+        if (request.Existing is null || strokes.Count > 0)
         {
             RenderState? state = null;
             await Send(async () => state = await remote.GetRenderStateAsync(CancellationToken.None));
@@ -526,8 +534,10 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         var current = await game.GetPlaybackAsync(CancellationToken.None);
         if (current is null)
         {
-            if (playback is not null)
+            // Polls already under way when the game went also come back empty: end only once.
+            if (playback is not null && !ended)
             {
+                ended = true;
                 Closed?.Invoke(this, OverlayEnd.GameGone);
             }
 

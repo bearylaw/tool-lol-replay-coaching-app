@@ -59,9 +59,10 @@ or clear when you jump.
 </p>
 
 Ctrl+Alt+B (or the pin button) bookmarks this moment with a note. The list jumps
-to each note three seconds before it, so you see the build-up. A bookmark made while
-something is drawn keeps the drawing (a pen icon in the list): its jump pauses at that
-exact moment, puts League's camera back where it was and shows the drawing again.
+to each note three seconds before it, so you see the build-up, with League's camera
+back where it looked when you made it. A bookmark made while something is drawn keeps
+the drawing too (a pen icon in the list): its jump pauses at that exact moment and
+shows the drawing again over the same view.
 The same notes appear in the replay list and the match view, next to free notes for
 the whole game, and can be edited there.
 **Copy for Discord** in the match's Notes tab puts them on the clipboard as Markdown,
