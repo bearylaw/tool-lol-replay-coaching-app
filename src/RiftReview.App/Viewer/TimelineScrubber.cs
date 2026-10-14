@@ -29,7 +29,13 @@ internal sealed class TimelineScrubber : FrameworkElement
     public static readonly DependencyProperty BookmarksProperty = DependencyProperty.Register(
         nameof(Bookmarks), typeof(IReadOnlyList<double>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
+    public static readonly DependencyProperty FocusMarksProperty = DependencyProperty.Register(
+        nameof(FocusMarks), typeof(IReadOnlyList<ScrubberMark>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
     private const double Inset = 8;
+
+    // While a player is selected, everyone else's deaths step back to this opacity.
+    private const double Dimmed = 0.3;
     private const double TrackHeight = 6;
 
     private static readonly Brush Track = Frozen(Color.FromRgb(0x24, 0x32, 0x46));
@@ -39,6 +45,7 @@ internal sealed class TimelineScrubber : FrameworkElement
     private static readonly Brush Red = Frozen(Color.FromRgb(0xE8, 0x50, 0x5B));
     private static readonly Brush Bookmark = Frozen(Color.FromRgb(0xF0, 0xD9, 0xA4));
     private static readonly Pen TowerOutline = FrozenPen(Color.FromRgb(0xF4, 0xF6, 0xFA), 1.2);
+    private static readonly Pen FocusOutline = FrozenPen(Color.FromRgb(0xF0, 0xD9, 0xA4), 1.2);
 
     public TimelineScrubber()
     {
@@ -74,6 +81,16 @@ internal sealed class TimelineScrubber : FrameworkElement
         set => SetValue(TurretsProperty, value);
     }
 
+    /// <summary>
+    /// The selected player's deaths: drawn tall with a light outline while the other deaths dim, so
+    /// one player's game reads at a glance.
+    /// </summary>
+    public IReadOnlyList<ScrubberMark>? FocusMarks
+    {
+        get => (IReadOnlyList<ScrubberMark>?)GetValue(FocusMarksProperty);
+        set => SetValue(FocusMarksProperty, value);
+    }
+
     /// <summary>Times of the coach's bookmarks, drawn as tall gold marks with a dot on top.</summary>
     public IReadOnlyList<double>? Bookmarks
     {
@@ -93,12 +110,7 @@ internal sealed class TimelineScrubber : FrameworkElement
         drawingContext.DrawRoundedRectangle(Track, null, new Rect(Inset, middle - (TrackHeight / 2), width, TrackHeight), 3, 3);
         drawingContext.DrawRoundedRectangle(Played, null, new Rect(Inset, middle - (TrackHeight / 2), width * Share(Position), TrackHeight), 3, 3);
 
-        foreach (var mark in Marks ?? [])
-        {
-            var x = Inset + (width * Share(mark.Time));
-            var top = mark.IsBlue ? middle - 15 : middle + 6;
-            drawingContext.DrawRectangle(mark.IsBlue ? Blue : Red, null, new Rect(x - 1, top, 2, 9));
-        }
+        DrawDeaths(drawingContext, width, middle);
 
         foreach (var turret in Turrets ?? [])
         {
@@ -113,6 +125,26 @@ internal sealed class TimelineScrubber : FrameworkElement
         }
 
         drawingContext.DrawEllipse(Handle, null, new Point(Inset + (width * Share(Position)), middle), 7, 7);
+    }
+
+    private void DrawDeaths(DrawingContext context, double width, double middle)
+    {
+        var focused = FocusMarks is { Count: > 0 };
+        context.PushOpacity(focused ? Dimmed : 1);
+        foreach (var mark in Marks ?? [])
+        {
+            var x = Inset + (width * Share(mark.Time));
+            var top = mark.IsBlue ? middle - 15 : middle + 6;
+            context.DrawRectangle(mark.IsBlue ? Blue : Red, null, new Rect(x - 1, top, 2, 9));
+        }
+
+        context.Pop();
+        foreach (var mark in FocusMarks ?? [])
+        {
+            var x = Inset + (width * Share(mark.Time));
+            var top = mark.IsBlue ? middle - 18 : middle + 4;
+            context.DrawRectangle(mark.IsBlue ? Blue : Red, FocusOutline, new Rect(x - 2, top, 4, 14));
+        }
     }
 
     // A tower 11 wide and 13 high from (x, top): battlements on a body, with a light outline so it

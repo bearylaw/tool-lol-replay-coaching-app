@@ -155,6 +155,9 @@
                                                 Foreground="{StaticResource Brush.GoldBright}" Content="{Binding TimeText}"
                                                 Command="{Binding DataContext.JumpToBookmarkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
                                                 ToolTip="{loc:Text Bookmark_JumpTip}" />
+                                        <TextBlock DockPanel.Dock="Left" Margin="6,0,0,0" VerticalAlignment="Center" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                                   Foreground="{StaticResource Brush.GoldBright}" Text="&#xED63;" ToolTip="{loc:Text Bookmark_HasDrawing}"
+                                                   Visibility="{Binding HasDrawing, Converter={StaticResource VisibleWhen}}" />
                                         <TextBlock Margin="8,0" VerticalAlignment="Center" FontSize="13" TextWrapping="Wrap" Text="{Binding Text}" />
                                     </DockPanel>
                                 </Border>
@@ -226,6 +229,18 @@
             </StackPanel>
         </Border>
 
+        <!-- The player selected in League: their deaths, one jump at a time -->
+        <Border Style="{StaticResource Panel}" Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6"
+                Visibility="{Binding HasFocus, Converter={StaticResource VisibleWhen}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource Brush.GoldBright}" Text="{Binding FocusText}" />
+                <Button Margin="10,0,0,0" Style="{StaticResource Button.Ghost}" Padding="8,3" Content="{loc:Text Focus_Previous}"
+                        Command="{Binding PreviousDeathCommand}" ToolTip="{loc:Text Focus_PreviousTip}" AutomationProperties.Name="{loc:Text Focus_PreviousTip}" />
+                <Button Margin="4,0,0,0" Style="{StaticResource Button.Ghost}" Padding="8,3" Content="{loc:Text Focus_Next}"
+                        Command="{Binding NextDeathCommand}" ToolTip="{loc:Text Focus_NextTip}" AutomationProperties.Name="{loc:Text Focus_NextTip}" />
+            </StackPanel>
+        </Border>
+
         <!-- Control bar, bottom centre -->
         <Border Style="{StaticResource Panel}" Padding="10,8">
             <DockPanel>
@@ -266,7 +281,7 @@
                             ToolTip="{loc:Text Overlay_EndTip}" AutomationProperties.Name="{loc:Text Overlay_EndTip}"
                             Visibility="{Binding CanEndReplay, Converter={StaticResource VisibleWhen}}" />
                 </StackPanel>
-                <viewer:TimelineScrubber Margin="12,0,0,0" Duration="{Binding Duration}" Position="{Binding Position}" Marks="{Binding Marks}" Turrets="{Binding TurretMarks}" Bookmarks="{Binding Bookmarks.Times}" />
+                <viewer:TimelineScrubber Margin="12,0,0,0" Duration="{Binding Duration}" Position="{Binding Position}" Marks="{Binding Marks}" FocusMarks="{Binding FocusMarks}" Turrets="{Binding TurretMarks}" Bookmarks="{Binding Bookmarks.Times}" />
             </DockPanel>
         </Border>
         </StackPanel>

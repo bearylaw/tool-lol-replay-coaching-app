@@ -72,6 +72,12 @@ internal sealed class DrawingState : ObservableObject
     /// <summary>Raised to remove all drawings.</summary>
     public event EventHandler? ClearRequested;
 
+    /// <summary>Raised to replace the drawings with saved ones (a bookmark's).</summary>
+    public event EventHandler<IReadOnlyList<Settings.SavedStroke>>? ShowRequested;
+
+    /// <summary>The drawings now on screen, for keeping with a bookmark; set by the drawing layer.</summary>
+    public Func<IReadOnlyList<Settings.SavedStroke>> Snapshot { get; set; } = () => [];
+
     public IReadOnlyList<DrawColour> Palette { get; }
 
     public ICommand ToggleCommand { get; }
@@ -128,6 +134,9 @@ internal sealed class DrawingState : ObservableObject
     public void Undo() => UndoRequested?.Invoke(this, EventArgs.Empty);
 
     public void Clear() => ClearRequested?.Invoke(this, EventArgs.Empty);
+
+    /// <summary>Shows saved drawings in place of the current ones.</summary>
+    public void Show(IReadOnlyList<Settings.SavedStroke> strokes) => ShowRequested?.Invoke(this, strokes);
 }
 
 /// <summary>Point lists for the shape tools, one list per stroke.</summary>

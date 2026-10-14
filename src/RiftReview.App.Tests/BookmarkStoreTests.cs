@@ -32,6 +32,38 @@ public sealed class BookmarkStoreTests : IDisposable
     }
 
     [Fact]
+    public void KeepsADrawingAndItsCameraWithTheBookmark()
+    {
+        var drawing = new BookmarkDrawing(
+            [new SavedStroke([0.25, 0.5, 0.75, 0.5], "#FFF0D9A4", 0.0035)],
+            new RiftReview.Capture.CameraView(7000, 1911.85, 7000, 0, 56, 0, 40));
+        var list = new BookmarkList(Store(), "EUW1-2");
+        var item = list.Add(143, "Should have gone bot", drawing);
+
+        list.Edit(item, "Team should have gone bot");
+        var saved = Assert.Single(Store().Get("EUW1-2"));
+
+        Assert.True(item.HasDrawing);
+        Assert.Equal([0.25, 0.5, 0.75, 0.5], saved.Drawing!.Strokes[0].Points);
+        Assert.Equal("#FFF0D9A4", saved.Drawing.Strokes[0].Colour);
+        Assert.Equal(drawing.Camera, saved.Drawing.Camera);
+    }
+
+    [Fact]
+    public void ReadsBookmarksSavedBeforeDrawingsWereKept()
+    {
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(FilePath, """
+            {"version":1,"replays":{"EUW1-3":[{"id":"9b2f0c1e-5d6a-4f7b-8c9d-0e1f2a3b4c5d","time":61.5,"text":"Level 1 invade","createdUtc":"2026-10-14T18:00:00+00:00"}]}}
+            """);
+
+        var saved = Assert.Single(Store().Get("EUW1-3"));
+
+        Assert.Equal("Level 1 invade", saved.Text);
+        Assert.Null(saved.Drawing);
+    }
+
+    [Fact]
     public void TheListKeepsItsOrderAndTimelineMarks()
     {
         var list = new BookmarkList(Store(), "EUW1-1");

@@ -721,4 +721,22 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
   <data name="Bookmark_EditInApp" xml:space="preserve">
     <value>The note of this bookmark. Click to change it; saved when you click elsewhere.</value>
   </data>
+  <data name="Focus_Text" xml:space="preserve">
+    <value>{0} · {1} · {2} deaths</value>
+  </data>
+  <data name="Focus_Previous" xml:space="preserve">
+    <value>◀ Death</value>
+  </data>
+  <data name="Focus_Next" xml:space="preserve">
+    <value>Death ▶</value>
+  </data>
+  <data name="Focus_PreviousTip" xml:space="preserve">
+    <value>Previous death of the player selected in League, ten seconds before it</value>
+  </data>
+  <data name="Focus_NextTip" xml:space="preserve">
+    <value>Next death of the player selected in League, ten seconds before it</value>
+  </data>
+  <data name="Bookmark_HasDrawing" xml:space="preserve">
+    <value>Has a drawing: the jump shows it again where you drew it</value>
+  </data>
 </root>

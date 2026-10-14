@@ -39,8 +39,8 @@ public enum LeagueInterface
 
 /// <summary>
 /// Drives a replay running in League through Riot's documented replay API (decision 0006): seek,
-/// pause, speed, fog of war and which of League's own interface shows; nothing is typed or clicked
-/// into the game.
+/// pause, speed, fog of war, the camera and which of League's own interface shows; it reads which
+/// player League has selected. Nothing is typed or clicked into the game.
 /// </summary>
 public sealed class ReplayRemote(GameApi game)
 {
@@ -59,6 +59,29 @@ public sealed class ReplayRemote(GameApi game)
     /// <summary>Shows or hides the fog of war.</summary>
     public Task SetFogOfWarAsync(bool on, CancellationToken cancellationToken) =>
         game.SetRenderAsync(new Dictionary<string, object> { ["fogOfWar"] = on }, cancellationToken);
+
+    /// <summary>The selected player and the camera, or <c>null</c> when the replay API did not answer readably.</summary>
+    public async Task<RenderState?> GetRenderStateAsync(CancellationToken cancellationToken) =>
+        RenderStateParser.Parse(await game.GetRenderAsync(cancellationToken).ConfigureAwait(false)).TryGetValue(out var state, out _) ? state : null;
+
+    /// <summary>
+    /// Puts the camera where <paramref name="view"/> says. League keeps a set camera only in its free
+    /// camera ("fps"); the directed camera would move it straight back.
+    /// </summary>
+    public Task SetCameraAsync(CameraView view, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        return game.SetRenderAsync(
+            new Dictionary<string, object>
+            {
+                ["cameraMode"] = "fps",
+                ["cameraAttached"] = false,
+                ["cameraPosition"] = new Dictionary<string, double> { ["x"] = view.X, ["y"] = view.Y, ["z"] = view.Z },
+                ["cameraRotation"] = new Dictionary<string, double> { ["x"] = view.Pitch, ["y"] = view.Yaw, ["z"] = view.Roll },
+                ["fieldOfView"] = view.FieldOfView,
+            },
+            cancellationToken);
+    }
 
     /// <summary>Shows or hides parts of League's own interface.</summary>
     public Task SetLeagueInterfaceAsync(LeagueInterface part, bool visible, CancellationToken cancellationToken) =>

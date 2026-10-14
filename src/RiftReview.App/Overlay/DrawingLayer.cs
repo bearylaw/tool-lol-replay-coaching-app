@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Ink;
@@ -46,6 +47,8 @@ internal sealed class DrawingLayer : InkCanvas
         drawing.PropertyChanged += OnStateChanged;
         drawing.UndoRequested += (_, _) => Undo();
         drawing.ClearRequested += (_, _) => Clear();
+        drawing.ShowRequested += (_, saved) => Show(saved);
+        drawing.Snapshot = Save;
         Apply();
         fade.Start();
     }
@@ -59,6 +62,55 @@ internal sealed class DrawingLayer : InkCanvas
             Strokes.Clear();
             history.Push(([], all));
         }
+    }
+
+    /// <summary>The strokes on screen in shares of the layer's size (see <see cref="Settings.SavedStroke"/>).</summary>
+    public IReadOnlyList<Settings.SavedStroke> Save()
+    {
+        if (ActualWidth <= 0 || ActualHeight <= 0)
+        {
+            return [];
+        }
+
+        return [.. Strokes.Where(s => !preview.Contains(s)).Select(stroke => new Settings.SavedStroke(
+            [.. stroke.StylusPoints.SelectMany(p => new[] { Math.Round(p.X / ActualWidth, 5), Math.Round(p.Y / ActualHeight, 5) })],
+            stroke.DrawingAttributes.Color.ToString(CultureInfo.InvariantCulture),
+            Math.Round(stroke.DrawingAttributes.Width / ActualHeight, 5)))];
+    }
+
+    // Saved drawings replace the current ones; undo takes them away again. They do not fade: the
+    // coach brought them back on purpose.
+    private void Show(IReadOnlyList<Settings.SavedStroke> saved)
+    {
+        Clear();
+        var strokes = new StrokeCollection(saved.Where(s => s.Points.Length >= 4).Select(ToStroke).OfType<Stroke>());
+        Strokes.Add(strokes);
+        history.Push((strokes, []));
+    }
+
+    private Stroke? ToStroke(Settings.SavedStroke saved)
+    {
+        if (ColorConverter.ConvertFromString(saved.Colour) is not Color colour)
+        {
+            return null;
+        }
+
+        var points = new StylusPointCollection();
+        for (var i = 0; i + 1 < saved.Points.Length; i += 2)
+        {
+            points.Add(new StylusPoint(saved.Points[i] * ActualWidth, saved.Points[i + 1] * ActualHeight));
+        }
+
+        var width = Math.Max(1, saved.Width * ActualHeight);
+        return new Stroke(points, new DrawingAttributes
+        {
+            Color = colour,
+            Width = width,
+            Height = width,
+            FitToCurve = true,
+            IgnorePressure = true,
+            StylusTip = StylusTip.Ellipse,
+        });
     }
 
     protected override void OnPreviewMouseDown(MouseButtonEventArgs e)

@@ -90,6 +90,10 @@ public sealed class GameApi : IDisposable
         response.EnsureSuccessStatusCode();
     }
 
+    /// <summary>The raw <c>/replay/render</c> JSON.</summary>
+    public Task<string> GetRenderAsync(CancellationToken cancellationToken) =>
+        http.GetStringAsync("replay/render", cancellationToken);
+
     /// <summary>The raw <c>allgamedata</c> JSON.</summary>
     public Task<string> GetAllGameDataAsync(CancellationToken cancellationToken) =>
         http.GetStringAsync("liveclientdata/allgamedata", cancellationToken);

@@ -19,6 +19,7 @@ internal sealed class BookmarkItem(Bookmark bookmark) : ObservableObject
             {
                 OnPropertyChanged(nameof(Text));
                 OnPropertyChanged(nameof(TimeText));
+                OnPropertyChanged(nameof(HasDrawing));
             }
         }
     }
@@ -28,6 +29,9 @@ internal sealed class BookmarkItem(Bookmark bookmark) : ObservableObject
     public string Text => bookmark.Text;
 
     public string TimeText => MatchFormat.Duration(TimeSpan.FromSeconds(bookmark.Time));
+
+    /// <summary>A drawing was kept with this bookmark.</summary>
+    public bool HasDrawing => bookmark.Drawing is { Strokes.Length: > 0 };
 }
 
 /// <summary>The bookmarks of the replay the overlay plays, kept in the store as they change.</summary>
@@ -61,10 +65,10 @@ internal sealed class BookmarkList : ObservableObject
 
     public bool IsEmpty => Items.Count == 0;
 
-    /// <summary>Adds a bookmark at a game time.</summary>
-    public BookmarkItem Add(double time, string text)
+    /// <summary>Adds a bookmark at a game time, with the drawing on screen if there is one.</summary>
+    public BookmarkItem Add(double time, string text, BookmarkDrawing? drawing = null)
     {
-        var item = new BookmarkItem(new Bookmark(Guid.NewGuid(), Math.Max(0, time), text.Trim(), DateTimeOffset.UtcNow));
+        var item = new BookmarkItem(new Bookmark(Guid.NewGuid(), Math.Max(0, time), text.Trim(), DateTimeOffset.UtcNow, drawing));
         store.Put(key, item.Bookmark);
         var index = Items.TakeWhile(i => i.Time <= item.Time).Count();
         Items.Insert(index, item);
@@ -72,11 +76,11 @@ internal sealed class BookmarkList : ObservableObject
         return item;
     }
 
-    /// <summary>Changes a bookmark's note.</summary>
-    public void Edit(BookmarkItem item, string text)
+    /// <summary>Changes a bookmark's note; a new drawing replaces the kept one, none keeps it.</summary>
+    public void Edit(BookmarkItem item, string text, BookmarkDrawing? drawing = null)
     {
         ArgumentNullException.ThrowIfNull(item);
-        item.Bookmark = item.Bookmark with { Text = text.Trim() };
+        item.Bookmark = item.Bookmark with { Text = text.Trim(), Drawing = drawing ?? item.Bookmark.Drawing };
         store.Put(key, item.Bookmark);
     }
 

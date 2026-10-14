@@ -108,8 +108,11 @@ internal sealed class OverlayPlayer : ObservableObject
     }
 }
 
-/// <summary>A note box to open: for a new bookmark at <paramref name="Time"/>, or to edit <paramref name="Existing"/>.</summary>
-internal sealed record NoteRequest(double Time, BookmarkItem? Existing);
+/// <summary>
+/// A note box to open: for a new bookmark at <paramref name="Time"/>, or to edit <paramref name="Existing"/>;
+/// <paramref name="Drawing"/> is what was on screen when it opened, kept with the bookmark.
+/// </summary>
+internal sealed record NoteRequest(double Time, BookmarkItem? Existing, BookmarkDrawing? Drawing = null);
 
 /// <summary>How the overlay ends: only the overlay, the replay with it, or the game closed by itself.</summary>
 internal enum OverlayEnd
@@ -128,8 +131,13 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
 {
     private static readonly double[] Speeds = [0.25, 0.5, 1, 2, 4, 8];
 
-    // A jump to a bookmark starts this long before it, to see what led up to it.
+    // A jump to a bookmark starts this long before it, to see what led up to it; a jump to a death
+    // longer, to see the mistake rather than the grey screen.
     private const double BookmarkLead = 3;
+    private const double DeathLead = 10;
+
+    // League needs a moment after a seek before a camera it is given stays.
+    private static readonly TimeSpan SettleAfterSeek = TimeSpan.FromMilliseconds(400);
 
     private readonly ReplayRemote remote;
     private readonly GameApi game;
@@ -144,6 +152,8 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     private int ticks;
     private bool showBookmarks;
     private bool pausedForNote;
+    private readonly IReadOnlyList<(double Time, int Player)> deaths;
+    private int? focus;
 
     public OverlayViewModel(ReplayRemote remote, GameApi game, MatchTimeline? timeline, IReadOnlyList<PlayerRowViewModel> rows, Func<int, IconSlot> itemIcon, OverlaySettings settings, AppLog log, bool canEndReplay, BookmarkList? bookmarks = null, IReadOnlyDictionary<int, int>? itemPrices = null)
     {
@@ -158,6 +168,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         Scoreboard = new Scoreboard(Players, timeline?.TurretFalls ?? []);
         TurretMarks = [.. (timeline?.TurretFalls ?? []).Select(t => new ScrubberMark(t.Time, t.Owner == Team.Blue))];
         Marks = DeathMarksOf(timeline, rows);
+        deaths = [.. (timeline?.Events ?? []).Where(e => e.Kind == TimelineEventKind.Death && e.Champion < rows.Count).Select(e => (e.Time, e.Champion)).OrderBy(d => d.Time)];
 
         poll = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(250) };
         poll.Tick += async (_, _) => await PollAsync();
@@ -173,9 +184,11 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         EndReplayCommand = new RelayCommand(() => Closed?.Invoke(this, OverlayEnd.EndReplay));
         AddBookmarkCommand = new RelayCommand(async () => await RequestNoteAsync(new NoteRequest(Now, null)), () => Bookmarks is not null);
         ShowBookmarksCommand = new RelayCommand(() => ShowBookmarks = !ShowBookmarks, () => Bookmarks is not null);
-        JumpToBookmarkCommand = new RelayCommand(p => JumpTo(p as BookmarkItem));
+        JumpToBookmarkCommand = new RelayCommand(async p => await JumpToAsync(p as BookmarkItem));
         EditBookmarkCommand = new RelayCommand(async p => await EditAsync(p as BookmarkItem));
         DeleteBookmarkCommand = new RelayCommand(p => Delete(p as BookmarkItem));
+        PreviousDeathCommand = new RelayCommand(() => StepDeath(-1), () => focus is not null);
+        NextDeathCommand = new RelayCommand(() => StepDeath(+1), () => focus is not null);
     }
 
     /// <summary>Raised when a note box should open over the game.</summary>
@@ -199,6 +212,23 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
 
     /// <summary>Turrets destroyed, coloured by the team that lost them.</summary>
     public IReadOnlyList<ScrubberMark> TurretMarks { get; }
+
+    /// <summary>The deaths of the player League has selected, highlighted on the timeline.</summary>
+    public IReadOnlyList<ScrubberMark> FocusMarks { get; private set; } = [];
+
+    /// <summary>A player is selected in League (their target frame shows).</summary>
+    public bool HasFocus => focus is not null;
+
+    /// <summary>The selected player, for example "Volibear · BearY · 3 deaths".</summary>
+    public string FocusText => focus is { } i
+        ? Localization.Loc.Format("Focus_Text", rows[i].Champion.Label, rows[i].Stats.GameName, FocusMarks.Count)
+        : string.Empty;
+
+    /// <summary>Jumps to the selected player's previous death, ten seconds before it.</summary>
+    public ICommand PreviousDeathCommand { get; }
+
+    /// <summary>Jumps to the selected player's next death, ten seconds before it.</summary>
+    public ICommand NextDeathCommand { get; }
 
     /// <summary>Both teams' stats and items at the current time (Tab or the scoreboard button).</summary>
     public Scoreboard Scoreboard { get; }
@@ -304,11 +334,11 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         {
             if (request.Existing is { } item)
             {
-                Bookmarks.Edit(item, text);
+                Bookmarks.Edit(item, text, request.Drawing);
             }
             else
             {
-                Bookmarks.Add(request.Time, text);
+                Bookmarks.Add(request.Time, text, request.Drawing);
             }
         }
 
@@ -343,12 +373,86 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         snapshot.Players.FirstOrDefault(p => string.Equals(p.RiotId, row.Stats.RiotId, StringComparison.OrdinalIgnoreCase))
         ?? snapshot.Players.FirstOrDefault(p => string.Equals(p.Champion, row.Stats.Champion, StringComparison.OrdinalIgnoreCase));
 
-    private void JumpTo(BookmarkItem? item)
+    private async Task JumpToAsync(BookmarkItem? item)
     {
-        if (item is not null)
+        if (item?.Bookmark.Drawing is { Strokes.Length: > 0 } drawing)
+        {
+            await ShowDrawingAsync(item.Time, drawing);
+        }
+        else if (item is not null)
         {
             Position = Math.Max(0, item.Time - BookmarkLead);
         }
+    }
+
+    // A bookmark with a drawing: the exact moment, paused, the camera where it was, the drawing on top.
+    private async Task ShowDrawingAsync(double time, BookmarkDrawing drawing)
+    {
+        seekDelay.Stop();
+        pendingSeek = null;
+        await Send(async () =>
+        {
+            await remote.SetPausedAsync(true, CancellationToken.None);
+            await remote.SeekAsync(time, CancellationToken.None);
+            if (drawing.Camera is { } camera)
+            {
+                await Task.Delay(SettleAfterSeek);
+                await remote.SetCameraAsync(camera, CancellationToken.None);
+            }
+        });
+        position = time;
+        OnPropertyChanged(nameof(Position));
+        OnPropertyChanged(nameof(TimeText));
+        Drawing.Show(drawing.Strokes);
+    }
+
+    // The previous or next death of the selected player, measured from where its jump would land.
+    private void StepDeath(int direction)
+    {
+        if (focus is not { } player)
+        {
+            return;
+        }
+
+        var times = deaths.Where(d => d.Player == player).Select(d => Math.Max(0, d.Time - DeathLead)).ToList();
+        var now = Now;
+        var target = direction > 0
+            ? times.Where(t => t > now + 1).Cast<double?>().FirstOrDefault()
+            : times.Where(t => t < now - 1).Cast<double?>().LastOrDefault();
+        if (target is { } time)
+        {
+            Position = time;
+        }
+    }
+
+    // Which player League has selected (its target frame), by Riot ID game name.
+    private async Task UpdateFocusAsync()
+    {
+        RenderState? state = null;
+        await Send(async () => state = await remote.GetRenderStateAsync(CancellationToken.None));
+        var selected = state is { SelectionName.Length: > 0 } ? IndexOfGameName(state.SelectionName) : null;
+        if (selected != focus)
+        {
+            focus = selected;
+            FocusMarks = selected is { } i ? [.. deaths.Where(d => d.Player == i).Select(d => new ScrubberMark(d.Time, rows[i].Stats.Team == Team.Blue))] : [];
+            OnPropertyChanged(nameof(FocusMarks));
+            OnPropertyChanged(nameof(HasFocus));
+            OnPropertyChanged(nameof(FocusText));
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
+
+    private int? IndexOfGameName(string name)
+    {
+        for (var i = 0; i < rows.Count; i++)
+        {
+            if (string.Equals(rows[i].Stats.GameName, name, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        return null;
     }
 
     private async Task EditAsync(BookmarkItem? item)
@@ -378,6 +482,15 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         {
             pausedForNote = true;
             await Send(() => remote.SetPausedAsync(true, CancellationToken.None));
+        }
+
+        // What is drawn now belongs to this moment: keep it, and the camera it was drawn over.
+        var strokes = Drawing.Snapshot();
+        if (strokes.Count > 0)
+        {
+            RenderState? state = null;
+            await Send(async () => state = await remote.GetRenderStateAsync(CancellationToken.None));
+            request = request with { Drawing = new BookmarkDrawing([.. strokes], state?.Camera) };
         }
 
         NoteRequested?.Invoke(this, request);
@@ -412,6 +525,11 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         if (ticks % 4 == 1)
         {
             await UpdatePlayersAsync();
+        }
+
+        if (ticks % 4 == 3)
+        {
+            await UpdateFocusAsync();
         }
     }
 
