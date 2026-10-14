@@ -24,7 +24,8 @@ internal sealed partial class OverlayWindow : Window
 
     private readonly DispatcherTimer track = new() { Interval = TimeSpan.FromMilliseconds(300) };
 
-    // While League's scoreboard is used, Tab is watched (read, never taken) this often.
+    // Tab is League's (it reads the keyboard itself, so its scoreboard comes up whatever is registered);
+    // the overlay watches the key this often, only reading it.
     private readonly DispatcherTimer tabWatch = new() { Interval = TimeSpan.FromMilliseconds(30) };
     private bool tabDown;
     private ScreenRect? placed;
@@ -79,7 +80,7 @@ internal sealed partial class OverlayWindow : Window
         var gameInFront = foreground == GameWindow.FindHandle();
         var inFront = gameInFront || foreground == Handle || (note is not null && foreground == new WindowInteropHelper(note).Handle);
         SetShortcuts(gameInFront);
-        tabWatch.IsEnabled = gameInFront && ViewModel.Settings.UseLeagueScoreboard;
+        tabWatch.IsEnabled = gameInFront;
         if (!inFront)
         {
             Hide();
@@ -106,7 +107,7 @@ internal sealed partial class OverlayWindow : Window
     private OverlayViewModel ViewModel => (OverlayViewModel)DataContext;
 
     // Shortcuts while League is in front (the overlay never takes the keyboard): Space pause/play,
-    // Ctrl+Alt+D draw on/off, Ctrl+Alt+Z undo, Ctrl+Alt+X clear, Ctrl+Alt+B bookmark, Tab scoreboard. Registered only while the game is
+    // Ctrl+Alt+D draw on/off, Ctrl+Alt+Z undo, Ctrl+Alt+X clear, Ctrl+Alt+B bookmark. Registered only while the game is
     // in front, so Space and the combinations work normally in every other program; Ctrl+Shift is
     // left to League (its replay keys, such as unlocking the zoom).
     private static readonly Dictionary<int, (uint Modifiers, uint Key, Action<OverlayViewModel> Run)> Shortcuts = new()
@@ -116,19 +117,16 @@ internal sealed partial class OverlayWindow : Window
         [3] = (ControlAlt, 0x58, vm => vm.Drawing.Clear()),
         [4] = (NoRepeat, 0x20, vm => vm.PlayPauseCommand.Execute(null)),
         [5] = (ControlAlt, 0x42, vm => vm.AddBookmarkCommand.Execute(null)),
-        [TabShortcut] = (NoRepeat, TabKey, vm => vm.Scoreboard.IsOpen = !vm.Scoreboard.IsOpen),
     };
 
-    private const int TabShortcut = 6;
     private const int TabKey = 0x09;
 
-    // League's scoreboard covers the bottom of the game window up to about here (design pixels of a
-    // 1080-high window, measured on 16.20); the bottom column slides this far up while Tab is held.
-    private const double LeagueScoreboardHeight = 420;
+    // League's Tab scoreboard covers the bottom 231 of 1080 pixels of the game window (16.20, measured
+    // at 308 of 1440); the bottom column, 12 above the bottom, slides up past it with a small gap.
+    private const double LeagueScoreboardHeight = 231 + 8 - 12;
     private static readonly Duration Slide = new(TimeSpan.FromMilliseconds(180));
 
-    // Tab stays League's (not registered as a shortcut), so League shows its scoreboard; the overlay
-    // only reads whether the key is down and moves its bar out of the way.
+    // While Tab is held League shows its scoreboard at the bottom; the bar moves out of its way.
     private void WatchTab()
     {
         var down = (NativeMethods.GetAsyncKeyState(TabKey) & 0x8000) != 0;
@@ -138,7 +136,8 @@ internal sealed partial class OverlayWindow : Window
         }
 
         tabDown = down;
-        var to = down ? -LeagueScoreboardHeight : 0;
+        // The column is scaled with the overlay's own size setting; League's scoreboard is not.
+        var to = down ? -LeagueScoreboardHeight / ViewModel.Settings.Scale : 0;
         BottomShift.BeginAnimation(
             System.Windows.Media.TranslateTransform.YProperty,
             new System.Windows.Media.Animation.DoubleAnimation(to, Slide) { EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut } });
@@ -157,7 +156,7 @@ internal sealed partial class OverlayWindow : Window
         }
 
         shortcutsOn = on;
-        foreach (var (id, shortcut) in Shortcuts.Where(s => s.Key != TabShortcut || !ViewModel.Settings.UseLeagueScoreboard))
+        foreach (var (id, shortcut) in Shortcuts)
         {
             // Another program may own a combination already; that shortcut then stays unused.
             _ = on ? NativeMethods.RegisterHotKey(Handle, id, shortcut.Modifiers, shortcut.Key) : NativeMethods.UnregisterHotKey(Handle, id);

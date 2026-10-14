@@ -53,7 +53,6 @@ internal sealed class SettingsEditor : ObservableObject
         private readonly ToggleRow pauseWhenDrawing;
         private readonly ToggleRow clearDrawingsOnJump;
         private readonly RangeRow drawingFade;
-        private readonly ToggleRow useLeagueScoreboard;
 
         public Rows(AppSettings settings)
         {
@@ -64,7 +63,6 @@ internal sealed class SettingsEditor : ObservableObject
             overlayScale = new RangeRow(Loc.Get("Settings_OverlayScale"), Loc.Get("Settings_OverlayScaleHint"), overlay.Scale * 100, (60, 160, 10), Percent);
             hideLeagueControls = new ToggleRow(Loc.Get("Settings_HideLeagueControls"), Loc.Get("Settings_HideLeagueControlsHint"), overlay.HideLeagueControls);
             hideLeagueCameraPanel = new ToggleRow(Loc.Get("Settings_HideLeagueCameraPanel"), Loc.Get("Settings_HideLeagueCameraPanelHint"), overlay.HideLeagueCameraPanel);
-            useLeagueScoreboard = new ToggleRow(Loc.Get("Settings_UseLeagueScoreboard"), Loc.Get("Settings_UseLeagueScoreboardHint"), overlay.UseLeagueScoreboard);
             directedCamera = new ToggleRow(Loc.Get("Settings_DirectedCamera"), Loc.Get("Settings_DirectedCameraHint"), overlay.DirectedCamera);
             pauseWhileNoting = new ToggleRow(Loc.Get("Settings_PauseWhileNoting"), Loc.Get("Settings_PauseWhileNotingHint"), overlay.PauseWhileNoting);
             pauseWhenDrawing = new ToggleRow(Loc.Get("Settings_PauseWhenDrawing"), Loc.Get("Settings_PauseWhenDrawingHint"), overlay.PauseWhenDrawing);
@@ -76,7 +74,7 @@ internal sealed class SettingsEditor : ObservableObject
                 new HeadingRow(Loc.Get("Settings_OverlayPanels")), overlayScale,
                 new HeadingRow(Loc.Get("Settings_Drawing")), pauseWhenDrawing, clearDrawingsOnJump, drawingFade,
                 new HeadingRow(Loc.Get("Settings_Bookmarks")), pauseWhileNoting,
-                new HeadingRow(Loc.Get("Settings_OverlayLeague")), useLeagueScoreboard, directedCamera, hideLeagueControls, hideLeagueCameraPanel,
+                new HeadingRow(Loc.Get("Settings_OverlayLeague")), directedCamera, hideLeagueControls, hideLeagueCameraPanel,
             ];
         }
 
@@ -97,7 +95,6 @@ internal sealed class SettingsEditor : ObservableObject
                 DrawingFadeSeconds = drawingFade.Value,
                 HideLeagueControls = hideLeagueControls.IsOn,
                 HideLeagueCameraPanel = hideLeagueCameraPanel.IsOn,
-                UseLeagueScoreboard = useLeagueScoreboard.IsOn,
             },
         };
     }

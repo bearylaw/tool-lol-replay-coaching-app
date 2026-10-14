@@ -677,7 +677,7 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
     <value>{0} kills · {1} towers · {2} item gold</value>
   </data>
   <data name="Scoreboard_Tip" xml:space="preserve">
-    <value>Scoreboard (Tab)</value>
+    <value>Scoreboard (Tab shows League's)</value>
   </data>
   <data name="Scoreboard_Kda" xml:space="preserve">
     <value>K / D / A</value>
@@ -762,11 +762,5 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
   </data>
   <data name="Focus_NextKillTip" xml:space="preserve">
     <value>Next kill of the player selected in League, ten seconds before it</value>
-  </data>
-  <data name="Settings_UseLeagueScoreboard" xml:space="preserve">
-    <value>Tab shows League's scoreboard</value>
-  </data>
-  <data name="Settings_UseLeagueScoreboardHint" xml:space="preserve">
-    <value>Hold Tab for League's own scoreboard instead of Rift Review's; the timeline slides up above it while Tab is held.</value>
   </data>
 </root>

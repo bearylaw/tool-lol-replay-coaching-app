@@ -93,7 +93,7 @@ sorted by time, ready to paste for your player:
   timeline highlights their deaths (outlined), kills (gold), assists (gold outline) and
   turret takedowns; the others dim. ◀ Death / Death ▶ and ◀ Kill / Kill ▶ step through
   their deaths and kills.
-- **Scoreboard (Tab):** both teams with level, K/D/A, CS and CS per minute, items,
+- **Scoreboard (its button):** both teams with level, K/D/A, CS and CS per minute, items,
   ward score and the gold value of their items at this moment, with kills and towers
   per team (dragons and barons stay on League's score bar).
 - **League's own interface** stays for what it shows best: team frames, kill
@@ -106,7 +106,7 @@ front.
 | Key (while League is in front) | Does |
 |---|---|
 | Space | Play / pause |
-| Tab | Scoreboard (or hold for League's own, with *Tab shows League's scoreboard* in the settings; the timeline slides up above it) |
+| Tab (hold) | League's scoreboard; Rift Review's bar slides up above it |
 | Ctrl+Alt+B | Bookmark this moment with a note |
 | Ctrl+Alt+D | Drawing tools on / off |
 | Ctrl+Alt+Z / Ctrl+Alt+X | Undo the last drawing / clear all |
