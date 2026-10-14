@@ -16,7 +16,43 @@ public enum TimelineEventKind
 
     /// <summary>A dead champion came back to life in its fountain.</summary>
     Respawn,
+
+    /// <summary>
+    /// A champion killed another; <see cref="TimelineEvent.Champion"/> is the killer and
+    /// <see cref="TimelineEvent.Value"/> the champion killed, -1 when unknown.
+    /// </summary>
+    Kill,
+
+    /// <summary>
+    /// A champion assisted a kill; <see cref="TimelineEvent.Champion"/> is the assister and
+    /// <see cref="TimelineEvent.Value"/> the champion killed, -1 when unknown.
+    /// </summary>
+    Assist,
 }
+
+/// <summary>An epic monster of Summoner's Rift.</summary>
+public enum ObjectiveKind
+{
+    /// <summary>An elemental or the elder dragon.</summary>
+    Dragon,
+
+    /// <summary>Baron Nashor.</summary>
+    Baron,
+
+    /// <summary>The Rift Herald.</summary>
+    Herald,
+
+    /// <summary>One voidgrub of the camp.</summary>
+    Grub,
+}
+
+/// <summary>An epic monster killed, found in the replay file.</summary>
+/// <param name="Time">Seconds since the game started.</param>
+/// <param name="Kind">Which monster.</param>
+/// <param name="Team">The team that took it (the last hit's; a steal counts for the stealer).</param>
+/// <param name="Killer">Index of the champion with the last hit.</param>
+/// <param name="Participants">Indexes of the champions credited with the takedown, the killer among them.</param>
+public sealed record ObjectiveKill(double Time, ObjectiveKind Kind, Team Team, int Killer, IReadOnlyList<int> Participants);
 
 /// <summary>One champion of the match, in the order of the replay's player list.</summary>
 /// <param name="Index">Position in the player list, 0 to 9.</param>
@@ -36,7 +72,9 @@ public sealed record TimelineEvent(double Time, TimelineEventKind Kind, int Cham
 /// <summary>A turret destroyed, found in the replay file.</summary>
 /// <param name="Time">Seconds since the game started.</param>
 /// <param name="Owner">The team whose turret it was (the other team destroyed it).</param>
-public sealed record TurretFall(double Time, Team Owner);
+/// <param name="Killer">Index of the champion with the last hit; -1 for minions or when unknown.</param>
+/// <param name="Participants">Indexes of the champions credited with the takedown; <c>null</c> when unknown.</param>
+public sealed record TurretFall(double Time, Team Owner, int Killer = -1, IReadOnlyList<int>? Participants = null);
 
 /// <summary>
 /// The patch-independent record of a match (decision 0005): built once from the replay file and
@@ -64,6 +102,9 @@ public sealed record MatchTimeline
 
     /// <summary>Turrets destroyed, in time order; empty when the file did not yield them.</summary>
     public IReadOnlyList<TurretFall> TurretFalls { get; init; } = [];
+
+    /// <summary>Dragons, barons, heralds and grubs taken, in time order; empty when the file did not yield them.</summary>
+    public IReadOnlyList<ObjectiveKill> Objectives { get; init; } = [];
 
     /// <summary>
     /// The version of the file reader that built the timeline; a stored timeline from an older

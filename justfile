@@ -34,7 +34,7 @@ verify-replays folder:
     dotnet build src/RiftReview.Core.Tests -nologo -clp:ErrorsOnly
     dotnet build src/RiftReview.Timeline.Tests -nologo -clp:ErrorsOnly
     $env:RIFTREVIEW_REPLAY_DIR = '{{folder}}'; src/RiftReview.Core.Tests/bin/Debug/net10.0/RiftReview.Core.Tests.exe -method '*ReadsEveryReplayInTheConfiguredFolder' -diagnostics
-    $env:RIFTREVIEW_REPLAY_DIR = '{{folder}}'; src/RiftReview.Timeline.Tests/bin/Debug/net10.0/RiftReview.Timeline.Tests.exe -method '*DeathsAndLevelUpsMatchTheEndOfGameStats' -method '*TurretFallsMatchEachTeamsTurretsLost' -diagnostics
+    $env:RIFTREVIEW_REPLAY_DIR = '{{folder}}'; src/RiftReview.Timeline.Tests/bin/Debug/net10.0/RiftReview.Timeline.Tests.exe -method '*DeathsAndLevelUpsMatchTheEndOfGameStats' -method '*TurretFallsMatchEachTeamsTurretsLost' -method '*KillsTakedownsAndObjectivesMatchTheEndOfGameStats' -diagnostics
 
 # What CI runs: format check, analyzer build, tests.
 check:

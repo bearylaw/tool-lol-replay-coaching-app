@@ -31,7 +31,8 @@ public static class TimelineJson
             [.. timeline.Events.Select(e => new EventEntry(Math.Round(e.Time, 3), e.Kind, e.Champion, e.Value))],
             [.. timeline.ActivityPerMinute.Select(row => row.ToArray())],
             timeline.BuilderVersion,
-            timeline.TurretFalls.Count == 0 ? null : [.. timeline.TurretFalls.Select(t => t with { Time = Math.Round(t.Time, 2) })]);
+            timeline.TurretFalls.Count == 0 ? null : [.. timeline.TurretFalls.Select(t => t with { Time = Math.Round(t.Time, 2) })],
+            timeline.Objectives.Count == 0 ? null : [.. timeline.Objectives.Select(o => o with { Time = Math.Round(o.Time, 2) })]);
         return JsonSerializer.Serialize(file, Options);
     }
 
@@ -65,6 +66,7 @@ public static class TimelineJson
                 ActivityPerMinute = [.. (file.ActivityPerMinute ?? []).Select(row => (IReadOnlyList<int>)row)],
                 BuilderVersion = file.BuilderVersion,
                 TurretFalls = file.TurretFalls ?? [],
+                Objectives = [.. (file.Objectives ?? []).Where(o => Enum.IsDefined(o.Kind)).Select(o => o with { Participants = o.Participants ?? [] })],
             });
         }
         catch (JsonException exception)
@@ -81,7 +83,8 @@ public static class TimelineJson
         EventEntry[]? Events,
         int[][]? ActivityPerMinute,
         int BuilderVersion = 0,
-        TurretFall[]? TurretFalls = null);
+        TurretFall[]? TurretFalls = null,
+        ObjectiveKill[]? Objectives = null);
 
     private sealed record ChampionEntry(int Index, uint NetworkId, string RiotId, string Champion, Team Team);
 

@@ -8,13 +8,14 @@ namespace RiftReview.Timeline;
 /// <summary>
 /// Builds the timeline a replay file yields: the champions' unit ids; their deaths and level-ups,
 /// found by calibrating packet counts against the replay's own end-of-game stats (packet ids change
-/// per patch and sometimes per game; the stats do not); and the turrets destroyed. Only when packets
+/// per patch and sometimes per game; the stats do not); kills and assists; the turrets destroyed and
+/// by whom; and the dragons, barons, herald and grubs taken. Only when packets
 /// come and for which unit is read, never what they contain (decision 0008).
 /// </summary>
 public static class TimelineBuilder
 {
     /// <summary>Raised whenever what a timeline gets from the file changes; stored timelines below it are rebuilt.</summary>
-    public const int Version = 7;
+    public const int Version = 8;
 
     // A packet type is accepted as an event when its per-champion counts follow the stat this
     // closely, and its total is within this share of the stat's total.
@@ -60,6 +61,14 @@ public static class TimelineBuilder
         events.AddRange(DeathCalibration.Events(deathMatches, scan.EveryPacket, metadata.GameLength.TotalSeconds));
         events.AddRange(LevelUps(scan.Times, Stat(players, p => p.Level - 1), Stat(players, p => p.Level)));
 
+        // Kills, assists, turret takedowns and objectives come from the reward bursts; each part
+        // checks itself against the stats and is left out when it does not fit.
+        var ticks = Optional(() => PacketTicks.Read(chunks, heroIds, players));
+        if (ticks is not null)
+        {
+            events.AddRange(Optional(() => KillDecoder.Decode(ticks, players, events)) ?? []);
+        }
+
         var timeline = new MatchTimeline
         {
             GameVersion = metadata.Version,
@@ -69,8 +78,14 @@ public static class TimelineBuilder
             ActivityPerMinute = scan.Activity,
             BuilderVersion = Version,
         };
-        var turrets = Optional(() => TurretDecoder.Decode(chunks, heroIds, players));
-        return Result<MatchTimeline, string>.Success(timeline with { TurretFalls = turrets ?? [] });
+        var turrets = Optional(() => TurretDecoder.Decode(chunks, heroIds, players)) ?? [];
+        if (ticks is not null)
+        {
+            turrets = Optional(() => TurretCredit.Add(turrets, ticks, players)) ?? turrets;
+        }
+
+        var objectives = ticks is null ? null : Optional(() => ObjectiveDecoder.Decode(ticks, players));
+        return Result<MatchTimeline, string>.Success(timeline with { TurretFalls = turrets, Objectives = objectives ?? [] });
     }
 
     // The decoders read one patch's packet contents. A patch that changes them must only cost their

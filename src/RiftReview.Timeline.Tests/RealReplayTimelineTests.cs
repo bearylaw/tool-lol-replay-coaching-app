@@ -82,6 +82,49 @@ public sealed class RealReplayTimelineTests
         }
     }
 
+    [Fact]
+    public void KillsTakedownsAndObjectivesMatchTheEndOfGameStats()
+    {
+        var folder = Environment.GetEnvironmentVariable("RIFTREVIEW_REPLAY_DIR");
+        Assert.SkipWhen(string.IsNullOrEmpty(folder), "RIFTREVIEW_REPLAY_DIR is not set");
+
+        foreach (var path in Directory.GetFiles(folder!, "*.rofl"))
+        {
+            using var stream = File.OpenRead(path);
+            Assert.True(RoflReader.Read(stream).TryGetValue(out var metadata, out _));
+            if (metadata.Players.Count == 0)
+            {
+                continue;
+            }
+
+            var watch = Stopwatch.StartNew();
+            Assert.True(TimelineBuilder.Build(stream, metadata).TryGetValue(out var timeline, out var failure), failure);
+            var players = metadata.Players;
+            int[] Stat(params string[] keys) => [.. players.Select(p => keys.Sum(k => int.Parse(p.RawStats.GetValueOrDefault(k, "0"), System.Globalization.CultureInfo.InvariantCulture)))];
+            var kills = Count(timeline, TimelineEventKind.Kill);
+            var assists = Count(timeline, TimelineEventKind.Assist);
+            var takedowns = Enumerable.Range(0, players.Count).Select(i => timeline.TurretFalls.Count(t => t.Participants?.Contains(i) == true)).ToArray();
+            int Taken(ObjectiveKind kind, Team team) => timeline.Objectives.Count(o => o.Kind == kind && o.Team == team);
+            int Stats(Team team, params string[] keys) => Stat(keys).Where((_, i) => players[i].Team == team).Sum();
+            TestContext.Current.SendDiagnosticMessage(
+                $"{Path.GetFileName(path)}: {watch.ElapsedMilliseconds} ms; kills [{string.Join(",", kills)}] vs [{string.Join(",", Stat("CHAMPIONS_KILLED"))}]; assists [{string.Join(",", assists)}] vs [{string.Join(",", Stat("ASSISTS"))}]; turret takedowns [{string.Join(",", takedowns)}] vs [{string.Join(",", Stat("TURRET_TAKEDOWNS"))}]; "
+                + string.Join(" ", timeline.Objectives.Select(o => $"{o.Kind}{TimeSpan.FromSeconds(o.Time):m\\:ss}{o.Team}")));
+
+            // On the 16.20 replays kills and assists come out exact per player (one assist off once).
+            Assert.True(PacketDistance(kills, Stat("CHAMPIONS_KILLED")) <= 2, "kills");
+            Assert.True(PacketDistance(assists, Stat("ASSISTS")) <= 3, "assists");
+            foreach (var team in new[] { Team.Blue, Team.Red })
+            {
+                Assert.Equal(Stats(team, "DRAGON_KILLS", "ELDER_DRAGON_KILLS"), Taken(ObjectiveKind.Dragon, team));
+                Assert.Equal(Stats(team, "BARON_KILLS"), Taken(ObjectiveKind.Baron, team));
+                Assert.Equal(Stats(team, "RIFT_HERALD_KILLS"), Taken(ObjectiveKind.Herald, team));
+                Assert.Equal(Stats(team, "HORDE_KILLS"), Taken(ObjectiveKind.Grub, team));
+            }
+        }
+    }
+
+    private static int PacketDistance(int[] found, int[] stat) => found.Zip(stat, (a, b) => Math.Abs(a - b)).Sum();
+
     private static int[] Count(MatchTimeline timeline, TimelineEventKind kind) =>
         [.. timeline.Champions.Select(c => timeline.Events.Count(e => e.Kind == kind && e.Champion == c.Index))];
 }

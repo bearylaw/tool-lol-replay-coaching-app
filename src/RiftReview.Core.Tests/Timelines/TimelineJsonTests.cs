@@ -39,6 +39,25 @@ public sealed class TimelineJsonTests
     }
 
     [Fact]
+    public void RoundTripsTakedownsAndObjectives()
+    {
+        var built = Sample with
+        {
+            TurretFalls = [new TurretFall(741.234, Team.Red, 1, [0, 1])],
+            Objectives = [new ObjectiveKill(593.456, ObjectiveKind.Dragon, Team.Blue, 1, [0, 1])],
+        };
+
+        Assert.True(TimelineJson.Read(TimelineJson.Write(built)).TryGetValue(out var read, out var error), error);
+
+        var fall = Assert.Single(read.TurretFalls);
+        Assert.Equal((741.23, Team.Red, 1), (fall.Time, fall.Owner, fall.Killer));
+        Assert.Equal([0, 1], fall.Participants!);
+        var dragon = Assert.Single(read.Objectives);
+        Assert.Equal((593.46, ObjectiveKind.Dragon, Team.Blue, 1), (dragon.Time, dragon.Kind, dragon.Team, dragon.Killer));
+        Assert.Equal([0, 1], dragon.Participants);
+    }
+
+    [Fact]
     public void IgnoresFieldsAndEventKindsItDoesNotKnow()
     {
         // A timeline from an earlier version with positions and a kind this version does not have.

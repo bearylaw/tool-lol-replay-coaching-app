@@ -81,6 +81,38 @@ the fallback when a patch renumbers the ids: right for most falls, wrong
 when a fight happens elsewhere (red's top turret at 12:24 in sample 2
 fell during a bot lane fight), so the table is preferred.
 
+## Reward bursts: kills, assists, turret takedowns — works without decoding payloads (2026-10-14)
+
+When a unit dies the server pays the champions it credits in that tick (identical block time), in
+a fixed order. Only types, times, file order within the tick and addressees are used. Type ids
+below are 16.20's and are found per replay by calibrating against the end-of-game stats; `0x477`
+is missing entirely in one game, so nothing is hard-coded.
+
+- **Kills and assists** (`KillDecoder`): the pair (reward `0x2bb`, mark `0x1b5`) whose killers
+  best match `CHAMPIONS_KILLED`. In a tick with the mark, the champions that get the mark after a
+  reward are candidates; per team the killer is the last (assisters are paid first). Assisters are
+  the killer's team getting the assist type (calibrated against `ASSISTS`). The victim gets the mark
+  before any reward, else it is the nearest enemy death within 1.5 s. Exact kills per player on all
+  five 16.20 replays; assists exact but one.
+- **Turret takedowns** (`TurretCredit`): in the fall's tick (`TurretDecoder`), the killer is the
+  first attacker to get the killer type (calibrated against `TURRETS_KILLED`); takedowns are the
+  attackers getting the participant type plus the killer (`TURRET_TAKEDOWNS`). No killer means
+  minions took it. Exact in three games, off by up to 7 in the game without `0x477`.
+
+## Epic monsters — works without decoding payloads (2026-10-14)
+
+`ObjectiveDecoder`. A monster is a non-champion unit created with a burst of packets and many kinds
+of them. Its death is the type a long-lived unit gets once, a fixed 4.0 s before its last packet
+(`0x458`, found per replay). Units are created before they appear, so the map's timers give
+windows: first dragon created 290–296 s, the next 284–297 s after the last died (elder tried
+344–357 s, untested), grubs one camp created together at 470–477 s (neighbouring even ids; one
+grub can show up early), herald 893–899 s, first baron 1176–1182 s, the next 330–345 s after the
+last died. Later dragons and barons are the unit in the window most like the first one (Jaccard of
+packet kinds ≥ 0.6). In the death tick the last hit is the first champion paid the killer type
+(`DRAGON_KILLS`…`HORDE_KILLS`), the takedowns are its team paid the participant type
+(`Missions_TakedownDragons`, `Missions_TakedownBaronsElderDragons`). Exact per team on all five
+replays, steals included (the team is the last hitter's). There is no Atakhan on 16.20.
+
 ## Layer 3: other packet payloads — not decoded
 
 Payloads are obfuscated per patch: fields are bit-packed and transformed,
