@@ -261,6 +261,27 @@
             </StackPanel>
         </Border>
 
+        <!-- The fight under the mouse on the timeline: who killed whom, turrets and objectives. A
+             layer of no height, so the card floats over what is above the bar; placed in code. -->
+        <Canvas x:Name="HoverLayer" Height="0" ClipToBounds="False" IsHitTestVisible="False">
+            <Border x:Name="HoverCard" Canvas.Bottom="6" Style="{StaticResource Panel}" Padding="10,7" MaxWidth="460"
+                    Visibility="{Binding IsHovering, Converter={StaticResource VisibleWhen}}">
+                <ItemsControl ItemsSource="{Binding Hovered}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type overlay:MomentLine}">
+                            <DockPanel Margin="0,1">
+                                <TextBlock DockPanel.Dock="Left" Width="40" FontSize="12" FontFamily="{StaticResource Font.Numbers}"
+                                           Foreground="{StaticResource Brush.TextMuted}" Text="{Binding Time}" />
+                                <Ellipse DockPanel.Dock="Left" Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center"
+                                         Fill="{Binding IsBlue, Converter={StaticResource TeamBrush}}" />
+                                <TextBlock FontSize="13" TextWrapping="Wrap" Text="{Binding Text}" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </Canvas>
+
         <!-- Control bar, bottom centre -->
         <Border Style="{StaticResource Panel}" Padding="10,8">
             <DockPanel>
@@ -302,7 +323,7 @@
                             ToolTip="{loc:Text Overlay_EndTip}" AutomationProperties.Name="{loc:Text Overlay_EndTip}"
                             Visibility="{Binding CanEndReplay, Converter={StaticResource VisibleWhen}}" />
                 </StackPanel>
-                <viewer:TimelineScrubber Margin="12,0,0,0" Duration="{Binding Duration}" Position="{Binding Position}" Marks="{Binding Marks}" FocusMarks="{Binding FocusMarks}" Objectives="{Binding Objectives}" Turrets="{Binding TurretMarks}" Bookmarks="{Binding Bookmarks.Marks}" />
+                <viewer:TimelineScrubber x:Name="Scrubber" Margin="12,0,0,0" MomentTimes="{Binding MomentTimes}" Duration="{Binding Duration}" Position="{Binding Position}" Marks="{Binding Marks}" FocusMarks="{Binding FocusMarks}" Objectives="{Binding Objectives}" Turrets="{Binding TurretMarks}" Bookmarks="{Binding Bookmarks.Marks}" />
             </DockPanel>
         </Border>
         </StackPanel>

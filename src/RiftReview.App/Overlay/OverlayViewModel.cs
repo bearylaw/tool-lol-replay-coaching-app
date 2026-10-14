@@ -158,6 +158,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     private bool ended;
     private int? focus;
     private string flash = string.Empty;
+    private IReadOnlyList<MomentLine> hoveredMoments = [];
     private System.Windows.Media.Brush flashColour = TagBrushes.Of((string?)null);
     private readonly MatchTimeline? timeline;
 
@@ -176,6 +177,8 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         Marks = DeathMarksOf(timeline, rows);
         this.timeline = timeline;
         Objectives = TimelineMarks.Objectives(timeline);
+        Moments = TimelineMoments.All(timeline, [.. rows.Select(r => r.Champion.Label)]);
+        MomentTimes = [.. Moments.Select(m => m.Time)];
 
         poll = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(250) };
         poll.Tick += async (_, _) => await PollAsync();
@@ -232,6 +235,31 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
 
     /// <summary>Dragons, barons, heralds and the finished grub camp, in the colour of the team that took them.</summary>
     public IReadOnlyList<ObjectiveMark> Objectives { get; }
+
+    /// <summary>Who killed whom, who took which turret and objective, for the timeline's hover card.</summary>
+    public IReadOnlyList<TimelineMoment> Moments { get; }
+
+    /// <summary>The moments' times, which the timeline reacts to under the mouse.</summary>
+    public IReadOnlyList<double> MomentTimes { get; }
+
+    /// <summary>The fight under the mouse on the timeline; empty while the mouse is elsewhere.</summary>
+    public IReadOnlyList<MomentLine> Hovered
+    {
+        get => hoveredMoments;
+        private set
+        {
+            if (SetProperty(ref hoveredMoments, value))
+            {
+                OnPropertyChanged(nameof(IsHovering));
+            }
+        }
+    }
+
+    public bool IsHovering => hoveredMoments.Count > 0;
+
+    /// <summary>Shows the fight at a time of the timeline in the hover card, or hides the card for <c>null</c>.</summary>
+    public void HoverAt(double? time) =>
+        Hovered = time is { } t ? [.. TimelineMoments.Around(Moments, t).Select(MomentLine.From)] : [];
 
     /// <summary>A player is selected in League (their target frame shows).</summary>
     public bool HasFocus => focus is not null;
@@ -706,4 +734,11 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
             log.Warning("overlay.replay_api_timeout", exception);
         }
     }
+}
+
+/// <summary>A line of the timeline's hover card: time, a dot in the colour of the team that did it, text.</summary>
+internal sealed record MomentLine(string Time, string Text, bool IsBlue)
+{
+    public static MomentLine From(TimelineMoment moment) =>
+        new(MatchFormat.Duration(TimeSpan.FromSeconds(moment.Time)), moment.Text, moment.IsBlue);
 }

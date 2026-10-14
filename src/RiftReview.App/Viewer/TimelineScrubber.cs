@@ -29,6 +29,11 @@ internal sealed record FocusMark(double Time, FocusKind Kind, bool IsBlue);
 /// <summary>A bookmark on the scrubber, in its tag's colour.</summary>
 internal sealed record BookmarkMark(double Time, Brush Colour);
 
+/// <summary>The mouse over the scrubber near something that happened, or away from it.</summary>
+/// <param name="Time">The game time of the nearest moment within reach; <c>null</c> when none.</param>
+/// <param name="X">That moment's x on the scrubber.</param>
+internal sealed record ScrubberHover(double? Time, double X);
+
 /// <summary>An objective taken, on the track itself in the colour of the team that took it.</summary>
 /// <param name="Time">Game time in seconds.</param>
 /// <param name="Letter">The objective's initial, for example D for a dragon.</param>
@@ -65,6 +70,9 @@ internal sealed class TimelineScrubber : FrameworkElement
 
     private const double Inset = 8;
 
+    // The mouse finds a moment this many pixels to either side.
+    private const double HoverReach = 6;
+
     // While a player is selected, everyone else's deaths step back to this opacity.
     private const double Dimmed = 0.3;
     private const double TrackHeight = 6;
@@ -79,6 +87,11 @@ internal sealed class TimelineScrubber : FrameworkElement
     private static readonly Pen FocusOutline = FrozenPen(Color.FromRgb(0xF0, 0xD9, 0xA4), 1.2);
     private static readonly Pen FocusTower = FrozenPen(Color.FromRgb(0xF0, 0xD9, 0xA4), 2.2);
     private static readonly Pen ObjectiveOutline = FrozenPen(Color.FromRgb(0x0B, 0x10, 0x18), 1.5);
+
+    public static readonly DependencyProperty MomentTimesProperty = DependencyProperty.Register(
+        nameof(MomentTimes), typeof(IReadOnlyList<double>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null));
+
+    private double? hovered;
 
     public TimelineScrubber()
     {
@@ -130,6 +143,16 @@ internal sealed class TimelineScrubber : FrameworkElement
         get => (IReadOnlyList<ObjectiveMark>?)GetValue(ObjectivesProperty);
         set => SetValue(ObjectivesProperty, value);
     }
+
+    /// <summary>Times of what happened (kills, turrets, objectives); hovering near one raises <see cref="Hover"/>.</summary>
+    public IReadOnlyList<double>? MomentTimes
+    {
+        get => (IReadOnlyList<double>?)GetValue(MomentTimesProperty);
+        set => SetValue(MomentTimesProperty, value);
+    }
+
+    /// <summary>Raised when the mouse comes near a moment, moves to another or leaves them.</summary>
+    public event EventHandler<ScrubberHover>? Hover;
 
     /// <summary>The coach's bookmarks, drawn as tall marks with a dot on top in their tag's colour.</summary>
     public IReadOnlyList<BookmarkMark>? Bookmarks
@@ -259,7 +282,48 @@ internal sealed class TimelineScrubber : FrameworkElement
         if (IsMouseCaptured)
         {
             Seek(e.GetPosition(this).X);
+            SetHover(null);
+            return;
         }
+
+        SetHover(Nearest(e.GetPosition(this).X));
+    }
+
+    protected override void OnMouseLeave(MouseEventArgs e)
+    {
+        SetHover(null);
+        base.OnMouseLeave(e);
+    }
+
+    // The moment nearest to x, if one is within reach.
+    private double? Nearest(double x)
+    {
+        var width = Math.Max(1, ActualWidth - (2 * Inset));
+        double? best = null;
+        var distance = HoverReach;
+        foreach (var time in MomentTimes ?? [])
+        {
+            var gap = Math.Abs(Inset + (width * Share(time)) - x);
+            if (gap <= distance)
+            {
+                distance = gap;
+                best = time;
+            }
+        }
+
+        return best;
+    }
+
+    private void SetHover(double? time)
+    {
+        if (time == hovered)
+        {
+            return;
+        }
+
+        hovered = time;
+        var width = Math.Max(1, ActualWidth - (2 * Inset));
+        Hover?.Invoke(this, new ScrubberHover(time, time is { } t ? Inset + (width * Share(t)) : 0));
     }
 
     protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)

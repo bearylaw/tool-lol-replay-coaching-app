@@ -859,4 +859,37 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
   <data name="Review_ImportedNoReplay" xml:space="preserve">
     <value>Review of {2} imported: {0} new bookmarks, {1} updated. They show once that replay is in your library.</value>
   </data>
+  <data name="Moment_Kill" xml:space="preserve">
+    <value>{0} killed {1}</value>
+  </data>
+  <data name="Moment_Died" xml:space="preserve">
+    <value>{0} died</value>
+  </data>
+  <data name="Moment_With" xml:space="preserve">
+    <value>{0}, with {1}</value>
+  </data>
+  <data name="Moment_TurretBy" xml:space="preserve">
+    <value>{0} destroyed a {1} turret</value>
+  </data>
+  <data name="Moment_Turret" xml:space="preserve">
+    <value>A {0} turret fell</value>
+  </data>
+  <data name="Moment_ObjectiveBy" xml:space="preserve">
+    <value>{0} took {1}</value>
+  </data>
+  <data name="Moment_Dragon" xml:space="preserve">
+    <value>the dragon</value>
+  </data>
+  <data name="Moment_Baron" xml:space="preserve">
+    <value>Baron</value>
+  </data>
+  <data name="Moment_Herald" xml:space="preserve">
+    <value>the Rift Herald</value>
+  </data>
+  <data name="Moment_Grub" xml:space="preserve">
+    <value>a voidgrub</value>
+  </data>
+  <data name="Moment_Grubs" xml:space="preserve">
+    <value>{0} voidgrubs</value>
+  </data>
 </root>

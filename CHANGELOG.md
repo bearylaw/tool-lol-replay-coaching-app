@@ -30,7 +30,9 @@ screen or the game's memory, or types into the game (decision 0008).
 - **Overlay timeline:** deaths per team, turret falls, dragons, barons, heralds
   and finished grub camps in the colour of the team that took them, and your
   bookmarks in their tag's colour; click or drag to seek, play and pause
-  (also Space), ±10 s, 0.25× to 8×.
+  (also Space), ±10 s, 0.25× to 8×. Hovering a mark shows the fight around
+  it: who killed whom (with the assists), who destroyed which turret, who
+  took which objective.
 - **Selected player:** click a champion in League and the timeline highlights
   their deaths, kills, assists and turret takedowns; ◀ Death / Death ▶ and
   ◀ Kill / Kill ▶ jump to each, ten seconds before it.

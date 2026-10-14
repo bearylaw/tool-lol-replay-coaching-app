@@ -44,6 +44,7 @@ internal sealed partial class OverlayWindow : Window
             UseNoActivateStyle();
             HwndSource.FromHwnd(Handle)?.AddHook(OnMessage);
         };
+        Scrubber.Hover += OnTimelineHover;
         track.Tick += (_, _) => Track();
         tabWatch.Tick += (_, _) => WatchTab();
         Loaded += (_, _) =>
@@ -197,6 +198,21 @@ internal sealed partial class OverlayWindow : Window
         }
 
         return IntPtr.Zero;
+    }
+
+    // The hover card shows the fight under the mouse, centred over it and kept inside the bar's width.
+    private void OnTimelineHover(object? sender, Viewer.ScrubberHover hover)
+    {
+        ViewModel.HoverAt(hover.Time);
+        if (hover.Time is null)
+        {
+            return;
+        }
+
+        HoverCard.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var width = HoverCard.DesiredSize.Width;
+        var x = Scrubber.TranslatePoint(new Point(hover.X, 0), HoverLayer).X - (width / 2);
+        System.Windows.Controls.Canvas.SetLeft(HoverCard, Math.Clamp(x, 0, Math.Max(0, HoverLayer.ActualWidth - width)));
     }
 
     // Opens the note box centred over the game, above the control bar; when it closes the keyboard
