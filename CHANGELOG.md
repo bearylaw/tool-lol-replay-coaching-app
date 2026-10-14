@@ -6,6 +6,10 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Ctrl+Space and Shift+Space play and pause the replay too, next to Space.
+
 ## [1.0.0] - 2026-10-14
 
 First release: one self-contained `RiftReview.exe` for Windows 10 and 11 (x64),

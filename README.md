@@ -132,7 +132,7 @@ front.
 
 | Key (while League is in front) | Does |
 |---|---|
-| Space | Play / pause |
+| Space, Ctrl+Space or Shift+Space | Play / pause |
 | Tab (hold) / O | League's scoreboard, held or until the next O; Rift Review's bar slides up above it |
 | Ctrl+Alt+B | Bookmark this moment with a note |
 | Ctrl+Alt+1 … 9 | Bookmark this moment with the first … ninth tag, no note |

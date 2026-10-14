@@ -109,7 +109,7 @@ internal sealed partial class OverlayWindow : Window
 
     private OverlayViewModel ViewModel => (OverlayViewModel)DataContext;
 
-    // Shortcuts while League is in front (the overlay never takes the keyboard): Space pause/play,
+    // Shortcuts while League is in front (the overlay never takes the keyboard): Space, Ctrl+Space or Shift+Space pause/play,
     // Ctrl+Alt+D draw on/off, Ctrl+Alt+Z undo, Ctrl+Alt+X clear, Ctrl+Alt+B bookmark, Ctrl+Alt+1 to 9
     // a bookmark with the tag in that place. Registered only while the game is in front, so Space
     // and the combinations work normally in every other program; Ctrl+Shift is left to League (its
@@ -121,6 +121,8 @@ internal sealed partial class OverlayWindow : Window
         [3] = (ControlAlt, 0x58, vm => vm.Drawing.Clear()),
         [4] = (NoRepeat, 0x20, vm => vm.PlayPauseCommand.Execute(null)),
         [5] = (ControlAlt, 0x42, vm => vm.AddBookmarkCommand.Execute(null)),
+        [6] = (Control, 0x20, vm => vm.PlayPauseCommand.Execute(null)),
+        [7] = (Shift, 0x20, vm => vm.PlayPauseCommand.Execute(null)),
     };
 
     // Ctrl+Alt+1 to 9: hotkey ids from here, keys from the digit 1.
@@ -164,6 +166,8 @@ internal sealed partial class OverlayWindow : Window
     private const int HotKeyMessage = 0x0312;
     private const uint NoRepeat = 0x4000;
     private const uint ControlAlt = 0x0001 | 0x0002 | NoRepeat;
+    private const uint Control = 0x0002 | NoRepeat;
+    private const uint Shift = 0x0004 | NoRepeat;
     private bool shortcutsOn;
 
     private void SetShortcuts(bool on)

@@ -587,7 +587,7 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
     <value>Clear all drawings (Ctrl+Alt+X)</value>
   </data>
   <data name="Overlay_PlayPauseTip" xml:space="preserve">
-    <value>Play or pause (Space while League is in front)</value>
+    <value>Play or pause (Space, Ctrl+Space or Shift+Space while League is in front)</value>
   </data>
   <data name="Overlay_Quest_None" xml:space="preserve">
     <value>Role quest</value>
