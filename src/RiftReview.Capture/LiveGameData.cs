@@ -9,7 +9,7 @@ public sealed record LiveItem(int Id, int Slot);
 
 /// <summary>
 /// One player as the game's Live Client Data API reports them at a moment: Riot ID (<c>Name#Tag</c>),
-/// champion, side (ORDER is blue), level, life state with seconds until respawn, score, items and
+/// champion key as the replay names it (<c>MonkeyKing</c> for Wukong), side (ORDER is blue), level, life state with seconds until respawn, score, items and
 /// the summoner spells' display names (they change when Smite or Teleport is upgraded).
 /// </summary>
 public sealed record LivePlayer(
@@ -88,7 +88,7 @@ public static class LiveGameDataParser
         var scores = p.TryGetProperty("scores", out var s) ? s : default;
         return new LivePlayer(
             Text(p, "riotId") ?? Text(p, "summonerName") ?? string.Empty,
-            Text(p, "championName") ?? string.Empty,
+            ChampionKey(p),
             string.Equals(Text(p, "team"), "ORDER", StringComparison.OrdinalIgnoreCase),
             Int(p, "level"),
             p.TryGetProperty("isDead", out var dead) && dead.ValueKind == JsonValueKind.True,
@@ -102,6 +102,18 @@ public static class LiveGameDataParser
                 ? [.. items.EnumerateArray().Select(i => new LiveItem(Int(i, "itemID"), Int(i, "slot")))]
                 : [],
             SpellNames(p));
+    }
+
+    private const string RawChampionPrefix = "game_character_displayname_";
+
+    // championName is the localized display name ("Wukong"); the replay names champions by their
+    // internal key ("MonkeyKing"), which rawChampionName carries after its prefix.
+    private static string ChampionKey(JsonElement p)
+    {
+        var raw = Text(p, "rawChampionName");
+        return raw is not null && raw.StartsWith(RawChampionPrefix, StringComparison.Ordinal) && raw.Length > RawChampionPrefix.Length
+            ? raw[RawChampionPrefix.Length..]
+            : Text(p, "championName") ?? string.Empty;
     }
 
     private static readonly string[] SpellKeys = ["summonerSpellOne", "summonerSpellTwo"];

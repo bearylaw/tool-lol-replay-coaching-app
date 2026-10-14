@@ -5,7 +5,7 @@ public sealed class LiveGameDataTests
     // Shape of /liveclientdata/allgamedata during a replay, cut down to one player.
     private const string AllGameData = """
         {"activePlayer":{"error":"Spectator mode doesn't currently support this feature"},
-         "allPlayers":[{"championName":"Gangplank","isDead":true,"respawnTimer":12.5,"level":7,
+         "allPlayers":[{"championName":"Wukong","rawChampionName":"game_character_displayname_MonkeyKing","isDead":true,"respawnTimer":12.5,"level":7,
            "riotId":"Northwind#EUW","team":"ORDER",
            "items":[{"itemID":1055,"slot":0},{"itemID":3340,"slot":6}],
            "summonerSpells":{"summonerSpellOne":{"displayName":"Unleashed Smite"},"summonerSpellTwo":{"displayName":"Flash"}},
@@ -30,6 +30,7 @@ public sealed class LiveGameDataTests
         Assert.Equal(431.25, snapshot.GameTime);
         var player = Assert.Single(snapshot.Players);
         Assert.Equal("Northwind#EUW", player.RiotId);
+        Assert.Equal("MonkeyKing", player.Champion);
         Assert.True(player.IsBlue);
         Assert.True(player.IsDead);
         Assert.Equal(12.5, player.RespawnSeconds);
