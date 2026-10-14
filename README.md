@@ -12,6 +12,9 @@ happened. Every note waits on the timeline for the next review.
 [![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6?logo=windows&logoColor=white)](#getting-started)
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-C8AA6E.svg)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/bearylaw/tool-lol-replay-coaching-app?color=C8AA6E)](https://github.com/bearylaw/tool-lol-replay-coaching-app/releases/latest)
+
+**[Download Rift Review for Windows](https://github.com/bearylaw/tool-lol-replay-coaching-app/releases/latest/download/RiftReview.exe)**
 
 </div>
 
@@ -200,9 +203,16 @@ flowchart LR
 
 **Needs:** Windows 10 or 11 (x64) and League of Legends installed.
 
-1. Download `RiftReview.exe` from the releases, or build it (below). It is one
-   self-contained file; no installer, no .NET needed.
-2. Start it. It finds League's replay folder and creates a folder for player
+1. Download [`RiftReview.exe`](https://github.com/bearylaw/tool-lol-replay-coaching-app/releases/latest/download/RiftReview.exe)
+   from the [latest release](https://github.com/bearylaw/tool-lol-replay-coaching-app/releases/latest),
+   or build it (below). It is one self-contained file; no installer, no .NET needed.
+   Put it in a folder of its own, for example `Documents\Rift Review`.
+2. Start it. The exe is not code-signed, so on first start Windows SmartScreen says
+   *Windows protected your PC*: click **More info**, then **Run anyway**. To check the
+   download is the one GitHub built, compare its checksum with `RiftReview.exe.sha256`
+   from the release: `Get-FileHash RiftReview.exe` in PowerShell.
+
+   It finds League's replay folder and creates a folder for player
    replays next to itself (both can be changed in the settings).
 3. Pick a replay: the match view opens. **Watch in League** plays it in League;
    **Watch with overlay** adds the coaching overlay.

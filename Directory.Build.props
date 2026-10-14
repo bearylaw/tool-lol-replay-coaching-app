@@ -1,7 +1,7 @@
 <Project>
   <!-- Shared by every project. The version lives here and nowhere else. -->
   <PropertyGroup>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
     <Product>Rift Review</Product>
     <Description>Replay review for League of Legends coaches</Description>
     <Authors>bearylaw</Authors>
