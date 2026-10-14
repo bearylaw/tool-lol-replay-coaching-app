@@ -8,6 +8,9 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Copy for Discord in a match's Notes tab: the game, both teams, every
+  bookmark in time order (`- **2:23** – note`) and the free notes, as
+  Markdown on the clipboard.
 - Replay library: your own replays from the League client's folder and the
   player replays you add, with filters (all, mine, players, roster) and
   search over players, champions, file names and patch.

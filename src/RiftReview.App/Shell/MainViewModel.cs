@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using RiftReview.App.Localization;
@@ -8,6 +10,7 @@ using RiftReview.App.Replays;
 using RiftReview.App.Settings;
 using RiftReview.App.Timelines;
 using RiftReview.Core.Logging;
+using RiftReview.Core.Matches;
 using RiftReview.Launch;
 using RiftReview.Library;
 
@@ -93,6 +96,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         OpenSettingsCommand = new RelayCommand(async () => await EditSettingsAsync());
         ToggleRosterCommand = new RelayCommand(p => ToggleRoster((PlayerRowViewModel)p!), p => p is PlayerRowViewModel);
         SetFilterCommand = new RelayCommand(p => Filter = Enum.Parse<LibraryFilter>((string)p!));
+        CopyNotesCommand = new RelayCommand(CopyNotes, () => Selected is not null);
     }
 
     /// <summary>Asks the window to open the settings dialog; returns the edited settings or <c>null</c>.</summary>
@@ -215,6 +219,34 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
     public bool HasSelectedBookmarks => SelectedBookmarks.Count > 0;
 
     public System.Windows.Input.ICommand DeleteBookmarkCommand { get; }
+
+    /// <summary>Copies the selected replay's bookmarks and notes as Markdown for Discord.</summary>
+    public ICommand CopyNotesCommand { get; }
+
+    private void CopyNotes()
+    {
+        if (Selected is not { } item)
+        {
+            return;
+        }
+
+        var players = Detail?.AllPlayers.Select(p => new ExportPlayer(p.Stats.GameName, p.Champion.Label, p.Stats.Team)).ToList() ?? [];
+        var details = item.Metadata is null
+            ? string.Empty
+            : Loc.Format("Export_Details", item.Duration, item.Patch, Loc.Get(item.WinningTeam == Team.Blue ? "Scoreboard_Blue" : "Scoreboard_Red"),
+                item.Entry.ModifiedUtc.ToLocalTime().ToString("d", CultureInfo.CurrentCulture));
+        var text = NotesExport.Markdown(item.Title, details, players, bookmarks.Get(item.NoteKey), notes.Get(item.NoteKey));
+        try
+        {
+            Clipboard.SetText(text);
+            StatusText = Loc.Get("Export_Copied");
+        }
+        catch (System.Runtime.InteropServices.COMException exception)
+        {
+            log.Warning("notes.copy_failed", exception);
+            StatusText = Loc.Get("Export_CopyFailed");
+        }
+    }
 
     // A bookmark was made, edited or deleted (in the overlay or here): refresh the cards and the list.
     private void OnBookmarksChanged(string key)

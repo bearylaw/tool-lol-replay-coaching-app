@@ -697,4 +697,25 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
   <data name="Scoreboard_Note" xml:space="preserve">
     <value>Item gold is what the held items cost; League does not tell a replay how much gold a player has.</value>
   </data>
+  <data name="Export_Bookmarks" xml:space="preserve">
+    <value>Bookmarks</value>
+  </data>
+  <data name="Export_Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="Export_Details" xml:space="preserve">
+    <value>{0} · patch {1} · {2} won · {3}</value>
+  </data>
+  <data name="Export_Copy" xml:space="preserve">
+    <value>Copy for Discord</value>
+  </data>
+  <data name="Export_CopyTip" xml:space="preserve">
+    <value>Copies this game's bookmarks (sorted by time) and notes as Markdown, ready to paste into Discord.</value>
+  </data>
+  <data name="Export_Copied" xml:space="preserve">
+    <value>Notes copied. Paste them into Discord.</value>
+  </data>
+  <data name="Export_CopyFailed" xml:space="preserve">
+    <value>The notes could not be copied: another program is using the clipboard. Try again.</value>
+  </data>
 </root>

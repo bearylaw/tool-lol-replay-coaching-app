@@ -57,6 +57,19 @@ or clear when you jump.
 Ctrl+Alt+B (or the pin button) bookmarks this moment with a note. The list jumps
 to each note three seconds before it, so you see the build-up. The same notes appear
 in the replay list and the match view, next to free notes for the whole game.
+**Copy for Discord** in the match's Notes tab puts them on the clipboard as Markdown,
+sorted by time, ready to paste for your player:
+
+```text
+## Game 7000000002
+30:16 · patch 16.20 · Blue won · 14/10/2026
+**Blue:** Northwind (Ahri), Ashen Vale (Vi), …
+**Red:** Ironbark (Syndra), …
+
+**Bookmarks**
+- **2:23** – Team should have gone bot instead
+- **10:35** – Recall together for tempo
+```
 
 <p align="center">
   <img src="docs/images/ingame-timeline.jpg" alt="The overlay's control bar: timeline with deaths, turret falls and bookmarks, and the bookmark list" width="100%" />

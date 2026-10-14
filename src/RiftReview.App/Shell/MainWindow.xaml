@@ -676,7 +676,12 @@
                             <DockPanel Margin="0,12,0,16">
                                 <!-- Bookmarks made in the overlay, in time order -->
                                 <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
-                                    <TextBlock Style="{StaticResource Text.SectionTitle}" Margin="0,0,0,6" Text="{loc:Text Bookmark_Heading}" />
+                                    <DockPanel Margin="0,0,0,6">
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource Button.Ghost}" Padding="10,4"
+                                                Command="{Binding DataContext.CopyNotesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                Content="{loc:Text Export_Copy}" ToolTip="{loc:Text Export_CopyTip}" />
+                                        <TextBlock Style="{StaticResource Text.SectionTitle}" VerticalAlignment="Center" Text="{loc:Text Bookmark_Heading}" />
+                                    </DockPanel>
                                     <TextBlock Style="{StaticResource Text.Muted}" TextWrapping="Wrap" Text="{loc:Text Bookmark_NoneInApp}"
                                                Visibility="{Binding DataContext.HasSelectedBookmarks, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource HiddenWhen}}" />
                                     <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
