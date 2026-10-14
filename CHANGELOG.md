@@ -12,6 +12,9 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Setting *Tab shows League's scoreboard*: holding Tab brings up League's own
+  scoreboard instead of Rift Review's, and the overlay's bar slides up above it
+  until Tab is let go.
 - Kills and assists per player, turret takedowns, and dragons, barons, heralds
   and grubs per team, read from the replay file's packet timing.
 - Overlay timeline: objectives as lettered dots (D, B, H, G) in the colour of

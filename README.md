@@ -106,7 +106,7 @@ front.
 | Key (while League is in front) | Does |
 |---|---|
 | Space | Play / pause |
-| Tab | Scoreboard |
+| Tab | Scoreboard (or hold for League's own, with *Tab shows League's scoreboard* in the settings; the timeline slides up above it) |
 | Ctrl+Alt+B | Bookmark this moment with a note |
 | Ctrl+Alt+D | Drawing tools on / off |
 | Ctrl+Alt+Z / Ctrl+Alt+X | Undo the last drawing / clear all |

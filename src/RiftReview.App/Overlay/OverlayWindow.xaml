@@ -36,7 +36,10 @@
 
         <!-- Bottom column: bookmark list (right) and drawing tools above the control bar; stacked so
              they never cover each other or the timeline. -->
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="1120">
+        <StackPanel x:Name="BottomColumn" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="1120">
+        <StackPanel.RenderTransform>
+            <TranslateTransform x:Name="BottomShift" />
+        </StackPanel.RenderTransform>
         <!-- Scoreboard, while open (Tab): both teams at the current time -->
         <Border Style="{StaticResource Panel}" Padding="12,10" Margin="0,0,0,8" DataContext="{Binding Scoreboard}"
                 Visibility="{Binding IsOpen, Converter={StaticResource VisibleWhen}}">

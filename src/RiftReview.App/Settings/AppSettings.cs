@@ -59,6 +59,12 @@ internal sealed record OverlaySettings
     /// <summary>Clear the drawings when the replay jumps (timeline, ±10 s).</summary>
     public bool ClearDrawingsOnJump { get; init; } = true;
 
+    /// <summary>
+    /// Tab shows League's own scoreboard (held, as in a game) instead of Rift Review's; the overlay's
+    /// bar slides up above it while Tab is down.
+    /// </summary>
+    public bool UseLeagueScoreboard { get; init; }
+
     /// <summary>Seconds after which a drawing fades away, 0 for never, up to 60.</summary>
     public double DrawingFadeSeconds { get; init; }
 
