@@ -5,9 +5,9 @@
 # Rift Review
 
 **Replay review for League of Legends coaches.**
-Your replays and your players' replays in one library, every stat Riot records,
-and a coaching overlay on top of League's own replay: a timeline that shows the
-game's deaths and turrets, a scoreboard, a pen and timestamped notes.
+Rift Review is built for coaching sessions: pause your player's replay, draw the
+rotation they should have taken right on the game, and pin a note to the second it
+happened. Every note waits on the timeline for the next review.
 
 [![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6?logo=windows&logoColor=white)](#getting-started)
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
@@ -16,21 +16,93 @@ game's deaths and turrets, a scoreboard, a pen and timestamped notes.
 </div>
 
 <p align="center">
-  <img src="docs/images/library.png" alt="The replay library with a match's scoreboard" width="100%" />
+  <img src="docs/images/ingame-pen.jpg" alt="Arrows and circles drawn over a paused League replay" width="100%" />
 </p>
 
-<sub>Screenshots use real games with made-up player names.</sub>
+## Made for coaches
 
-## What it does
+A replay alone shows what happened. A coach needs to show what *should* have
+happened, and remember it for the next session with the player. That is what Rift
+Review adds on top of League's own replay:
+
+- **Draw on the game.** Arrows for rotations, circles for wards and fights, lines for
+  pathing, a highlighter for areas. The drawing sits over the live replay; pause, draw,
+  explain, clear, play on.
+- **Notes at the second they matter.** One key bookmarks the moment and opens a note
+  box; the replay pauses while you type. Each note sits on the timeline and in the
+  replay list, and one click jumps back to it.
+- **A timeline that reads the game.** Every death and every turret that fell, per team,
+  so you find the fights and the throws without scrubbing.
+- **One library for the whole team.** Your own replays and the `.rofl` files your
+  players send, with every stat Riot records.
+
+### The pen
+
+<p align="center">
+  <img src="docs/images/ingame-pen-tools.jpg" alt="The drawing tools: pointer, pen, highlighter, line, arrow, circle, eraser, colours, width, undo and clear" width="100%" />
+</p>
+
+Ctrl+Alt+D (or the pen button) opens the drawing tools: pointer, pen, highlighter,
+line, arrow (its head grows with the arrow), circle and eraser; six colours; any
+width. The pointer keeps the tools open while your clicks reach League, so you can
+move the camera between strokes. Right-click undoes; drawings can fade on their own
+or clear when you jump.
+
+### Notes and bookmarks
+
+<p align="center">
+  <img src="docs/images/ingame-notes.jpg" alt="The bookmark list over the replay, with a note per moment" width="100%" />
+</p>
+
+Ctrl+Alt+B (or the pin button) bookmarks this moment with a note. The list jumps
+to each note three seconds before it, so you see the build-up. The same notes appear
+in the replay list and the match view, next to free notes for the whole game.
+
+<p align="center">
+  <img src="docs/images/ingame-timeline.jpg" alt="The overlay's control bar: timeline with deaths, turret falls and bookmarks, and the bookmark list" width="100%" />
+</p>
+
+### Timeline and scoreboard
+
+<p align="center">
+  <img src="docs/images/ingame-scoreboard.jpg" alt="The scoreboard over the replay" width="100%" />
+</p>
+
+- **Timeline:** every death (blue above, red below), every turret that fell (a small
+  tower in the colour of the team that lost it) and your bookmarks (gold). Click or
+  drag to jump; ±10 s and 0.25× to 8×.
+- **Scoreboard (Tab):** both teams with level, K/D/A, CS and CS per minute, items,
+  ward score and the gold value of their items at this moment, with kills and towers
+  per team (dragons and barons stay on League's score bar).
+- **League's own interface** stays for what it shows best: team frames, kill
+  call-outs, objective timers, the minimap and the camera and vision panel, where
+  you choose whose vision the fog of war shows (blue, red or both).
+
+The overlay never takes the keyboard from League and hides when another program is in
+front.
+
+| Key (while League is in front) | Does |
+|---|---|
+| Space | Play / pause |
+| Tab | Scoreboard |
+| Ctrl+Alt+B | Bookmark this moment with a note |
+| Ctrl+Alt+D | Drawing tools on / off |
+| Ctrl+Alt+Z / Ctrl+Alt+X | Undo the last drawing / clear all |
+
+Ctrl+Shift combinations stay League's (for example its zoom unlock).
+
+## The library
+
+<p align="center">
+  <img src="docs/images/library.png" alt="The replay library with a match's scoreboard" width="100%" />
+</p>
 
 | | |
 |---|---|
 | **Library** | Lists your own replays and the `.rofl` files your players send. Drag files in; they are copied, never moved. Filter by mine, players or roster and search players, champions, file names and patch. |
 | **Match view** | Scoreboard with champions, levels, spells, runes, KDA, CS per minute, gold, damage and items; team comparison; charts per metric; every stat Riot records; deaths and level-ups over time. |
 | **Roster** | Star your players; their games and rows stand out everywhere. |
-| **Watch in League** | One click hands the replay to your running League client, which plays it. Warns when the replay comes from another patch. |
-| **Coaching overlay** | Rift Review's control bar on top of League's replay: its own timeline with deaths, turret falls and your bookmarks, 0.25× to 8×, ±10 s, a scoreboard (Tab), drawing tools and notes. League keeps its team frames, kill feed, objective timers and camera. |
-| **Bookmarks** | Press Ctrl+Alt+B while you watch, type a note, keep watching. Every bookmark shows on the timeline, in the replay list and in the match's notes, with its time. |
+| **Watch** | **Watch in League** hands the replay to your running League client; **Watch with overlay** adds the coaching overlay. Warns when the replay comes from another patch. |
 
 <table>
   <tr>
@@ -51,35 +123,7 @@ game's deaths and turrets, a scoreboard, a pen and timestamped notes.
   </tr>
 </table>
 
-## The coaching overlay
-
-**Watch with overlay** starts the replay in League and lays Rift Review's controls over
-the game window. The overlay never takes the keyboard from League and hides when
-another program is in front.
-
-- **Timeline:** every death (blue above, red below), every turret that fell (a small
-  tower in the colour of the team that lost it) and your bookmarks (gold). Click or
-  drag to jump.
-- **Scoreboard (Tab):** both teams with level, K/D/A, CS and CS per minute, items,
-  ward score and the gold value of their items at this moment, with kills and towers
-  per team (dragons and barons stay on League's score bar).
-- **Drawing:** pointer, pen, highlighter, line, arrow, circle and eraser, six colours,
-  any width. Right-click undoes.
-- **Bookmarks:** a note box over the game; the list jumps to each one, three seconds
-  before it.
-- **League's own interface** stays for what it shows best: team frames, kill
-  call-outs, objective timers, the minimap and the camera and vision panel, where
-  you choose whose vision the fog of war shows (blue, red or both).
-
-| Key (while League is in front) | Does |
-|---|---|
-| Space | Play / pause |
-| Tab | Scoreboard |
-| Ctrl+Alt+B | Bookmark this moment with a note |
-| Ctrl+Alt+D | Drawing tools on / off |
-| Ctrl+Alt+Z / Ctrl+Alt+X | Undo the last drawing / clear all |
-
-Ctrl+Shift combinations stay League's (for example its zoom unlock).
+<sub>The library screenshots use made-up player names.</sub>
 
 ## How it works
 

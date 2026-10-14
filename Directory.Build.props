@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Version>0.1.0</Version>
     <Product>Rift Review</Product>
+    <Description>Replay review for League of Legends coaches</Description>
     <Authors>bearylaw</Authors>
     <Copyright>Copyright (c) 2026 bearylaw</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
