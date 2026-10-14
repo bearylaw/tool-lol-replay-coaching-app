@@ -64,6 +64,10 @@ public sealed class ReplayRemote(GameApi game)
     public async Task<RenderState?> GetRenderStateAsync(CancellationToken cancellationToken) =>
         RenderStateParser.Parse(await game.GetRenderAsync(cancellationToken).ConfigureAwait(false)).TryGetValue(out var state, out _) ? state : null;
 
+    /// <summary>Selects a player as a click on them in League would (their target frame), by Riot ID game name.</summary>
+    public Task SelectAsync(string gameName, CancellationToken cancellationToken) =>
+        game.SetRenderAsync(new Dictionary<string, object> { ["selectionName"] = gameName }, cancellationToken);
+
     /// <summary>
     /// Puts the camera where <paramref name="view"/> says. League keeps a set camera only in its free
     /// camera ("fps"); the directed camera would move it straight back.

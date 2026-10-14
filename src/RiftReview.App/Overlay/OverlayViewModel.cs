@@ -146,6 +146,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     private readonly DispatcherTimer poll;
     private readonly DispatcherTimer seekDelay;
     private readonly Stopwatch sincePoll = new();
+    private readonly Stopwatch sinceJump = new();
     private Playback? playback;
     private double position;
     private double? pendingSeek;
@@ -390,6 +391,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     {
         seekDelay.Stop();
         pendingSeek = null;
+        sinceJump.Restart();
         await Send(async () =>
         {
             await remote.SetPausedAsync(true, CancellationToken.None);
@@ -404,6 +406,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(Position));
         OnPropertyChanged(nameof(TimeText));
         Drawing.Show(drawing.Strokes);
+        await SelectFocusAgainAsync();
     }
 
     // The previous or next death of the selected player, measured from where its jump would land.
@@ -431,7 +434,10 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         RenderState? state = null;
         await Send(async () => state = await remote.GetRenderStateAsync(CancellationToken.None));
         var selected = state is { SelectionName.Length: > 0 } ? IndexOfGameName(state.SelectionName) : null;
-        if (selected != focus)
+
+        // Right after a jump League has not been told the selection again yet; that is no deselect.
+        var reselecting = selected is null && sinceJump.IsRunning && sinceJump.Elapsed < TimeSpan.FromSeconds(2);
+        if (selected != focus && !reselecting)
         {
             focus = selected;
             FocusMarks = selected is { } i ? [.. deaths.Where(d => d.Player == i).Select(d => new ScrubberMark(d.Time, rows[i].Stats.Team == Team.Blue))] : [];
@@ -561,24 +567,39 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         seekDelay.Stop();
         if (pendingSeek is { } target)
         {
+            sinceJump.Restart();
             await Send(() => remote.SeekAsync(target, CancellationToken.None));
             pendingSeek = null;
-            Jumped();
+            await JumpedAsync();
         }
     }
 
     private async Task SeekByAsync(double seconds)
     {
+        sinceJump.Restart();
         await Send(() => remote.SeekAsync(Now + seconds, CancellationToken.None));
-        Jumped();
+        await JumpedAsync();
     }
 
-    // A jump shows another moment: drawings about the old one go, when set.
-    private void Jumped()
+    // A jump shows another moment: drawings about the old one go, when set. League forgets its
+    // selected player on a seek; the coach is still following them, so they are selected again.
+    private async Task JumpedAsync()
     {
         if (Settings.ClearDrawingsOnJump)
         {
             Drawing.Clear();
+        }
+
+        await SelectFocusAgainAsync();
+    }
+
+    private async Task SelectFocusAgainAsync()
+    {
+        if (focus is { } player)
+        {
+            sinceJump.Restart();
+            await Task.Delay(SettleAfterSeek);
+            await Send(() => remote.SelectAsync(rows[player].Stats.GameName, CancellationToken.None));
         }
     }
 
