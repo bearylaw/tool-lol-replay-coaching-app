@@ -12,6 +12,15 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Kills and assists per player, turret takedowns, and dragons, barons, heralds
+  and grubs per team, read from the replay file's packet timing.
+- Overlay timeline: objectives as lettered dots (D, B, H, G) in the colour of
+  the team that took them.
+- Overlay: the player selected in League has their deaths, kills, assists and
+  turret takedowns highlighted; ◀ Death / Death ▶ jumps to each death, ten
+  seconds before it.
+- A bookmark made while something is drawn keeps the drawing and League's
+  camera; jumping to it shows both again, paused at that moment.
 - Bookmark notes can be changed in a match's Notes tab, not only in the
   overlay.
 - Copy for Discord in a match's Notes tab: the game, both teams, every

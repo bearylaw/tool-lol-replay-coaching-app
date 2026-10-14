@@ -31,8 +31,12 @@ Review adds on top of League's own replay:
 - **Notes at the second they matter.** One key bookmarks the moment and opens a note
   box; the replay pauses while you type. Each note sits on the timeline and in the
   replay list, and one click jumps back to it.
-- **A timeline that reads the game.** Every death and every turret that fell, per team,
-  so you find the fights and the throws without scrubbing.
+- **A timeline that reads the game.** Every death, every turret that fell and every
+  dragon, baron, herald and grub camp, per team, so you find the fights and the throws
+  without scrubbing.
+- **One player at a time.** Select a champion in League and the timeline shows their
+  deaths, kills, assists and turret takedowns; ◀ Death / Death ▶ jumps to each death,
+  ten seconds before it.
 - **One library for the whole team.** Your own replays and the `.rofl` files your
   players send, with every stat Riot records.
 
@@ -82,8 +86,12 @@ sorted by time, ready to paste for your player:
 </p>
 
 - **Timeline:** every death (blue above, red below), every turret that fell (a small
-  tower in the colour of the team that lost it) and your bookmarks (gold). Click or
-  drag to jump; ±10 s and 0.25× to 8×.
+  tower in the colour of the team that lost it), objectives on the bar (D dragon,
+  B baron, H herald, G when the grub camp is finished, in the colour of the team that
+  took it) and your bookmarks (gold). Click or drag to jump; ±10 s and 0.25× to 8×.
+- **Selected player:** click a champion in League (their frame shows bottom left) and the
+  timeline highlights their deaths (outlined), kills (gold), assists (gold outline) and
+  turret takedowns; the others dim. ◀ Death / Death ▶ steps through their deaths.
 - **Scoreboard (Tab):** both teams with level, K/D/A, CS and CS per minute, items,
   ward score and the gold value of their items at this moment, with kills and towers
   per team (dragons and barons stay on League's score bar).
@@ -151,8 +159,9 @@ flowchart LR
 ```
 
 - **Stats** come from the metadata League writes into every replay, in plain form.
-- **Deaths, level-ups and turret falls** come from *when* the replay's packets arrive
-  and for which unit, matched against the game's own end-of-game stats. Their
+- **Deaths, level-ups, kills, assists, turret takedowns and objectives** come from
+  *when* the replay's packets arrive, in which order and for which unit, matched against
+  the game's own end-of-game stats. Their
   contents are never decoded, so this keeps working across patches; after a patch,
   `just verify-replays` confirms it on real replays.
 - **The overlay** talks only to Riot's documented local APIs while League plays the
@@ -206,7 +215,7 @@ just verify-replays "C:\Users\<you>\Documents\League of Legends\Replays"
 | Folder | Holds |
 |---|---|
 | `src/RiftReview.Core` | Replay model, ROFL reader, timeline format, logging |
-| `src/RiftReview.Timeline` | Deaths, level-ups and turret falls from the replay file |
+| `src/RiftReview.Timeline` | Deaths, level-ups, kills, turrets and objectives from the replay file |
 | `src/RiftReview.Library` | Folders, scanning, import, search |
 | `src/RiftReview.Launch` | Find League, check the build, start a replay through the client |
 | `src/RiftReview.GameData` | Data Dragon names, icons and prices, disk cache |

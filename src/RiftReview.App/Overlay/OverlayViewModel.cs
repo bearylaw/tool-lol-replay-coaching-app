@@ -155,6 +155,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     private bool pausedForNote;
     private readonly IReadOnlyList<(double Time, int Player)> deaths;
     private int? focus;
+    private readonly MatchTimeline? timeline;
 
     public OverlayViewModel(ReplayRemote remote, GameApi game, MatchTimeline? timeline, IReadOnlyList<PlayerRowViewModel> rows, Func<int, IconSlot> itemIcon, OverlaySettings settings, AppLog log, bool canEndReplay, BookmarkList? bookmarks = null, IReadOnlyDictionary<int, int>? itemPrices = null)
     {
@@ -169,6 +170,8 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         Scoreboard = new Scoreboard(Players, timeline?.TurretFalls ?? []);
         TurretMarks = [.. (timeline?.TurretFalls ?? []).Select(t => new ScrubberMark(t.Time, t.Owner == Team.Blue))];
         Marks = DeathMarksOf(timeline, rows);
+        this.timeline = timeline;
+        Objectives = TimelineMarks.Objectives(timeline);
         deaths = [.. (timeline?.Events ?? []).Where(e => e.Kind == TimelineEventKind.Death && e.Champion < rows.Count).Select(e => (e.Time, e.Champion)).OrderBy(d => d.Time)];
 
         poll = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(250) };
@@ -215,14 +218,23 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     public IReadOnlyList<ScrubberMark> TurretMarks { get; }
 
     /// <summary>The deaths of the player League has selected, highlighted on the timeline.</summary>
-    public IReadOnlyList<ScrubberMark> FocusMarks { get; private set; } = [];
+    public IReadOnlyList<FocusMark> FocusMarks { get; private set; } = [];
+
+    /// <summary>Dragons, barons, heralds and the finished grub camp, in the colour of the team that took them.</summary>
+    public IReadOnlyList<ObjectiveMark> Objectives { get; }
 
     /// <summary>A player is selected in League (their target frame shows).</summary>
     public bool HasFocus => focus is not null;
 
-    /// <summary>The selected player, for example "Volibear · BearY · 3 deaths".</summary>
+    /// <summary>The selected player with kills, deaths and assists, for example "Volibear · BearY · 3/9/5".</summary>
     public string FocusText => focus is { } i
-        ? Localization.Loc.Format("Focus_Text", rows[i].Champion.Label, rows[i].Stats.GameName, FocusMarks.Count)
+        ? Localization.Loc.Format(
+            "Focus_Text",
+            rows[i].Champion.Label,
+            rows[i].Stats.GameName,
+            FocusMarks.Count(m => m.Kind == FocusKind.Kill),
+            FocusMarks.Count(m => m.Kind == FocusKind.Death),
+            FocusMarks.Count(m => m.Kind == FocusKind.Assist))
         : string.Empty;
 
     /// <summary>Jumps to the selected player's previous death, ten seconds before it.</summary>
@@ -440,7 +452,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         if (selected != focus && !reselecting)
         {
             focus = selected;
-            FocusMarks = selected is { } i ? [.. deaths.Where(d => d.Player == i).Select(d => new ScrubberMark(d.Time, rows[i].Stats.Team == Team.Blue))] : [];
+            FocusMarks = selected is { } i ? TimelineMarks.Focus(timeline, i) : [];
             OnPropertyChanged(nameof(FocusMarks));
             OnPropertyChanged(nameof(HasFocus));
             OnPropertyChanged(nameof(FocusText));

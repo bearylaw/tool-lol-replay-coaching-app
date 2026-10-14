@@ -281,7 +281,7 @@
                             ToolTip="{loc:Text Overlay_EndTip}" AutomationProperties.Name="{loc:Text Overlay_EndTip}"
                             Visibility="{Binding CanEndReplay, Converter={StaticResource VisibleWhen}}" />
                 </StackPanel>
-                <viewer:TimelineScrubber Margin="12,0,0,0" Duration="{Binding Duration}" Position="{Binding Position}" Marks="{Binding Marks}" FocusMarks="{Binding FocusMarks}" Turrets="{Binding TurretMarks}" Bookmarks="{Binding Bookmarks.Times}" />
+                <viewer:TimelineScrubber Margin="12,0,0,0" Duration="{Binding Duration}" Position="{Binding Position}" Marks="{Binding Marks}" FocusMarks="{Binding FocusMarks}" Objectives="{Binding Objectives}" Turrets="{Binding TurretMarks}" Bookmarks="{Binding Bookmarks.Times}" />
             </DockPanel>
         </Border>
         </StackPanel>

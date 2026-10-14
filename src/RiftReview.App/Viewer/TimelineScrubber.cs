@@ -7,6 +7,31 @@ namespace RiftReview.App.Viewer;
 /// <summary>A mark on the scrubber, for example a death; drawn above the track for blue, below for red.</summary>
 internal sealed record ScrubberMark(double Time, bool IsBlue);
 
+/// <summary>What a highlighted mark of the selected player is.</summary>
+internal enum FocusKind
+{
+    /// <summary>The player died; drawn on their team's side.</summary>
+    Death,
+
+    /// <summary>The player killed someone; drawn on the victim's side.</summary>
+    Kill,
+
+    /// <summary>The player assisted a kill; drawn on the victim's side.</summary>
+    Assist,
+
+    /// <summary>The player took part in destroying a turret; drawn where the turret is.</summary>
+    Turret,
+}
+
+/// <summary>A mark of the selected player; <paramref name="IsBlue"/> is the side it is drawn on.</summary>
+internal sealed record FocusMark(double Time, FocusKind Kind, bool IsBlue);
+
+/// <summary>An objective taken, on the track itself in the colour of the team that took it.</summary>
+/// <param name="Time">Game time in seconds.</param>
+/// <param name="Letter">The objective's initial, for example D for a dragon.</param>
+/// <param name="IsBlue">Blue took it.</param>
+internal sealed record ObjectiveMark(double Time, string Letter, bool IsBlue);
+
 /// <summary>
 /// The playback bar: track, played part, event marks and a handle. Click or drag anywhere to seek;
 /// <see cref="Position"/> binds two-way.
@@ -30,7 +55,10 @@ internal sealed class TimelineScrubber : FrameworkElement
         nameof(Bookmarks), typeof(IReadOnlyList<double>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty FocusMarksProperty = DependencyProperty.Register(
-        nameof(FocusMarks), typeof(IReadOnlyList<ScrubberMark>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+        nameof(FocusMarks), typeof(IReadOnlyList<FocusMark>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public static readonly DependencyProperty ObjectivesProperty = DependencyProperty.Register(
+        nameof(Objectives), typeof(IReadOnlyList<ObjectiveMark>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
     private const double Inset = 8;
 
@@ -46,6 +74,8 @@ internal sealed class TimelineScrubber : FrameworkElement
     private static readonly Brush Bookmark = Frozen(Color.FromRgb(0xF0, 0xD9, 0xA4));
     private static readonly Pen TowerOutline = FrozenPen(Color.FromRgb(0xF4, 0xF6, 0xFA), 1.2);
     private static readonly Pen FocusOutline = FrozenPen(Color.FromRgb(0xF0, 0xD9, 0xA4), 1.2);
+    private static readonly Pen FocusTower = FrozenPen(Color.FromRgb(0xF0, 0xD9, 0xA4), 2.2);
+    private static readonly Pen ObjectiveOutline = FrozenPen(Color.FromRgb(0x0B, 0x10, 0x18), 1.5);
 
     public TimelineScrubber()
     {
@@ -85,10 +115,17 @@ internal sealed class TimelineScrubber : FrameworkElement
     /// The selected player's deaths: drawn tall with a light outline while the other deaths dim, so
     /// one player's game reads at a glance.
     /// </summary>
-    public IReadOnlyList<ScrubberMark>? FocusMarks
+    public IReadOnlyList<FocusMark>? FocusMarks
     {
-        get => (IReadOnlyList<ScrubberMark>?)GetValue(FocusMarksProperty);
+        get => (IReadOnlyList<FocusMark>?)GetValue(FocusMarksProperty);
         set => SetValue(FocusMarksProperty, value);
+    }
+
+    /// <summary>Dragons, barons, heralds and the finished grub camp, as lettered dots on the track.</summary>
+    public IReadOnlyList<ObjectiveMark>? Objectives
+    {
+        get => (IReadOnlyList<ObjectiveMark>?)GetValue(ObjectivesProperty);
+        set => SetValue(ObjectivesProperty, value);
     }
 
     /// <summary>Times of the coach's bookmarks, drawn as tall gold marks with a dot on top.</summary>
@@ -114,8 +151,10 @@ internal sealed class TimelineScrubber : FrameworkElement
 
         foreach (var turret in Turrets ?? [])
         {
-            DrawTower(drawingContext, Inset + (width * Share(turret.Time)), turret.IsBlue ? middle - 18 : middle + 5, turret.IsBlue ? Blue : Red);
+            DrawTower(drawingContext, Inset + (width * Share(turret.Time)), turret.IsBlue ? middle - 18 : middle + 5, turret.IsBlue ? Blue : Red, TowerOutline);
         }
+
+        DrawObjectives(drawingContext, width, middle);
 
         foreach (var time in Bookmarks ?? [])
         {
@@ -143,13 +182,42 @@ internal sealed class TimelineScrubber : FrameworkElement
         {
             var x = Inset + (width * Share(mark.Time));
             var top = mark.IsBlue ? middle - 18 : middle + 4;
-            context.DrawRectangle(mark.IsBlue ? Blue : Red, FocusOutline, new Rect(x - 2, top, 4, 14));
+            var side = mark.IsBlue ? Blue : Red;
+            switch (mark.Kind)
+            {
+                case FocusKind.Death:
+                    context.DrawRectangle(side, FocusOutline, new Rect(x - 2, top, 4, 14));
+                    break;
+                case FocusKind.Kill:
+                    context.DrawRectangle(Bookmark, null, new Rect(x - 2, top, 4, 14));
+                    break;
+                case FocusKind.Assist:
+                    context.DrawRectangle(null, FocusOutline, new Rect(x - 2, top, 4, 14));
+                    break;
+                default:
+                    DrawTower(context, x, mark.IsBlue ? middle - 18 : middle + 5, side, FocusTower);
+                    break;
+            }
         }
     }
 
+    private void DrawObjectives(DrawingContext context, double width, double middle)
+    {
+        var dpi = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+        foreach (var objective in Objectives ?? [])
+        {
+            var centre = new Point(Inset + (width * Share(objective.Time)), middle);
+            context.DrawEllipse(objective.IsBlue ? Blue : Red, ObjectiveOutline, centre, 6.5, 6.5);
+            var letter = new FormattedText(objective.Letter, System.Globalization.CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, LetterFace, 9, Brushes.White, dpi);
+            context.DrawText(letter, new Point(centre.X - (letter.Width / 2), centre.Y - (letter.Height / 2)));
+        }
+    }
+
+    private static readonly Typeface LetterFace = new(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
+
     // A tower 11 wide and 13 high from (x, top): battlements on a body, with a light outline so it
     // reads as an icon next to the thin death ticks.
-    private static void DrawTower(DrawingContext context, double x, double top, Brush fill)
+    private static void DrawTower(DrawingContext context, double x, double top, Brush fill, Pen outline)
     {
         var tower = new StreamGeometry();
         using (var g = tower.Open())
@@ -167,7 +235,7 @@ internal sealed class TimelineScrubber : FrameworkElement
         }
 
         tower.Freeze();
-        context.DrawGeometry(fill, TowerOutline, tower);
+        context.DrawGeometry(fill, outline, tower);
     }
 
     protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
