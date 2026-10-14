@@ -373,7 +373,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         await Send(async () =>
         {
             // The overlay replaces League's scoreboard and time controls; the rest stays League's.
-            await remote.SetLeagueInterfaceAsync(LeagueInterface.ReplayControls, !Settings.HideLeagueControls, CancellationToken.None);
+            await remote.SetLeagueInterfaceAsync(LeagueInterface.ReplayControls, !(Settings.HideLeagueControls && Settings.ShowOwnTimeline), CancellationToken.None);
             await remote.SetLeagueInterfaceAsync(LeagueInterface.CameraPanel, !Settings.HideLeagueCameraPanel, CancellationToken.None);
             await remote.SetLeagueInterfaceAsync(LeagueInterface.Scoreboard, false, CancellationToken.None);
             await remote.SetLeagueInterfaceAsync(LeagueInterface.Chat, false, CancellationToken.None);

@@ -58,6 +58,7 @@ internal sealed class SettingsEditor : ObservableObject
         private readonly ToggleRow clearDrawingsOnJump;
         private readonly RangeRow drawingFade;
         private readonly ToggleRow showOwnScoreboard;
+        private readonly ToggleRow showOwnTimeline;
 
         public Rows(AppSettings settings)
         {
@@ -66,6 +67,7 @@ internal sealed class SettingsEditor : ObservableObject
 
             var overlay = settings.Overlay;
             overlayScale = new RangeRow(Loc.Get("Settings_OverlayScale"), Loc.Get("Settings_OverlayScaleHint"), overlay.Scale * 100, (60, 160, 10), Percent);
+            showOwnTimeline = new ToggleRow(Loc.Get("Settings_ShowOwnTimeline"), Loc.Get("Settings_ShowOwnTimelineHint"), overlay.ShowOwnTimeline);
             showOwnScoreboard = new ToggleRow(Loc.Get("Settings_ShowOwnScoreboard"), Loc.Get("Settings_ShowOwnScoreboardHint"), overlay.ShowOwnScoreboard);
             hideLeagueControls = new ToggleRow(Loc.Get("Settings_HideLeagueControls"), Loc.Get("Settings_HideLeagueControlsHint"), overlay.HideLeagueControls);
             hideLeagueCameraPanel = new ToggleRow(Loc.Get("Settings_HideLeagueCameraPanel"), Loc.Get("Settings_HideLeagueCameraPanelHint"), overlay.HideLeagueCameraPanel);
@@ -77,7 +79,7 @@ internal sealed class SettingsEditor : ObservableObject
                 v => v == 0 ? Loc.Get("Settings_Never") : Seconds(v));
             Overlay =
             [
-                new HeadingRow(Loc.Get("Settings_OverlayPanels")), overlayScale, showOwnScoreboard,
+                new HeadingRow(Loc.Get("Settings_OverlayPanels")), overlayScale, showOwnTimeline, showOwnScoreboard,
                 new HeadingRow(Loc.Get("Settings_Drawing")), pauseWhenDrawing, clearDrawingsOnJump, drawingFade,
                 new HeadingRow(Loc.Get("Settings_Bookmarks")), pauseWhileNoting,
                 new HeadingRow(Loc.Get("Settings_OverlayLeague")), directedCamera, hideLeagueControls, hideLeagueCameraPanel,
@@ -102,6 +104,7 @@ internal sealed class SettingsEditor : ObservableObject
                 HideLeagueControls = hideLeagueControls.IsOn,
                 HideLeagueCameraPanel = hideLeagueCameraPanel.IsOn,
                 ShowOwnScoreboard = showOwnScoreboard.IsOn,
+                ShowOwnTimeline = showOwnTimeline.IsOn,
             },
         };
     }

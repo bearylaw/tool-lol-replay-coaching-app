@@ -31,6 +31,9 @@ internal sealed partial class OverlayWindow : Window
     private bool scoreboardToggled;
     private bool shifted;
     private ScreenRect? placed;
+
+    // The game window's height in 1080-pixel units: League's own interface grows with it.
+    private double leagueScale = 1;
     private NoteWindow? note;
 
     public OverlayWindow(OverlayViewModel viewModel)
@@ -49,6 +52,12 @@ internal sealed partial class OverlayWindow : Window
         tabWatch.Tick += (_, _) => WatchTab();
         Loaded += (_, _) =>
         {
+            // Without Rift Review's timeline the panels above it sit over League's time controls instead.
+            if (!viewModel.Settings.ShowOwnTimeline)
+            {
+                BottomColumn.Margin = new Thickness(0, 0, 0, (LeagueControlsHeight + 8 - 12) / viewModel.Settings.Scale);
+            }
+
             Track();
             track.Start();
         };
@@ -99,10 +108,16 @@ internal sealed partial class OverlayWindow : Window
         {
             placed = game;
             NativeMethods.SetWindowPos(Handle, TopmostWindow, game.Left, game.Top, game.Width, game.Height, NoActivateFlag);
-            var pixelsPerDip = System.Windows.Media.VisualTreeHelper.GetDpi(this).DpiScaleY;
-            var scale = ((OverlayViewModel)DataContext).Settings.Scale * Math.Max(0.5, game.Height / pixelsPerDip / DesignHeight);
+            var dpi = System.Windows.Media.VisualTreeHelper.GetDpi(this);
+            leagueScale = Math.Max(0.5, game.Height / dpi.DpiScaleY / DesignHeight);
+            var scale = ((OverlayViewModel)DataContext).Settings.Scale * leagueScale;
             PanelScale.ScaleX = scale;
             PanelScale.ScaleY = scale;
+
+            // League's time controls are centred at the bottom; the small bar sits just right of them.
+            LeagueBarScale.ScaleX = scale;
+            LeagueBarScale.ScaleY = scale;
+            LeagueBar.Margin = new Thickness((game.Width / dpi.DpiScaleX / 2) + ((LeagueControlsHalfWidth + 10) * leagueScale), 0, 0, LeagueBarBottom * leagueScale);
         }
 
     }
@@ -135,6 +150,12 @@ internal sealed partial class OverlayWindow : Window
     // League's Tab scoreboard covers the bottom 231 of 1080 pixels of the game window (16.20, measured
     // at 308 of 1440); the bottom column, 12 above the bottom, slides up past it with a small gap.
     private const double LeagueScoreboardHeight = 231 + 8 - 12;
+
+    // League's time controls: 721 by 74 of 1080 pixels, centred at the bottom (16.20, measured at
+    // 962 by 98 of 1440). The small bar replacing Rift Review's sits beside them, this far up.
+    private const double LeagueControlsHalfWidth = 361;
+    private const double LeagueControlsHeight = 74;
+    private const double LeagueBarBottom = 16;
     private static readonly Duration Slide = new(TimeSpan.FromMilliseconds(180));
 
     // League shows its scoreboard at the bottom while Tab is held, and from one O to the next; the
@@ -158,9 +179,15 @@ internal sealed partial class OverlayWindow : Window
 
         // The column is scaled with the overlay's own size setting; League's scoreboard is not.
         var to = shift ? -LeagueScoreboardHeight / ViewModel.Settings.Scale : 0;
+        var ease = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
         BottomShift.BeginAnimation(
             System.Windows.Media.TranslateTransform.YProperty,
-            new System.Windows.Media.Animation.DoubleAnimation(to, Slide) { EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut } });
+            new System.Windows.Media.Animation.DoubleAnimation(to, Slide) { EasingFunction = ease });
+
+        // The small bar is outside the scaled panels: it moves in window units.
+        LeagueBarShift.BeginAnimation(
+            System.Windows.Media.TranslateTransform.YProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(shift ? -(LeagueScoreboardHeight + 12 - LeagueBarBottom) * leagueScale : 0, Slide) { EasingFunction = ease });
     }
 
     private const int HotKeyMessage = 0x0312;

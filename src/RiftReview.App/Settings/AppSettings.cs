@@ -51,7 +51,13 @@ internal sealed record OverlaySettings
     /// </summary>
     public bool ShowOwnScoreboard { get; init; }
 
-    /// <summary>Hide League's replay controls and timeline; the overlay's bar replaces them.</summary>
+    /// <summary>
+    /// Rift Review's timeline and control bar at the bottom. Off, League's own time controls show and
+    /// a small bar next to them keeps bookmark, bookmark list, pen, close and end replay.
+    /// </summary>
+    public bool ShowOwnTimeline { get; init; } = true;
+
+    /// <summary>Hide League's replay controls and timeline while Rift Review's timeline shows.</summary>
     public bool HideLeagueControls { get; init; } = true;
 
     /// <summary>Hide League's camera and vision panel at the bottom left (it holds the team fog choice).</summary>

@@ -465,7 +465,7 @@ Switch it on? Rift Review adds the line EnableReplayApi=1 to League's game.cfg a
     <value>Hide League's timeline</value>
   </data>
   <data name="Settings_HideLeagueControlsHint" xml:space="preserve">
-    <value>The overlay's control bar replaces it.</value>
+    <value>Rift Review's timeline replaces it. With Rift Review's timeline off, League's always shows.</value>
   </data>
   <data name="Settings_HideLeagueCameraPanel" xml:space="preserve">
     <value>Hide League's camera and vision panel</value>
@@ -891,5 +891,11 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
   </data>
   <data name="Moment_Grubs" xml:space="preserve">
     <value>{0} voidgrubs</value>
+  </data>
+  <data name="Settings_ShowOwnTimeline" xml:space="preserve">
+    <value>Rift Review's timeline</value>
+  </data>
+  <data name="Settings_ShowOwnTimelineHint" xml:space="preserve">
+    <value>The control bar at the bottom with Rift Review's timeline (deaths, turrets, objectives, tags, the hover card). Off, League's own time controls show, with a small bar next to them for bookmarks, the pen, close and end replay.</value>
   </data>
 </root>

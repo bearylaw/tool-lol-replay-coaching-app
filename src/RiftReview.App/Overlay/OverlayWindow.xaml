@@ -282,8 +282,9 @@
             </Border>
         </Canvas>
 
-        <!-- Control bar, bottom centre -->
-        <Border Style="{StaticResource Panel}" Padding="10,8">
+        <!-- Control bar, bottom centre; off in the settings, League's own time controls take its place -->
+        <Border Style="{StaticResource Panel}" Padding="10,8"
+                Visibility="{Binding Settings.ShowOwnTimeline, Converter={StaticResource VisibleWhen}}">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Style="{StaticResource Button.Ghost}" Padding="10,6" FontFamily="{StaticResource Font.Numbers}" Content="{loc:Text Overlay_Back}"
@@ -311,12 +312,12 @@
                                   ToolTip="{loc:Text Scoreboard_Tip}" AutomationProperties.Name="{loc:Text Scoreboard_Tip}">
                         <Path Data="M0,0 H16 M0,5 H16 M0,10 H16 M5,-2 V12" Stroke="{StaticResource Brush.Text}" StrokeThickness="1.6" Margin="0,2,0,0" />
                     </ToggleButton>
+                    <ToggleButton Margin="4,0,0,0" Style="{StaticResource Overlay.Toggle}" Content="&#xED63;" IsChecked="{Binding Drawing.IsOn, Mode=OneWay}"
+                                  Command="{Binding Drawing.ToggleCommand}" ToolTip="{loc:Text Draw_Toggle}" AutomationProperties.Name="{loc:Text Draw_Toggle}" />
                     <Button Margin="4,0,0,0" Style="{StaticResource Button.Icon}" Padding="8,6" Content="&#xE718;" Command="{Binding AddBookmarkCommand}"
                             ToolTip="{loc:Text Bookmark_AddTip}" AutomationProperties.Name="{loc:Text Bookmark_AddTip}" />
                     <ToggleButton Margin="4,0,0,0" Style="{StaticResource Overlay.Toggle}" Content="&#xE8FD;" IsChecked="{Binding ShowBookmarks, Mode=OneWay}"
                                   Command="{Binding ShowBookmarksCommand}" ToolTip="{loc:Text Bookmark_ListTip}" AutomationProperties.Name="{loc:Text Bookmark_ListTip}" />
-                    <ToggleButton Margin="4,0,0,0" Style="{StaticResource Overlay.Toggle}" Content="&#xED63;" IsChecked="{Binding Drawing.IsOn, Mode=OneWay}"
-                                  Command="{Binding Drawing.ToggleCommand}" ToolTip="{loc:Text Draw_Toggle}" AutomationProperties.Name="{loc:Text Draw_Toggle}" />
                     <Button Margin="4,0,0,0" Style="{StaticResource Button.Icon}" Padding="8,6" Content="&#xE8BB;" Command="{Binding CloseCommand}"
                             ToolTip="{loc:Text Overlay_CloseTip}" AutomationProperties.Name="{loc:Text Overlay_CloseTip}" />
                     <Button Margin="4,0,0,0" Style="{StaticResource Button.Icon}" Padding="8,6" Content="&#xE71A;" Command="{Binding EndReplayCommand}"
@@ -327,6 +328,33 @@
             </DockPanel>
         </Border>
         </StackPanel>
+    </Grid>
+
+    <!-- With Rift Review's timeline off: a small bar right of League's time controls, placed in code;
+         the same buttons in the same order as the control bar's right end -->
+    <Grid x:Name="LeagueBar" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+          Visibility="{Binding Settings.ShowOwnTimeline, Converter={StaticResource HiddenWhen}}">
+        <Grid.RenderTransform>
+            <TranslateTransform x:Name="LeagueBarShift" />
+        </Grid.RenderTransform>
+    <Border Style="{StaticResource Panel}" Padding="6,5">
+        <Border.LayoutTransform>
+            <ScaleTransform x:Name="LeagueBarScale" />
+        </Border.LayoutTransform>
+        <StackPanel Orientation="Horizontal">
+            <ToggleButton Style="{StaticResource Overlay.Toggle}" Content="&#xED63;" IsChecked="{Binding Drawing.IsOn, Mode=OneWay}"
+                          Command="{Binding Drawing.ToggleCommand}" ToolTip="{loc:Text Draw_Toggle}" AutomationProperties.Name="{loc:Text Draw_Toggle}" />
+            <Button Margin="4,0,0,0" Style="{StaticResource Button.Icon}" Padding="8,6" Content="&#xE718;" Command="{Binding AddBookmarkCommand}"
+                    ToolTip="{loc:Text Bookmark_AddTip}" AutomationProperties.Name="{loc:Text Bookmark_AddTip}" />
+            <ToggleButton Margin="4,0,0,0" Style="{StaticResource Overlay.Toggle}" Content="&#xE8FD;" IsChecked="{Binding ShowBookmarks, Mode=OneWay}"
+                          Command="{Binding ShowBookmarksCommand}" ToolTip="{loc:Text Bookmark_ListTip}" AutomationProperties.Name="{loc:Text Bookmark_ListTip}" />
+            <Button Margin="4,0,0,0" Style="{StaticResource Button.Icon}" Padding="8,6" Content="&#xE8BB;" Command="{Binding CloseCommand}"
+                    ToolTip="{loc:Text Overlay_CloseTip}" AutomationProperties.Name="{loc:Text Overlay_CloseTip}" />
+            <Button Margin="4,0,0,0" Style="{StaticResource Button.Icon}" Padding="8,6" Content="&#xE71A;" Command="{Binding EndReplayCommand}"
+                    ToolTip="{loc:Text Overlay_EndTip}" AutomationProperties.Name="{loc:Text Overlay_EndTip}"
+                    Visibility="{Binding CanEndReplay, Converter={StaticResource VisibleWhen}}" />
+        </StackPanel>
+    </Border>
     </Grid>
     </Grid>
 </Window>

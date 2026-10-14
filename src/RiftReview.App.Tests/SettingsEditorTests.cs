@@ -20,6 +20,7 @@ public sealed class SettingsEditorTests
             PauseWhenDrawing = false,
             ClearDrawingsOnJump = false,
             DrawingFadeSeconds = 12,
+            ShowOwnTimeline = false,
         },
     };
 

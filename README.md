@@ -111,6 +111,9 @@ their own overlay. Sharing again later brings your changes; the player's own not
   B baron, H herald, G when the grub camp is finished, in the colour of the team that
   took it) and your bookmarks (in their tag's colour, gold without one). Click or drag
   to jump; ±10 s and 0.25× to 8×.
+- **Prefer League's own timeline?** Turn off *Rift Review's timeline* in the overlay
+  settings: the replay opens with League's time controls, and a small bar right of them
+  keeps the pen, bookmark, bookmark list, close overlay and end replay buttons.
 - **Hover a mark** and a card lists the whole fight around it: who killed whom and who
   helped, who destroyed which turret, who took the dragon, Baron, Herald or voidgrubs.
 - **Selected player:** click a champion in League (their frame shows bottom left) and the

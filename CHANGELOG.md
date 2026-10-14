@@ -32,7 +32,9 @@ screen or the game's memory, or types into the game (decision 0008).
   bookmarks in their tag's colour; click or drag to seek, play and pause
   (also Space, Ctrl+Space or Shift+Space), ±10 s, 0.25× to 8×. Hovering a mark shows the fight around
   it: who killed whom (with the assists), who destroyed which turret, who
-  took which objective.
+  took which objective. Setting *Rift Review's timeline* (on by default):
+  off, League's own time controls show, with a small bar beside them for the
+  pen, bookmark, bookmark list, close overlay and end replay.
 - **Selected player:** click a champion in League and the timeline highlights
   their deaths, kills, assists and turret takedowns; ◀ Death / Death ▶ and
   ◀ Kill / Kill ▶ jump to each, ten seconds before it.
