@@ -49,6 +49,7 @@ internal sealed class SettingsStore(string filePath, AppLog log)
             ["roster"] = new JsonArray([.. settings.Roster.Select(id => (JsonNode?)JsonValue.Create(id))]),
             ["interfaceScale"] = settings.InterfaceScale,
             ["overlay"] = JsonSerializer.SerializeToNode(settings.Overlay, Sections),
+            ["tags"] = JsonSerializer.SerializeToNode(settings.Tags, Sections),
         };
 
         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
@@ -67,7 +68,8 @@ internal sealed class SettingsStore(string filePath, AppLog log)
         }
 
         // Version 0 (no version field) had the same keys as version 1. Version 2 added the
-        // interface scale and the overlay section; missing ones take their defaults.
+        // interface scale and the overlay section, version 3 the bookmark tags; missing ones take
+        // their defaults.
         root["version"] = AppSettings.CurrentVersion;
         return root;
     }
@@ -82,6 +84,7 @@ internal sealed class SettingsStore(string filePath, AppLog log)
             : [],
         InterfaceScale = root["interfaceScale"]?.GetValue<double>() ?? defaults.InterfaceScale,
         Overlay = Section(root, "overlay", defaults.Overlay),
+        Tags = Section<BookmarkTag[]>(root, "tags", [.. defaults.Tags]),
     };
 
     // A section that cannot be read falls back to its defaults alone; the folders and roster stay.

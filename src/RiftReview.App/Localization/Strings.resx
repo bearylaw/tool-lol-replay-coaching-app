@@ -429,7 +429,7 @@ Switch it on? Rift Review adds the line EnableReplayApi=1 to League's game.cfg a
     <value>Reset to defaults</value>
   </data>
   <data name="Settings_ResetHint" xml:space="preserve">
-    <value>Puts display, viewer and capture settings back to their defaults. Folders and roster stay.</value>
+    <value>Puts display and overlay settings back to their defaults. Folders, roster and tags stay.</value>
   </data>
   <data name="Settings_Percent" xml:space="preserve">
     <value>{0} %</value>
@@ -611,7 +611,7 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
     <value>Bookmark note</value>
   </data>
   <data name="Bookmark_Keys" xml:space="preserve">
-    <value>Enter saves · Shift+Enter new line · Esc cancels</value>
+    <value>Enter saves · Shift+Enter new line · Ctrl+1–9 tag · Esc cancels</value>
   </data>
   <data name="Bookmark_New" xml:space="preserve">
     <value>Bookmark at {0}</value>
@@ -768,5 +768,95 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
   </data>
   <data name="Settings_ShowOwnScoreboardHint" xml:space="preserve">
     <value>A button next to the timeline opens Rift Review's scoreboard (item gold, CS per minute). Off, League's scoreboard (hold Tab, or O) is the only one.</value>
+  </data>
+  <data name="Tag_Mistake" xml:space="preserve">
+    <value>Mistake</value>
+  </data>
+  <data name="Tag_GoodPlay" xml:space="preserve">
+    <value>Good play</value>
+  </data>
+  <data name="Tag_Vision" xml:space="preserve">
+    <value>Vision</value>
+  </data>
+  <data name="Tag_Macro" xml:space="preserve">
+    <value>Macro</value>
+  </data>
+  <data name="Tag_Laning" xml:space="preserve">
+    <value>Laning</value>
+  </data>
+  <data name="Tag_New" xml:space="preserve">
+    <value>New tag</value>
+  </data>
+  <data name="Tag_Shortcut" xml:space="preserve">
+    <value>Ctrl+Alt+{0}</value>
+  </data>
+  <data name="Bookmark_Flash" xml:space="preserve">
+    <value>Bookmarked</value>
+  </data>
+  <data name="Export_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Settings_TabTags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="Settings_Tags" xml:space="preserve">
+    <value>Bookmark tags</value>
+  </data>
+  <data name="Settings_TagsHint" xml:space="preserve">
+    <value>In the overlay, Ctrl+Alt+1 to 9 bookmark the moment with the tag in that place, without a note; the note box and the Notes tab can tag any bookmark. Each tag colours its bookmarks on the timeline and groups them in the Discord export. Renaming or recolouring a tag changes it on every bookmark.</value>
+  </data>
+  <data name="Settings_TagColour" xml:space="preserve">
+    <value>Colour</value>
+  </data>
+  <data name="Settings_TagName" xml:space="preserve">
+    <value>Tag name</value>
+  </data>
+  <data name="Settings_TagRemove" xml:space="preserve">
+    <value>Remove tag (its bookmarks stay, untagged)</value>
+  </data>
+  <data name="Settings_TagUp" xml:space="preserve">
+    <value>Move up</value>
+  </data>
+  <data name="Settings_TagDown" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="Settings_TagAdd" xml:space="preserve">
+    <value>Add tag</value>
+  </data>
+  <data name="Dialog_ShareReviewTitle" xml:space="preserve">
+    <value>Share review</value>
+  </data>
+  <data name="Dialog_ImportReviewTitle" xml:space="preserve">
+    <value>Import reviews</value>
+  </data>
+  <data name="Dialog_ReviewFilter" xml:space="preserve">
+    <value>Rift Review reviews</value>
+  </data>
+  <data name="Review_Share" xml:space="preserve">
+    <value>Share review</value>
+  </data>
+  <data name="Review_ShareTip" xml:space="preserve">
+    <value>Saves this replay's bookmarks, drawings, tags and notes as a .riftreview file. A player with Rift Review and the same replay imports it and sees your bookmarks and drawings in their overlay.</value>
+  </data>
+  <data name="Review_Import" xml:space="preserve">
+    <value>Import review</value>
+  </data>
+  <data name="Review_ImportTip" xml:space="preserve">
+    <value>Opens .riftreview files someone shared and adds their bookmarks, drawings and notes to the replay they belong to (you can also drop them on the window).</value>
+  </data>
+  <data name="Review_Shared" xml:space="preserve">
+    <value>Saved {0} bookmarks to {1}</value>
+  </data>
+  <data name="Review_ShareFailed" xml:space="preserve">
+    <value>The review could not be saved: {0}</value>
+  </data>
+  <data name="Review_Unreadable" xml:space="preserve">
+    <value>{0} is not a review this version of Rift Review can read.</value>
+  </data>
+  <data name="Review_Imported" xml:space="preserve">
+    <value>Review imported into {2}: {0} new bookmarks, {1} updated</value>
+  </data>
+  <data name="Review_ImportedNoReplay" xml:space="preserve">
+    <value>Review of {2} imported: {0} new bookmarks, {1} updated. They show once that replay is in your library.</value>
   </data>
 </root>

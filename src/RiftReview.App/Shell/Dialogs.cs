@@ -20,6 +20,31 @@ internal sealed class Dialogs(Func<Window?> owner)
         return dialog.ShowDialog(owner()) == true ? dialog.FileNames : [];
     }
 
+    /// <summary>Asks where to save a review file; <c>null</c> when cancelled.</summary>
+    public string? PickReviewToSave(string fileName)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = Loc.Get("Dialog_ShareReviewTitle"),
+            Filter = Loc.Get("Dialog_ReviewFilter") + "|*" + Settings.ReviewShare.Extension,
+            FileName = fileName,
+            DefaultExt = Settings.ReviewShare.Extension,
+        };
+        return dialog.ShowDialog(owner()) == true ? dialog.FileName : null;
+    }
+
+    /// <summary>Lets the coach pick review files; empty when cancelled.</summary>
+    public IReadOnlyList<string> PickReviewsToImport()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = Loc.Get("Dialog_ImportReviewTitle"),
+            Filter = Loc.Get("Dialog_ReviewFilter") + "|*" + Settings.ReviewShare.Extension,
+            Multiselect = true,
+        };
+        return dialog.ShowDialog(owner()) == true ? dialog.FileNames : [];
+    }
+
     /// <summary>Lets the coach pick a folder; <c>null</c> when cancelled.</summary>
     public string? PickFolder(string title, string? initialFolder)
     {

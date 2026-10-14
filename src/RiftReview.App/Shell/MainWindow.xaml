@@ -92,7 +92,7 @@
                             <DataTemplate DataType="{x:Type replays:BookmarkLine}">
                                 <DockPanel Margin="0,2,0,0">
                                     <TextBlock DockPanel.Dock="Left" Width="44" FontSize="12" FontFamily="{StaticResource Font.Numbers}"
-                                               Foreground="{StaticResource Brush.GoldBright}" Text="{Binding Time}" />
+                                               Foreground="{Binding Colour}" Text="{Binding Time}" />
                                     <TextBlock FontSize="12" Foreground="{StaticResource Brush.Text}" Text="{Binding Text}" TextTrimming="CharacterEllipsis" />
                                 </DockPanel>
                             </DataTemplate>
@@ -677,9 +677,17 @@
                                 <!-- Bookmarks made in the overlay, in time order -->
                                 <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
                                     <DockPanel Margin="0,0,0,6">
-                                        <Button DockPanel.Dock="Right" Style="{StaticResource Button.Ghost}" Padding="10,4"
-                                                Command="{Binding DataContext.CopyNotesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                Content="{loc:Text Export_Copy}" ToolTip="{loc:Text Export_CopyTip}" />
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                            <Button Style="{StaticResource Button.Ghost}" Padding="10,4"
+                                                    Command="{Binding DataContext.ImportReviewCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    Content="{loc:Text Review_Import}" ToolTip="{loc:Text Review_ImportTip}" />
+                                            <Button Margin="6,0,0,0" Style="{StaticResource Button.Ghost}" Padding="10,4"
+                                                    Command="{Binding DataContext.ShareReviewCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    Content="{loc:Text Review_Share}" ToolTip="{loc:Text Review_ShareTip}" />
+                                            <Button Margin="6,0,0,0" Style="{StaticResource Button.Ghost}" Padding="10,4"
+                                                    Command="{Binding DataContext.CopyNotesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    Content="{loc:Text Export_Copy}" ToolTip="{loc:Text Export_CopyTip}" />
+                                        </StackPanel>
                                         <TextBlock Style="{StaticResource Text.SectionTitle}" VerticalAlignment="Center" Text="{loc:Text Bookmark_Heading}" />
                                     </DockPanel>
                                     <TextBlock Style="{StaticResource Text.Muted}" TextWrapping="Wrap" Text="{loc:Text Bookmark_NoneInApp}"
@@ -695,6 +703,19 @@
                                                                     ToolTip="{loc:Text Bookmark_Delete}" AutomationProperties.Name="{loc:Text Bookmark_Delete}" />
                                                             <TextBlock DockPanel.Dock="Left" Width="52" FontFamily="{StaticResource Font.Numbers}" FontSize="14"
                                                                        VerticalAlignment="Center" Foreground="{StaticResource Brush.GoldBright}" Text="{Binding Time}" />
+                                                            <!-- The tags as coloured dots; the bookmark's own is ringed, a click switches it -->
+                                                            <ItemsControl DockPanel.Dock="Right" Margin="8,0,4,0" VerticalAlignment="Center" Focusable="False"
+                                                                          ItemsSource="{Binding Tags.Options}">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate DataType="{x:Type replays:TagChoice}">
+                                                                        <ToggleButton Style="{StaticResource Tag.Dot}" IsChecked="{Binding IsSelected}" Background="{Binding Colour}"
+                                                                                      ToolTip="{Binding Name}" AutomationProperties.Name="{Binding Name}" />
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
                                                             <TextBox Style="{StaticResource Input}" FontSize="14" TextWrapping="Wrap" AcceptsReturn="False"
                                                                      ToolTip="{loc:Text Bookmark_EditInApp}" AutomationProperties.Name="{loc:Text Bookmark_EditInApp}"
                                                                      Text="{Binding Text, UpdateSourceTrigger=LostFocus}" />

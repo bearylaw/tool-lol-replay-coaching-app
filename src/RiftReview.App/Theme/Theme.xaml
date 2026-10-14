@@ -163,6 +163,59 @@
         </Setter>
     </Style>
 
+    <!-- A bookmark tag that can be switched on and off: a coloured dot and the name -->
+    <Style x:Key="Tag.Chip" TargetType="ToggleButton">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="{StaticResource Brush.TextMuted}" />
+        <Setter Property="Margin" Value="0,0,6,6" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Root" CornerRadius="12" Padding="9,3" Background="Transparent"
+                            BorderBrush="{StaticResource Brush.Border}" BorderThickness="1">
+                        <ContentPresenter VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource Brush.SurfaceRaised}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource Brush.Gold}" />
+                            <Setter Property="Foreground" Value="{StaticResource Brush.Text}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource Brush.Text}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A bookmark tag as a dot in its colour (Background): ringed while on, faint while off -->
+    <Style x:Key="Tag.Dot" TargetType="ToggleButton">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Width" Value="22" />
+        <Setter Property="Height" Value="22" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid Background="Transparent">
+                        <Ellipse x:Name="Ring" Width="20" Height="20" Stroke="{StaticResource Brush.GoldBright}" StrokeThickness="1.5" Visibility="Hidden" />
+                        <Ellipse x:Name="Dot" Width="12" Height="12" Fill="{TemplateBinding Background}" Opacity="0.35" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Ring" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Dot" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Dot" Property="Opacity" Value="1" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Inputs -->
     <Style x:Key="Input" TargetType="TextBox">
         <Setter Property="Foreground" Value="{StaticResource Brush.Text}" />

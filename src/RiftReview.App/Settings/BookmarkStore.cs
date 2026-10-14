@@ -9,7 +9,8 @@ namespace RiftReview.App.Settings;
 /// <param name="Text">The note; may be empty.</param>
 /// <param name="CreatedUtc">When the bookmark was made.</param>
 /// <param name="Drawing">The camera and what the coach had drawn when making it, brought back on a jump to it.</param>
-internal sealed record Bookmark(Guid Id, double Time, string Text, DateTimeOffset CreatedUtc, BookmarkDrawing? Drawing = null);
+/// <param name="Tag">The id of the coach's <see cref="BookmarkTag"/>; <c>null</c> for none.</param>
+internal sealed record Bookmark(Guid Id, double Time, string Text, DateTimeOffset CreatedUtc, BookmarkDrawing? Drawing = null, string? Tag = null);
 
 /// <summary>
 /// One stroke of a saved drawing. The points are x, y pairs as shares of the overlay's width and
@@ -65,6 +66,31 @@ internal sealed class BookmarkStore
 
         list.RemoveAll(b => b.Id == bookmark.Id);
         list.Add(bookmark);
+        Save(key);
+    }
+
+    /// <summary>Adds bookmarks or replaces those with the same ids, writing the file once.</summary>
+    public void PutAll(string key, IEnumerable<Bookmark> bookmarks)
+    {
+        ArgumentNullException.ThrowIfNull(bookmarks);
+        var added = bookmarks.ToList();
+        if (added.Count == 0)
+        {
+            return;
+        }
+
+        if (!replays.TryGetValue(key, out var list))
+        {
+            list = [];
+            replays[key] = list;
+        }
+
+        foreach (var bookmark in added)
+        {
+            list.RemoveAll(b => b.Id == bookmark.Id);
+            list.Add(bookmark);
+        }
+
         Save(key);
     }
 

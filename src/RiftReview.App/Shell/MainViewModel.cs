@@ -97,6 +97,8 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         ToggleRosterCommand = new RelayCommand(p => ToggleRoster((PlayerRowViewModel)p!), p => p is PlayerRowViewModel);
         SetFilterCommand = new RelayCommand(p => Filter = Enum.Parse<LibraryFilter>((string)p!));
         CopyNotesCommand = new RelayCommand(CopyNotes, () => Selected is not null);
+        ShareReviewCommand = new RelayCommand(ShareReview, () => Selected is not null);
+        ImportReviewCommand = new RelayCommand(() => ImportReviews(dialogs.PickReviewsToImport()));
     }
 
     /// <summary>Asks the window to open the settings dialog; returns the edited settings or <c>null</c>.</summary>
@@ -235,7 +237,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
             ? string.Empty
             : Loc.Format("Export_Details", item.Duration, item.Patch, Loc.Get(item.WinningTeam == Team.Blue ? "Scoreboard_Blue" : "Scoreboard_Red"),
                 item.Entry.ModifiedUtc.ToLocalTime().ToString("d", CultureInfo.CurrentCulture));
-        var text = NotesExport.Markdown(item.Title, details, players, bookmarks.Get(item.NoteKey), notes.Get(item.NoteKey));
+        var text = NotesExport.Markdown(item.Title, details, players, bookmarks.Get(item.NoteKey), notes.Get(item.NoteKey), settings.Tags);
         try
         {
             Clipboard.SetText(text);
@@ -248,19 +250,109 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Saves the selected replay's bookmarks, drawings and notes as a file to send to a player.</summary>
+    public ICommand ShareReviewCommand { get; }
+
+    /// <summary>Opens review files someone sent and adds them to their replays.</summary>
+    public ICommand ImportReviewCommand { get; }
+
+    private void ShareReview()
+    {
+        if (Selected is not { } item || dialogs.PickReviewToSave(ReviewShare.FileName(item.Title)) is not { } path)
+        {
+            return;
+        }
+
+        var saved = bookmarks.Get(item.NoteKey);
+        try
+        {
+            File.WriteAllText(path, ReviewShare.Write(item.NoteKey, item.Title, notes.Get(item.NoteKey), saved, settings.Tags));
+            log.Info("review.shared", ("bookmarks", saved.Count));
+            StatusText = Loc.Format("Review_Shared", saved.Count, Path.GetFileName(path));
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            log.Warning("review.share_failed", exception);
+            dialogs.Error(Loc.Format("Review_ShareFailed", exception.Message));
+        }
+    }
+
+    /// <summary>
+    /// Adds shared reviews to the replays they belong to: their bookmarks, new tags and notes. A
+    /// review of a replay not in the library is kept and shows once the replay is added.
+    /// </summary>
+    public void ImportReviews(IReadOnlyList<string> paths)
+    {
+        ArgumentNullException.ThrowIfNull(paths);
+        foreach (var path in paths)
+        {
+            ImportReview(path);
+        }
+    }
+
+    private void ImportReview(string path)
+    {
+        SharedReview? review;
+        try
+        {
+            review = ReviewShare.Read(File.ReadAllText(path));
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            log.Warning("review.unreadable", exception);
+            review = null;
+        }
+
+        if (review is null)
+        {
+            dialogs.Error(Loc.Format("Review_Unreadable", Path.GetFileName(path)));
+            return;
+        }
+
+        var import = ReviewShare.Merge(review, settings.Tags, bookmarks.Get(review.Key), notes.Get(review.Key));
+        if (import.Tags.Count != settings.Tags.Count)
+        {
+            settings = settings with { Tags = import.Tags };
+            settingsStore.Save(settings);
+        }
+
+        notes.Set(review.Key, import.Note);
+        bookmarks.PutAll(review.Key, import.Bookmarks);
+        log.Info("review.imported", ("added", import.Added), ("updated", import.Updated));
+
+        var replay = allItems.FirstOrDefault(i => string.Equals(i.NoteKey, review.Key, StringComparison.OrdinalIgnoreCase));
+        if (replay is null)
+        {
+            StatusText = Loc.Format("Review_ImportedNoReplay", import.Added, import.Updated, review.Title);
+            return;
+        }
+
+        StatusText = Loc.Format("Review_Imported", import.Added, import.Updated, replay.Title);
+        if (ReferenceEquals(Selected, replay))
+        {
+            ShowDetail(replay);
+        }
+        else
+        {
+            Filter = LibraryFilter.All;
+            SearchText = string.Empty;
+            Selected = replay;
+        }
+    }
+
     // A bookmark was made, edited or deleted (in the overlay or here): refresh the cards and the list.
     private void OnBookmarksChanged(string key)
     {
         var saved = bookmarks.Get(key);
         foreach (var item in allItems.Where(i => string.Equals(i.NoteKey, key, StringComparison.OrdinalIgnoreCase)))
         {
-            item.SetBookmarks(saved);
+            item.SetBookmarks(saved, settings.Tags);
         }
 
         if (Selected is not null && string.Equals(Selected.NoteKey, key, StringComparison.OrdinalIgnoreCase))
         {
             // An edit made here is already shown; rebuilding would take the focus from the next note box.
-            if (!saved.Select(b => (b.Id, b.Time, b.Text)).SequenceEqual(SelectedBookmarks.Select(e => (e.Bookmark.Id, e.Bookmark.Time, e.Bookmark.Text))))
+            if (!saved.Select(b => (b.Id, b.Time, b.Text, b.Tag)).SequenceEqual(SelectedBookmarks.Select(e => (e.Bookmark.Id, e.Bookmark.Time, e.Bookmark.Text, e.Bookmark.Tag))))
             {
                 SelectedBookmarks = Editable(key, saved);
             }
@@ -268,7 +360,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     private List<BookmarkEdit> Editable(string key, IReadOnlyList<Bookmark> saved) =>
-        [.. saved.Select(b => new BookmarkEdit(b, changed => bookmarks.Put(key, changed)))];
+        [.. saved.Select(b => new BookmarkEdit(b, changed => bookmarks.Put(key, changed), settings.Tags))];
 
     /// <summary>The coach's note on the selected replay; saved when the text box loses focus.</summary>
     public string NoteText
@@ -402,7 +494,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         allItems = [.. all.Select(e => new ReplayItemViewModel(e)).OrderByDescending(i => i.Entry.ModifiedUtc)];
         foreach (var item in allItems)
         {
-            item.SetBookmarks(bookmarks.Get(item.NoteKey));
+            item.SetBookmarks(bookmarks.Get(item.NoteKey), settings.Tags);
             item.UpdateRoster(settings.IsOnRoster);
             item.Compatibility = item.Metadata is null ? Compatibility.Unknown : PlaybackCompatibility.Check(item.Metadata.Version, installation?.Version);
         }
@@ -525,7 +617,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         }
 
         var catalog = await icons.GetCatalogAsync(detail.Metadata.Version);
-        var marks = Selected is { } replay ? new Overlay.BookmarkList(bookmarks, replay.NoteKey) : null;
+        var marks = Selected is { } replay ? new Overlay.BookmarkList(bookmarks, replay.NoteKey, settings.Tags) : null;
         await overlay.OpenAsync(detail.LoadedTimeline, detail.AllPlayers, detail.ItemIcon, settings.Overlay, installation!, StartInClientAsync, text => StatusText = text, marks, catalog?.ItemPrices);
     }
 
@@ -663,6 +755,11 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         settingsStore.Save(settings);
         log.Info("settings.saved", ("roster", settings.Roster.Count));
         OnPropertyChanged(nameof(InterfaceScale));
+        if (!previous.Tags.SequenceEqual(settings.Tags))
+        {
+            ShowTags();
+        }
+
         if (previous.OwnReplaysFolder == settings.OwnReplaysFolder
             && previous.PlayerReplaysFolder == settings.PlayerReplaysFolder
             && previous.LeagueInstallOverride == settings.LeagueInstallOverride
@@ -674,6 +771,20 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         LocateInstall();
         WatchFolders();
         await RefreshAsync();
+    }
+
+    // The tags changed: the cards and the Notes tab show the new names and colours.
+    private void ShowTags()
+    {
+        foreach (var item in allItems)
+        {
+            item.SetBookmarks(bookmarks.Get(item.NoteKey), settings.Tags);
+        }
+
+        if (Selected is { } selected)
+        {
+            SelectedBookmarks = Editable(selected.NoteKey, bookmarks.Get(selected.NoteKey));
+        }
     }
 
     private void ToggleRoster(PlayerRowViewModel player)

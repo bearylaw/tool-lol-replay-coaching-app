@@ -12,13 +12,19 @@ namespace RiftReview.App.Replays;
 /// <summary>A bookmark as a line of text: game time and note.</summary>
 /// <param name="Bookmark">The stored bookmark.</param>
 /// <param name="Time">Game time, for example 12:34.</param>
-/// <param name="Text">The note, or a placeholder when it has none.</param>
-internal sealed record BookmarkLine(Settings.Bookmark Bookmark, string Time, string Text)
+/// <param name="Text">The note, else the tag's name, else a placeholder.</param>
+/// <param name="Colour">The tag's colour, gold without one.</param>
+internal sealed record BookmarkLine(Settings.Bookmark Bookmark, string Time, string Text, System.Windows.Media.Brush Colour)
 {
-    public static BookmarkLine From(Settings.Bookmark bookmark) => new(
-        bookmark,
-        MatchFormat.Duration(TimeSpan.FromSeconds(bookmark.Time)),
-        bookmark.Text.Length == 0 ? Loc.Get("Bookmark_NoText") : bookmark.Text.ReplaceLineEndings(" "));
+    public static BookmarkLine From(Settings.Bookmark bookmark, IReadOnlyList<Settings.BookmarkTag> tags)
+    {
+        var tag = tags.FirstOrDefault(t => t.Id == bookmark.Tag);
+        return new(
+            bookmark,
+            MatchFormat.Duration(TimeSpan.FromSeconds(bookmark.Time)),
+            bookmark.Text.Length > 0 ? bookmark.Text.ReplaceLineEndings(" ") : tag?.Name ?? Loc.Get("Bookmark_NoText"),
+            Theme.TagBrushes.Of(tag));
+    }
 }
 
 /// <summary>One card in the replay list.</summary>
@@ -89,10 +95,10 @@ internal sealed class ReplayItemViewModel : ObservableObject
         private set => SetProperty(ref moreBookmarks, value);
     }
 
-    public void SetBookmarks(IReadOnlyList<Settings.Bookmark> bookmarks)
+    public void SetBookmarks(IReadOnlyList<Settings.Bookmark> bookmarks, IReadOnlyList<Settings.BookmarkTag> tags)
     {
         ArgumentNullException.ThrowIfNull(bookmarks);
-        BookmarkLines = [.. bookmarks.Take(BookmarksOnCard).Select(BookmarkLine.From)];
+        BookmarkLines = [.. bookmarks.Take(BookmarksOnCard).Select(b => BookmarkLine.From(b, tags))];
         MoreBookmarks = bookmarks.Count > BookmarksOnCard ? Loc.Format("Bookmark_More", bookmarks.Count - BookmarksOnCard) : string.Empty;
     }
 

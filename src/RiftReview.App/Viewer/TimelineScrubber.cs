@@ -26,6 +26,9 @@ internal enum FocusKind
 /// <summary>A mark of the selected player; <paramref name="IsBlue"/> is the side it is drawn on.</summary>
 internal sealed record FocusMark(double Time, FocusKind Kind, bool IsBlue);
 
+/// <summary>A bookmark on the scrubber, in its tag's colour.</summary>
+internal sealed record BookmarkMark(double Time, Brush Colour);
+
 /// <summary>An objective taken, on the track itself in the colour of the team that took it.</summary>
 /// <param name="Time">Game time in seconds.</param>
 /// <param name="Letter">The objective's initial, for example D for a dragon.</param>
@@ -52,7 +55,7 @@ internal sealed class TimelineScrubber : FrameworkElement
         nameof(Turrets), typeof(IReadOnlyList<ScrubberMark>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty BookmarksProperty = DependencyProperty.Register(
-        nameof(Bookmarks), typeof(IReadOnlyList<double>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+        nameof(Bookmarks), typeof(IReadOnlyList<BookmarkMark>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty FocusMarksProperty = DependencyProperty.Register(
         nameof(FocusMarks), typeof(IReadOnlyList<FocusMark>), typeof(TimelineScrubber), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
@@ -71,7 +74,7 @@ internal sealed class TimelineScrubber : FrameworkElement
     private static readonly Brush Handle = Frozen(Color.FromRgb(0xF0, 0xD9, 0xA4));
     private static readonly Brush Blue = Frozen(Color.FromRgb(0x3D, 0x9B, 0xFF));
     private static readonly Brush Red = Frozen(Color.FromRgb(0xE8, 0x50, 0x5B));
-    private static readonly Brush Bookmark = Frozen(Color.FromRgb(0xF0, 0xD9, 0xA4));
+    private static readonly Brush Gold = Frozen(Color.FromRgb(0xF0, 0xD9, 0xA4));
     private static readonly Pen TowerOutline = FrozenPen(Color.FromRgb(0xF4, 0xF6, 0xFA), 1.2);
     private static readonly Pen FocusOutline = FrozenPen(Color.FromRgb(0xF0, 0xD9, 0xA4), 1.2);
     private static readonly Pen FocusTower = FrozenPen(Color.FromRgb(0xF0, 0xD9, 0xA4), 2.2);
@@ -128,10 +131,10 @@ internal sealed class TimelineScrubber : FrameworkElement
         set => SetValue(ObjectivesProperty, value);
     }
 
-    /// <summary>Times of the coach's bookmarks, drawn as tall gold marks with a dot on top.</summary>
-    public IReadOnlyList<double>? Bookmarks
+    /// <summary>The coach's bookmarks, drawn as tall marks with a dot on top in their tag's colour.</summary>
+    public IReadOnlyList<BookmarkMark>? Bookmarks
     {
-        get => (IReadOnlyList<double>?)GetValue(BookmarksProperty);
+        get => (IReadOnlyList<BookmarkMark>?)GetValue(BookmarksProperty);
         set => SetValue(BookmarksProperty, value);
     }
 
@@ -151,11 +154,11 @@ internal sealed class TimelineScrubber : FrameworkElement
         DrawFocus(drawingContext, width, middle);
         DrawObjectives(drawingContext, width, middle);
 
-        foreach (var time in Bookmarks ?? [])
+        foreach (var mark in Bookmarks ?? [])
         {
-            var x = Inset + (width * Share(time));
-            drawingContext.DrawRectangle(Bookmark, null, new Rect(x - 1, middle - 16, 2, 32));
-            drawingContext.DrawEllipse(Bookmark, null, new Point(x, middle - 16), 3, 3);
+            var x = Inset + (width * Share(mark.Time));
+            drawingContext.DrawRectangle(mark.Colour, null, new Rect(x - 1, middle - 16, 2, 32));
+            drawingContext.DrawEllipse(mark.Colour, null, new Point(x, middle - 16), 3, 3);
         }
 
         drawingContext.DrawEllipse(Handle, null, new Point(Inset + (width * Share(Position)), middle), 7, 7);
@@ -193,7 +196,7 @@ internal sealed class TimelineScrubber : FrameworkElement
                     context.DrawRectangle(side, FocusOutline, new Rect(x - 2, top, 4, 14));
                     break;
                 case FocusKind.Kill:
-                    context.DrawRectangle(Bookmark, null, new Rect(x - 2, top, 4, 14));
+                    context.DrawRectangle(Gold, null, new Rect(x - 2, top, 4, 14));
                     break;
                 case FocusKind.Assist:
                     context.DrawRectangle(null, FocusOutline, new Rect(x - 2, top, 4, 14));

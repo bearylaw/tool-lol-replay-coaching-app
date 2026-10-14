@@ -161,6 +161,9 @@
                                         <TextBlock DockPanel.Dock="Left" Margin="6,0,0,0" VerticalAlignment="Center" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
                                                    Foreground="{StaticResource Brush.GoldBright}" Text="&#xED63;" ToolTip="{loc:Text Bookmark_HasDrawing}"
                                                    Visibility="{Binding HasDrawing, Converter={StaticResource VisibleWhen}}" />
+                                        <TextBlock DockPanel.Dock="Left" Margin="8,0,0,0" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="{Binding Colour}" Text="{Binding TagName}"
+                                                   Visibility="{Binding TagName, Converter={StaticResource VisibleWhen}}" />
                                         <TextBlock Margin="8,0" VerticalAlignment="Center" FontSize="13" TextWrapping="Wrap" Text="{Binding Text}" />
                                     </DockPanel>
                                 </Border>
@@ -248,6 +251,16 @@
             </StackPanel>
         </Border>
 
+        <!-- A tagged bookmark was made (Ctrl+Alt+1 to 9): its tag and time, for two seconds -->
+        <Border Style="{StaticResource Panel}" Padding="12,5" HorizontalAlignment="Center" Margin="0,0,0,8"
+                Visibility="{Binding Flash, Converter={StaticResource VisibleWhen}}">
+            <StackPanel Orientation="Horizontal">
+                <Ellipse Width="10" Height="10" VerticalAlignment="Center" Fill="{Binding FlashColour}" />
+                <TextBlock Margin="8,0,0,0" FontSize="13" Text="{loc:Text Bookmark_Flash}" Foreground="{StaticResource Brush.TextMuted}" />
+                <TextBlock Margin="6,0,0,0" FontSize="13" Text="{Binding Flash}" />
+            </StackPanel>
+        </Border>
+
         <!-- Control bar, bottom centre -->
         <Border Style="{StaticResource Panel}" Padding="10,8">
             <DockPanel>
@@ -289,7 +302,7 @@
                             ToolTip="{loc:Text Overlay_EndTip}" AutomationProperties.Name="{loc:Text Overlay_EndTip}"
                             Visibility="{Binding CanEndReplay, Converter={StaticResource VisibleWhen}}" />
                 </StackPanel>
-                <viewer:TimelineScrubber Margin="12,0,0,0" Duration="{Binding Duration}" Position="{Binding Position}" Marks="{Binding Marks}" FocusMarks="{Binding FocusMarks}" Objectives="{Binding Objectives}" Turrets="{Binding TurretMarks}" Bookmarks="{Binding Bookmarks.Times}" />
+                <viewer:TimelineScrubber Margin="12,0,0,0" Duration="{Binding Duration}" Position="{Binding Position}" Marks="{Binding Marks}" FocusMarks="{Binding FocusMarks}" Objectives="{Binding Objectives}" Turrets="{Binding TurretMarks}" Bookmarks="{Binding Bookmarks.Marks}" />
             </DockPanel>
         </Border>
         </StackPanel>

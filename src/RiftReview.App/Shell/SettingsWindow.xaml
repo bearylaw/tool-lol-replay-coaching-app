@@ -138,6 +138,71 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- Bookmark tags: shortcut, colour, name; reorder, remove, add -->
+            <TabItem Header="{loc:Text Settings_TabTags}">
+                <ScrollViewer Style="{StaticResource Page}">
+                    <StackPanel DataContext="{Binding Tags}">
+                        <TextBlock Style="{StaticResource Text.SectionTitle}" Margin="0,16,0,0" Text="{loc:Text Settings_Tags}" />
+                        <TextBlock Style="{StaticResource Text.Muted}" Margin="0,6,0,10" TextWrapping="Wrap" Text="{loc:Text Settings_TagsHint}" />
+                        <ItemsControl ItemsSource="{Binding Rows}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type settings:TagRow}">
+                                    <DockPanel Margin="0,0,0,6">
+                                        <TextBlock DockPanel.Dock="Left" Width="86" VerticalAlignment="Center" FontFamily="{StaticResource Font.Numbers}"
+                                                   Foreground="{StaticResource Brush.TextMuted}" Text="{Binding Shortcut}" />
+                                        <Grid DockPanel.Dock="Left" Margin="0,0,10,0">
+                                            <ToggleButton x:Name="Swatch" Style="{StaticResource Overlay.Toggle}" Padding="0" IsChecked="{Binding IsPickerOpen}"
+                                                          ToolTip="{loc:Text Settings_TagColour}" AutomationProperties.Name="{loc:Text Settings_TagColour}">
+                                                <Ellipse Width="16" Height="16" Fill="{Binding Brush}" />
+                                            </ToggleButton>
+                                            <Popup IsOpen="{Binding IsPickerOpen}" StaysOpen="False" PlacementTarget="{Binding ElementName=Swatch}" Placement="Bottom"
+                                                   AllowsTransparency="True">
+                                                <Border Margin="0,4,0,0" Padding="8" CornerRadius="6" Background="{StaticResource Brush.SurfaceRaised}"
+                                                        BorderBrush="{StaticResource Brush.Border}" BorderThickness="1">
+                                                    <ItemsControl Width="186" ItemsSource="{Binding Palette}" Focusable="False">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate DataType="{x:Type settings:ColourOption}">
+                                                                <Button Margin="3" Width="24" Height="24" Cursor="Hand" Background="{Binding Brush}" ToolTip="{Binding Colour}"
+                                                                        AutomationProperties.Name="{Binding Colour}"
+                                                                        Command="{Binding DataContext.PickCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}">
+                                                                    <Button.Template>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Ellipse Fill="{TemplateBinding Background}" />
+                                                                        </ControlTemplate>
+                                                                    </Button.Template>
+                                                                </Button>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource Button.Icon}" Padding="8,6" Content="&#xE74D;"
+                                                Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                                ToolTip="{loc:Text Settings_TagRemove}" AutomationProperties.Name="{loc:Text Settings_TagRemove}" />
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource Button.Icon}" Padding="8,6" Content="&#xE74B;"
+                                                IsEnabled="{Binding CanMoveDown}"
+                                                Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                                ToolTip="{loc:Text Settings_TagDown}" AutomationProperties.Name="{loc:Text Settings_TagDown}" />
+                                        <Button DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource Button.Icon}" Padding="8,6" Content="&#xE74A;"
+                                                IsEnabled="{Binding CanMoveUp}"
+                                                Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                                ToolTip="{loc:Text Settings_TagUp}" AutomationProperties.Name="{loc:Text Settings_TagUp}" />
+                                        <TextBox Style="{StaticResource Input}" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                                 AutomationProperties.Name="{loc:Text Settings_TagName}" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Button HorizontalAlignment="Left" Margin="86,6,0,0" Style="{StaticResource Button.Ghost}" Content="{loc:Text Settings_TagAdd}"
+                                Command="{Binding AddCommand}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
         </TabControl>
     </DockPanel>
 </Window>

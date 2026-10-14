@@ -4,7 +4,7 @@ namespace RiftReview.App.Settings;
 internal sealed record AppSettings
 {
     /// <summary>The schema version written to disk; bump it and add a migration step when the shape changes.</summary>
-    public const int CurrentVersion = 2;
+    public const int CurrentVersion = 3;
 
     /// <summary>The League client's replay folder.</summary>
     public required string OwnReplaysFolder { get; init; }
@@ -24,6 +24,9 @@ internal sealed record AppSettings
     /// <summary>The overlay on League's replay window.</summary>
     public OverlaySettings Overlay { get; init; } = new();
 
+    /// <summary>The labels for bookmarks, in shortcut order (Ctrl+Alt+1 is the first).</summary>
+    public IReadOnlyList<BookmarkTag> Tags { get; init; } = BookmarkTag.Defaults;
+
     /// <summary>Whether a Riot ID belongs to the roster, ignoring case.</summary>
     public bool IsOnRoster(string riotId) => Roster.Contains(riotId, StringComparer.OrdinalIgnoreCase);
 
@@ -32,6 +35,7 @@ internal sealed record AppSettings
     {
         InterfaceScale = Math.Clamp(InterfaceScale, 0.8, 1.25),
         Overlay = Overlay.Normalized(),
+        Tags = BookmarkTag.Normalized(Tags),
     };
 }
 

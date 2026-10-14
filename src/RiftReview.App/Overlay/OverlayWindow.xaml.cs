@@ -109,9 +109,10 @@ internal sealed partial class OverlayWindow : Window
     private OverlayViewModel ViewModel => (OverlayViewModel)DataContext;
 
     // Shortcuts while League is in front (the overlay never takes the keyboard): Space pause/play,
-    // Ctrl+Alt+D draw on/off, Ctrl+Alt+Z undo, Ctrl+Alt+X clear, Ctrl+Alt+B bookmark. Registered only while the game is
-    // in front, so Space and the combinations work normally in every other program; Ctrl+Shift is
-    // left to League (its replay keys, such as unlocking the zoom).
+    // Ctrl+Alt+D draw on/off, Ctrl+Alt+Z undo, Ctrl+Alt+X clear, Ctrl+Alt+B bookmark, Ctrl+Alt+1 to 9
+    // a bookmark with the tag in that place. Registered only while the game is in front, so Space
+    // and the combinations work normally in every other program; Ctrl+Shift is left to League (its
+    // replay keys, such as unlocking the zoom).
     private static readonly Dictionary<int, (uint Modifiers, uint Key, Action<OverlayViewModel> Run)> Shortcuts = new()
     {
         [1] = (ControlAlt, 0x44, vm => vm.Drawing.IsOn = !vm.Drawing.IsOn),
@@ -120,6 +121,10 @@ internal sealed partial class OverlayWindow : Window
         [4] = (NoRepeat, 0x20, vm => vm.PlayPauseCommand.Execute(null)),
         [5] = (ControlAlt, 0x42, vm => vm.AddBookmarkCommand.Execute(null)),
     };
+
+    // Ctrl+Alt+1 to 9: hotkey ids from here, keys from the digit 1.
+    private const int FirstTagShortcut = 100;
+    private const uint DigitOne = 0x31;
 
     private const int TabKey = 0x09;
     private const int OKey = 0x4F;
@@ -168,10 +173,13 @@ internal sealed partial class OverlayWindow : Window
         }
 
         shortcutsOn = on;
-        foreach (var (id, shortcut) in Shortcuts)
+        var tags = Math.Min(ViewModel.Bookmarks?.Tags.Count ?? 0, Settings.BookmarkTag.WithShortcut);
+        var all = Shortcuts.Select(s => (Id: s.Key, s.Value.Modifiers, s.Value.Key))
+            .Concat(Enumerable.Range(0, tags).Select(i => (Id: FirstTagShortcut + i, Modifiers: ControlAlt, Key: DigitOne + (uint)i)));
+        foreach (var (id, modifiers, key) in all)
         {
             // Another program may own a combination already; that shortcut then stays unused.
-            _ = on ? NativeMethods.RegisterHotKey(Handle, id, shortcut.Modifiers, shortcut.Key) : NativeMethods.UnregisterHotKey(Handle, id);
+            _ = on ? NativeMethods.RegisterHotKey(Handle, id, modifiers, key) : NativeMethods.UnregisterHotKey(Handle, id);
         }
     }
 
@@ -180,6 +188,11 @@ internal sealed partial class OverlayWindow : Window
         if (message == HotKeyMessage && Shortcuts.TryGetValue(wParam.ToInt32(), out var shortcut))
         {
             shortcut.Run(ViewModel);
+            handled = true;
+        }
+        else if (message == HotKeyMessage && wParam.ToInt32() - FirstTagShortcut is >= 0 and < Settings.BookmarkTag.WithShortcut and var tag)
+        {
+            _ = ViewModel.AddTaggedBookmarkAsync(tag);
             handled = true;
         }
 
@@ -198,13 +211,14 @@ internal sealed partial class OverlayWindow : Window
 
         var time = Replays.MatchFormat.Duration(TimeSpan.FromSeconds(request.Time));
         var heading = request.Existing is null ? Localization.Loc.Format("Bookmark_New", time) : Localization.Loc.Format("Bookmark_Edit", time);
-        note = new NoteWindow(heading, request.Existing?.Text ?? string.Empty) { Owner = this };
+        var tags = new Replays.TagChoices(ViewModel.Bookmarks?.Tags ?? [], request.Existing?.Bookmark.Tag);
+        note = new NoteWindow(heading, request.Existing?.Text ?? string.Empty, tags) { Owner = this };
         note.Loaded += (_, _) =>
         {
             note.Left = Left + ((ActualWidth - note.ActualWidth) / 2);
             note.Top = Top + ActualHeight - note.ActualHeight - (160 * PanelScale.ScaleY);
         };
-        note.Done += async (_, text) =>
+        note.Done += async (_, result) =>
         {
             note = null;
             if (GameWindow.FindHandle() is { } game && game != IntPtr.Zero)
@@ -212,7 +226,7 @@ internal sealed partial class OverlayWindow : Window
                 NativeMethods.SetForegroundWindow(game);
             }
 
-            await ViewModel.FinishNoteAsync(request, text);
+            await ViewModel.FinishNoteAsync(request, result);
         };
         note.Show();
     }

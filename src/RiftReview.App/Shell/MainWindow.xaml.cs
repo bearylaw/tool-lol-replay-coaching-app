@@ -4,7 +4,7 @@ using System.Windows.Interop;
 
 namespace RiftReview.App.Shell;
 
-/// <summary>The main window. Handles what XAML cannot: dropped files and the dark title bar.</summary>
+/// <summary>The main window. Handles what XAML cannot: dropped replays and reviews, and the dark title bar.</summary>
 internal sealed partial class MainWindow : Window
 {
     public MainWindow(MainViewModel viewModel)
@@ -24,10 +24,12 @@ internal sealed partial class MainWindow : Window
 
     private async void OnDrop(object sender, DragEventArgs e)
     {
-        // async void: a UI event boundary; ImportAsync reports its own failures.
+        // async void: a UI event boundary; the imports report their own failures. Replays first, so a
+        // review dropped with its replay finds it.
         if (e.Data.GetData(DataFormats.FileDrop) is string[] paths)
         {
             await ViewModel.ImportAsync([.. paths.Where(p => p.EndsWith(".rofl", StringComparison.OrdinalIgnoreCase))]);
+            ViewModel.ImportReviews([.. paths.Where(p => p.EndsWith(Settings.ReviewShare.Extension, StringComparison.OrdinalIgnoreCase))]);
         }
     }
 }

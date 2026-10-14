@@ -1,7 +1,11 @@
 using System.Windows;
 using System.Windows.Input;
+using RiftReview.App.Replays;
 
 namespace RiftReview.App.Overlay;
+
+/// <summary>What the note box returned: the note and the chosen tag's id.</summary>
+internal sealed record NoteResult(string Text, string? Tag);
 
 /// <summary>
 /// The note box of a bookmark. Unlike the overlay it takes the keyboard while it is open, so the
@@ -9,11 +13,14 @@ namespace RiftReview.App.Overlay;
 /// </summary>
 internal sealed partial class NoteWindow : Window
 {
+    private readonly TagChoices tags;
     private bool saved;
 
-    public NoteWindow(string heading, string text)
+    public NoteWindow(string heading, string text, TagChoices tags)
     {
         InitializeComponent();
+        this.tags = tags;
+        TagList.DataContext = tags;
         Heading.Text = heading;
         Note.Text = text;
         Loaded += (_, _) =>
@@ -33,12 +40,17 @@ internal sealed partial class NoteWindow : Window
         };
     }
 
-    /// <summary>Raised once when the box closes: the note, or <c>null</c> when cancelled.</summary>
-    public event EventHandler<string?>? Done;
+    /// <summary>Raised once when the box closes: the note and tag, or <c>null</c> when cancelled.</summary>
+    public event EventHandler<NoteResult?>? Done;
 
     private void OnNoteKey(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Escape)
+        if (Keyboard.Modifiers == ModifierKeys.Control && e.Key is >= Key.D1 and <= Key.D9)
+        {
+            tags.Toggle(e.Key - Key.D1);
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Escape)
         {
             Finish(save: false);
             e.Handled = true;
@@ -69,7 +81,7 @@ internal sealed partial class NoteWindow : Window
         }
 
         saved = true;
-        Done?.Invoke(this, save ? Note.Text : null);
+        Done?.Invoke(this, save ? new NoteResult(Note.Text, tags.Selected) : null);
         Close();
     }
 }

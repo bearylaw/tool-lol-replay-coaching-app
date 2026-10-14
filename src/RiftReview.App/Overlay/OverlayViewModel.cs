@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using RiftReview.App.Mvvm;
 using RiftReview.App.Replays;
 using RiftReview.App.Settings;
+using RiftReview.App.Theme;
 using RiftReview.App.Viewer;
 using RiftReview.Capture;
 using RiftReview.Core.Logging;
@@ -145,6 +146,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     private readonly AppLog log;
     private readonly DispatcherTimer poll;
     private readonly DispatcherTimer seekDelay;
+    private readonly DispatcherTimer flashEnd = new() { Interval = TimeSpan.FromSeconds(2) };
     private readonly Stopwatch sincePoll = new();
     private readonly Stopwatch sinceJump = new();
     private Playback? playback;
@@ -155,6 +157,8 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     private bool pausedForNote;
     private bool ended;
     private int? focus;
+    private string flash = string.Empty;
+    private System.Windows.Media.Brush flashColour = TagBrushes.Of((string?)null);
     private readonly MatchTimeline? timeline;
 
     public OverlayViewModel(ReplayRemote remote, GameApi game, MatchTimeline? timeline, IReadOnlyList<PlayerRowViewModel> rows, Func<int, IconSlot> itemIcon, OverlaySettings settings, AppLog log, bool canEndReplay, BookmarkList? bookmarks = null, IReadOnlyDictionary<int, int>? itemPrices = null)
@@ -177,6 +181,11 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         poll.Tick += async (_, _) => await PollAsync();
         seekDelay = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
         seekDelay.Tick += async (_, _) => await SendSeekAsync();
+        flashEnd.Tick += (_, _) =>
+        {
+            flashEnd.Stop();
+            Flash = string.Empty;
+        };
 
         PlayPauseCommand = new RelayCommand(async () => await Send(() => remote.SetPausedAsync(!(playback?.Paused ?? false), CancellationToken.None)));
         BackCommand = new RelayCommand(async () => await SeekByAsync(-10));
@@ -281,6 +290,20 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     /// <summary>This replay's bookmarks; <c>null</c> when the replay cannot be identified.</summary>
     public BookmarkList? Bookmarks { get; }
 
+    /// <summary>A short confirmation over the bar, such as a tagged bookmark made; empty when none shows.</summary>
+    public string Flash
+    {
+        get => flash;
+        private set => SetProperty(ref flash, value);
+    }
+
+    /// <summary>The colour of the flash's dot: the tag's.</summary>
+    public System.Windows.Media.Brush FlashColour
+    {
+        get => flashColour;
+        private set => SetProperty(ref flashColour, value);
+    }
+
     /// <summary>Whether the bookmark list shows.</summary>
     public bool ShowBookmarks
     {
@@ -347,18 +370,18 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Saves what the note box returned: a new bookmark, an edited note, or nothing when cancelled.</summary>
-    public async Task FinishNoteAsync(NoteRequest request, string? text)
+    public async Task FinishNoteAsync(NoteRequest request, NoteResult? result)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (text is not null && Bookmarks is not null)
+        if (result is not null && Bookmarks is not null)
         {
             if (request.Existing is { } item)
             {
-                Bookmarks.Edit(item, text, request.Drawing);
+                Bookmarks.Edit(item, result.Text, request.Drawing, result.Tag);
             }
             else
             {
-                Bookmarks.Add(request.Time, text, request.Drawing);
+                Bookmarks.Add(request.Time, result.Text, request.Drawing, result.Tag);
             }
         }
 
@@ -367,6 +390,27 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
             pausedForNote = false;
             await Send(() => remote.SetPausedAsync(false, CancellationToken.None));
         }
+    }
+
+    /// <summary>
+    /// Bookmarks this moment with the tag at a place in the list (Ctrl+Alt+1 to 9), with no note box:
+    /// the camera and what is drawn are kept as for any bookmark, and a short flash confirms it.
+    /// </summary>
+    public async Task AddTaggedBookmarkAsync(int index)
+    {
+        if (Bookmarks is not { } bookmarks || index < 0 || index >= bookmarks.Tags.Count)
+        {
+            return;
+        }
+
+        var tag = bookmarks.Tags[index];
+        var time = Now;
+        var drawing = await CaptureAsync();
+        bookmarks.Add(time, string.Empty, drawing, tag.Id);
+        FlashColour = TagBrushes.Of(tag);
+        Flash = $"{tag.Name} · {MatchFormat.Duration(TimeSpan.FromSeconds(time))}";
+        flashEnd.Stop();
+        flashEnd.Start();
     }
 
     /// <summary>The coach started drawing: pauses the replay when set.</summary>
@@ -382,6 +426,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     {
         poll.Stop();
         seekDelay.Stop();
+        flashEnd.Stop();
     }
 
     private static IReadOnlyList<ScrubberMark> DeathMarksOf(MatchTimeline? timeline, IReadOnlyList<PlayerRowViewModel> rows) => timeline is null
@@ -517,15 +562,21 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
 
         // A new bookmark keeps where League's camera looks, and what is drawn now; an edit keeps the
         // bookmark's own unless something is drawn now.
-        var strokes = Drawing.Snapshot();
-        if (request.Existing is null || strokes.Count > 0)
+        if (request.Existing is null || Drawing.Snapshot().Count > 0)
         {
-            RenderState? state = null;
-            await Send(async () => state = await remote.GetRenderStateAsync(CancellationToken.None));
-            request = request with { Drawing = new BookmarkDrawing([.. strokes], state?.Camera) };
+            request = request with { Drawing = await CaptureAsync() };
         }
 
         NoteRequested?.Invoke(this, request);
+    }
+
+    // Where League's camera looks now and what is drawn, for a bookmark.
+    private async Task<BookmarkDrawing> CaptureAsync()
+    {
+        var strokes = Drawing.Snapshot();
+        RenderState? state = null;
+        await Send(async () => state = await remote.GetRenderStateAsync(CancellationToken.None));
+        return new BookmarkDrawing([.. strokes], state?.Camera);
     }
 
     private async Task PollAsync()

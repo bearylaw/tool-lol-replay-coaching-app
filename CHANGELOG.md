@@ -12,6 +12,15 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Bookmark tags: Ctrl+Alt+1 to 9 in the overlay bookmark the moment with a tag
+  and no note (a short flash confirms it). Tags colour the bookmarks on the
+  timeline and in the lists, can be switched in the note box (Ctrl+1 to 9) and
+  the Notes tab, and group the Discord export. Settings → Tags edits the list:
+  name, colour, order (the shortcut), add and remove. Starts with Mistake,
+  Good play, Vision, Macro and Laning.
+- Share review / Import review in a match's Notes tab: a `.riftreview` file
+  with the replay's bookmarks, drawings, camera views, tags and notes, which a
+  player imports onto their copy of the same replay (decision 0010).
 - Holding Tab, or pressing O, brings up League's own scoreboard (League reads
   the keys itself); the overlay's bar slides up above it until Tab is let go or
   O is pressed again.

@@ -63,10 +63,17 @@ to each note three seconds before it, so you see the build-up, with League's cam
 back where it looked when you made it. A bookmark made while something is drawn keeps
 the drawing too (a pen icon in the list): its jump pauses at that exact moment and
 shows the drawing again over the same view.
+
+**Quick tags.** Ctrl+Alt+1 to 9 bookmark the moment with a tag, without stopping to
+type: Mistake, Good play, Vision, Macro and Laning to start with. Each tag has its
+colour on the timeline and in the lists; the note box (Ctrl+1 to 9) and the Notes tab
+tag any bookmark. Settings → **Tags** is the list to rename, recolour, reorder, add or
+remove them; the place in the list is the shortcut's number.
+
 The same notes appear in the replay list and the match view, next to free notes for
-the whole game, and can be edited there.
+the whole game, and can be edited and tagged there.
 **Copy for Discord** in the match's Notes tab puts them on the clipboard as Markdown,
-sorted by time, ready to paste for your player:
+grouped by tag and sorted by time, ready to paste for your player:
 
 ```text
 ## Game 7000000002
@@ -75,9 +82,16 @@ sorted by time, ready to paste for your player:
 **Red:** Ironbark (Syndra), …
 
 **Bookmarks**
+🔴 **Mistake**
 - **2:23** – Team should have gone bot instead
+🟢 **Good play**
 - **10:35** – Recall together for tempo
 ```
+
+**Share review** saves a replay's bookmarks, drawings, camera views, tags and notes as a
+small `.riftreview` file. A player with Rift Review and the same replay opens it with
+**Import review** (or drops it on the window) and sees your bookmarks and drawings in
+their own overlay. Sharing again later brings your changes; the player's own notes stay.
 
 <p align="center">
   <img src="docs/images/ingame-timeline.jpg" alt="The overlay's control bar: timeline with deaths, turret falls and bookmarks, and the bookmark list" width="100%" />
@@ -92,7 +106,8 @@ sorted by time, ready to paste for your player:
 - **Timeline:** every death (blue above, red below), every turret that fell (a small
   tower in the colour of the team that lost it), objectives on the bar (D dragon,
   B baron, H herald, G when the grub camp is finished, in the colour of the team that
-  took it) and your bookmarks (gold). Click or drag to jump; ±10 s and 0.25× to 8×.
+  took it) and your bookmarks (in their tag's colour, gold without one). Click or drag
+  to jump; ±10 s and 0.25× to 8×.
 - **Selected player:** click a champion in League (their frame shows bottom left) and the
   timeline highlights their deaths (outlined), kills (gold), assists (gold outline) and
   turret takedowns; the others dim. ◀ Death / Death ▶ and ◀ Kill / Kill ▶ step through
@@ -115,6 +130,7 @@ front.
 | Space | Play / pause |
 | Tab (hold) / O | League's scoreboard, held or until the next O; Rift Review's bar slides up above it |
 | Ctrl+Alt+B | Bookmark this moment with a note |
+| Ctrl+Alt+1 … 9 | Bookmark this moment with the first … ninth tag, no note |
 | Ctrl+Alt+D | Drawing tools on / off |
 | Ctrl+Alt+Z / Ctrl+Alt+X | Undo the last drawing / clear all |
 

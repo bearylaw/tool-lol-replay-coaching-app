@@ -5,8 +5,8 @@ using RiftReview.App.Mvvm;
 namespace RiftReview.App.Settings;
 
 /// <summary>
-/// The display and overlay settings as rows for the settings window. Folders and the roster are
-/// edited by the window itself; <see cref="ApplyTo"/> merges both.
+/// The display and overlay settings as rows for the settings window, and the bookmark tags. Folders
+/// and the roster are edited by the window itself; <see cref="ApplyTo"/> merges both.
 /// </summary>
 internal sealed class SettingsEditor : ObservableObject
 {
@@ -16,13 +16,17 @@ internal sealed class SettingsEditor : ObservableObject
     {
         ArgumentNullException.ThrowIfNull(settings);
         rows = new Rows(settings.Normalized());
+        Tags = new TagList(settings.Normalized().Tags);
     }
 
     public IReadOnlyList<SettingRow> GeneralRows => rows.General;
 
     public IReadOnlyList<SettingRow> OverlayRows => rows.Overlay;
 
-    /// <summary>Puts every row back to its default; folders and roster are not rows and stay.</summary>
+    /// <summary>The bookmark tags.</summary>
+    public TagList Tags { get; }
+
+    /// <summary>Puts every row back to its default; folders, roster and tags are not rows and stay.</summary>
     public void ResetToDefaults()
     {
         rows = new Rows(new AppSettings { OwnReplaysFolder = string.Empty, PlayerReplaysFolder = string.Empty });
@@ -34,7 +38,7 @@ internal sealed class SettingsEditor : ObservableObject
     public AppSettings ApplyTo(AppSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings);
-        return rows.ApplyTo(settings).Normalized();
+        return (rows.ApplyTo(settings) with { Tags = Tags.Tags }).Normalized();
     }
 
     private static string Percent(double value) => Loc.Format("Settings_Percent", value.ToString("0", CultureInfo.CurrentCulture));
