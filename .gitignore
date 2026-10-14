@@ -1,0 +1,27 @@
+# Environment: the example belongs in the repository, the real values never do
+.env
+.env.local
+.env.*.local
+
+# .NET build output and test results
+bin/
+obj/
+dist/
+TestResults/
+*.user
+.vs/
+
+# Replays hold real player data (Riot IDs, PUUIDs) and never enter git.
+# replays/ is the local drop folder for player replays; only its README is tracked.
+*.rofl
+replays/*
+!replays/README.md
+
+# Editors, operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Checkouts the Claude desktop app parks while it works on a task
+.claude/worktrees/

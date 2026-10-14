@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Feature: find the League install and start a replay in it. References only Core. -->
+    <ItemGroup>
+        <ProjectReference Include="..\RiftReview.Core\RiftReview.Core.csproj" />
+    </ItemGroup>
+</Project>

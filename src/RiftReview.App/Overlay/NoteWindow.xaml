@@ -1,0 +1,26 @@
+<Window x:Class="RiftReview.App.Overlay.NoteWindow"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:RiftReview.App.Localization"
+        Title="{loc:Text Bookmark_Title}"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        Topmost="True" ShowInTaskbar="False" SizeToContent="WidthAndHeight"
+        Foreground="{StaticResource Brush.Text}" FontFamily="{StaticResource Font.Body}">
+    <!-- A small box over the game for the note of a bookmark: Enter saves, Shift+Enter starts a new
+         line, Escape cancels. -->
+    <Border Width="460" Padding="12,10" CornerRadius="8" Background="#F20A0E14" BorderBrush="{StaticResource Brush.GoldDark}" BorderThickness="1">
+        <StackPanel>
+            <DockPanel Margin="0,0,0,8">
+                <TextBlock DockPanel.Dock="Right" Style="{StaticResource Text.Muted}" FontSize="11" VerticalAlignment="Center" Text="{loc:Text Bookmark_Keys}" />
+                <TextBlock FontFamily="{StaticResource Font.Display}" FontSize="14" Foreground="{StaticResource Brush.GoldBright}" x:Name="Heading" />
+            </DockPanel>
+            <TextBox x:Name="Note" Style="{StaticResource Input}" MinHeight="60" MaxHeight="160" TextWrapping="Wrap" AcceptsReturn="False"
+                     VerticalScrollBarVisibility="Auto" PreviewKeyDown="OnNoteKey" AutomationProperties.Name="{loc:Text Bookmark_Title}" />
+            <StackPanel Margin="0,8,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource Button.Ghost}" Padding="12,5" Content="{loc:Text Bookmark_Cancel}" Click="OnCancel" />
+                <Button Margin="6,0,0,0" Style="{StaticResource Button.Primary}" Padding="12,5" Content="{loc:Text Bookmark_Save}" Click="OnSave" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

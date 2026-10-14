@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Feature: champion, item, rune and spell names and icons from Riot's Data Dragon. References only Core. -->
+    <ItemGroup>
+        <ProjectReference Include="..\RiftReview.Core\RiftReview.Core.csproj" />
+    </ItemGroup>
+</Project>

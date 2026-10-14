@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Composition root and WPF user interface. -->
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <AssemblyName>RiftReview</AssemblyName>
+        <RootNamespace>RiftReview.App</RootNamespace>
+        <!-- Explorer, taskbar and Alt+Tab icon; drawn by tools/make-icon.ps1. -->
+        <ApplicationIcon>Assets\RiftReview.ico</ApplicationIcon>
+        <!-- LibraryImport generates the P/Invoke stubs for the dark title bar and AttachConsole. -->
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <!-- An executable has no public API to document. -->
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <!-- On in every build, not only on publish: it pulls in Microsoft.NET.ILLink.Tasks, and the
+             lockfile must be the same for build and publish. It also flags single-file problems early. -->
+        <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+    </PropertyGroup>
+
+    <!-- Publish only: one self-contained .exe, so the coach needs no .NET install. Kept out of
+         normal builds because the test project cannot reference a self-contained executable. -->
+    <PropertyGroup Condition="'$(_IsPublishing)' == 'true'">
+        <SelfContained>true</SelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+        <PublishDocumentationFiles>false</PublishDocumentationFiles>
+        <PublishReferencesDocumentationFiles>false</PublishReferencesDocumentationFiles>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- WPF projects leave these out of the implicit usings. -->
+        <Using Include="System.IO" />
+        <Using Include="System.Net.Http" />
+        <InternalsVisibleTo Include="RiftReview.App.Tests" />
+        <!-- The same icon for the windows' title bars. -->
+        <Resource Include="Assets\RiftReview.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RiftReview.Capture\RiftReview.Capture.csproj" />
+        <ProjectReference Include="..\RiftReview.Core\RiftReview.Core.csproj" />
+        <ProjectReference Include="..\RiftReview.GameData\RiftReview.GameData.csproj" />
+        <ProjectReference Include="..\RiftReview.Launch\RiftReview.Launch.csproj" />
+        <ProjectReference Include="..\RiftReview.Library\RiftReview.Library.csproj" />
+        <ProjectReference Include="..\RiftReview.Timeline\RiftReview.Timeline.csproj" />
+    </ItemGroup>
+</Project>

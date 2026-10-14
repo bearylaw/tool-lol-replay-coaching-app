@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="..\RiftReview.Library\RiftReview.Library.csproj" />
+    </ItemGroup>
+</Project>

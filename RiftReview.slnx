@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RiftReview.App.Tests/RiftReview.App.Tests.csproj" />
+    <Project Path="src/RiftReview.App/RiftReview.App.csproj" />
+    <Project Path="src/RiftReview.Capture.Tests/RiftReview.Capture.Tests.csproj" />
+    <Project Path="src/RiftReview.Capture/RiftReview.Capture.csproj" />
+    <Project Path="src/RiftReview.Core.Tests/RiftReview.Core.Tests.csproj" />
+    <Project Path="src/RiftReview.Core/RiftReview.Core.csproj" />
+    <Project Path="src/RiftReview.GameData.Tests/RiftReview.GameData.Tests.csproj" />
+    <Project Path="src/RiftReview.GameData/RiftReview.GameData.csproj" />
+    <Project Path="src/RiftReview.Launch.Tests/RiftReview.Launch.Tests.csproj" />
+    <Project Path="src/RiftReview.Launch/RiftReview.Launch.csproj" />
+    <Project Path="src/RiftReview.Library.Tests/RiftReview.Library.Tests.csproj" />
+    <Project Path="src/RiftReview.Library/RiftReview.Library.csproj" />
+    <Project Path="src/RiftReview.Timeline.Tests/RiftReview.Timeline.Tests.csproj" />
+    <Project Path="src/RiftReview.Timeline/RiftReview.Timeline.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,14 @@
+# Git hooks. `lefthook install` once after cloning. CI runs the same `check`
+# and is the gate, so a skipped hook costs a red check, not a merge.
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.cs"
+      run: dotnet format whitespace --folder --verify-no-changes --include {staged_files}
+    secrets:
+      run: gitleaks git --staged --redact --no-banner
+pre-push:
+  commands:
+    check:
+      run: just check

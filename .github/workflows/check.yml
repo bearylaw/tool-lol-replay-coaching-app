@@ -1,0 +1,48 @@
+# The one gate: CI runs exactly the golden path's `check`.
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # WPF builds only on Windows.
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up toolchain
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - uses: extractions/setup-just@v4
+
+      - name: Install
+        run: just install
+
+      - name: Check
+        run: just check
+
+  secrets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,43 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "bash .claude/hooks/format.sh",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "bash .claude/hooks/stop.sh \"just check\"",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./**/bin/**)",
+      "Read(./**/obj/**)",
+      "Read(./dist/**)",
+      "Read(./**/packages.lock.json)",
+      "Read(./**/*.rofl)"
+    ]
+  },
+  "env": {
+    "MAX_MCP_OUTPUT_TOKENS": "15000"
+  }
+}

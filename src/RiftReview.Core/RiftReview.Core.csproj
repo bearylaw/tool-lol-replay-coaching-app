@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Shared foundations and the replay domain model. References no other project. -->
+</Project>

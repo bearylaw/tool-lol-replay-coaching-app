@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Feature: the replay library (folders, scanning, import, search). References only Core. -->
+    <ItemGroup>
+        <ProjectReference Include="..\RiftReview.Core\RiftReview.Core.csproj" />
+    </ItemGroup>
+</Project>

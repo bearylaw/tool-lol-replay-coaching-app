@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="ZstdSharp.Port" />
+        <ProjectReference Include="..\RiftReview.Timeline\RiftReview.Timeline.csproj" />
+    </ItemGroup>
+</Project>

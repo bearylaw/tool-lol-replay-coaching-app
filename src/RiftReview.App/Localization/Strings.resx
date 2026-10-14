@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Action_AddReplays" xml:space="preserve">
+    <value>Add replays</value>
+  </data>
+  <data name="Action_AddReplaysHint" xml:space="preserve">
+    <value>Copy .rofl files into the player folder. You can also drop files onto the window.</value>
+  </data>
+  <data name="Action_OpenOwnFolder" xml:space="preserve">
+    <value>My replay folder</value>
+  </data>
+  <data name="Action_OpenPlayerFolder" xml:space="preserve">
+    <value>Player folder</value>
+  </data>
+  <data name="Action_Refresh" xml:space="preserve">
+    <value>Rescan folders</value>
+  </data>
+  <data name="Action_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Action_ShowInExplorer" xml:space="preserve">
+    <value>Show in Explorer</value>
+  </data>
+  <data name="Action_Watch" xml:space="preserve">
+    <value>Watch in League</value>
+  </data>
+  <data name="App_Title" xml:space="preserve">
+    <value>Rift Review</value>
+  </data>
+  <data name="Chart_Buildings" xml:space="preserve">
+    <value>Damage to buildings</value>
+  </data>
+  <data name="Chart_CreepScore" xml:space="preserve">
+    <value>Creep score</value>
+  </data>
+  <data name="Chart_CrowdControl" xml:space="preserve">
+    <value>Crowd control on champions (seconds)</value>
+  </data>
+  <data name="Chart_DamageTaken" xml:space="preserve">
+    <value>Damage taken</value>
+  </data>
+  <data name="Chart_DamageToChampions" xml:space="preserve">
+    <value>Damage to champions</value>
+  </data>
+  <data name="Chart_Gold" xml:space="preserve">
+    <value>Gold earned</value>
+  </data>
+  <data name="Chart_TeamSupport" xml:space="preserve">
+    <value>Healing and shielding on teammates</value>
+  </data>
+  <data name="Chart_VisionScore" xml:space="preserve">
+    <value>Vision score</value>
+  </data>
+  <data name="Column_Vision" xml:space="preserve">
+    <value>Vision score</value>
+  </data>
+  <data name="Compare_Barons" xml:space="preserve">
+    <value>Barons</value>
+  </data>
+  <data name="Compare_Damage" xml:space="preserve">
+    <value>Damage to champions</value>
+  </data>
+  <data name="Compare_Dragons" xml:space="preserve">
+    <value>Dragons</value>
+  </data>
+  <data name="Compare_Gold" xml:space="preserve">
+    <value>Gold</value>
+  </data>
+  <data name="Compare_Grubs" xml:space="preserve">
+    <value>Voidgrubs</value>
+  </data>
+  <data name="Compare_Inhibitors" xml:space="preserve">
+    <value>Inhibitors</value>
+  </data>
+  <data name="Compare_Kills" xml:space="preserve">
+    <value>Kills</value>
+  </data>
+  <data name="Compare_Towers" xml:space="preserve">
+    <value>Towers</value>
+  </data>
+  <data name="Compare_Vision" xml:space="preserve">
+    <value>Vision score</value>
+  </data>
+  <data name="Compat_Compatible" xml:space="preserve">
+    <value>Plays on your installed game</value>
+  </data>
+  <data name="Compat_DifferentBuild" xml:space="preserve">
+    <value>Other build of the same patch: may not play</value>
+  </data>
+  <data name="Compat_DifferentPatch" xml:space="preserve">
+    <value>Recorded on another patch: League cannot play it</value>
+  </data>
+  <data name="Compat_Unknown" xml:space="preserve">
+    <value>Installed game version unknown</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>Something went wrong. The details were written to the log in {0}.</value>
+  </data>
+  <data name="Detail_Duration" xml:space="preserve">
+    <value>Length</value>
+  </data>
+  <data name="Detail_Patch" xml:space="preserve">
+    <value>Patch</value>
+  </data>
+  <data name="Detail_SelectHint" xml:space="preserve">
+    <value>Select a replay</value>
+  </data>
+  <data name="Dialog_AddReplaysTitle" xml:space="preserve">
+    <value>Add player replays</value>
+  </data>
+  <data name="Dialog_ReplayFilter" xml:space="preserve">
+    <value>League of Legends replays (*.rofl)</value>
+  </data>
+  <data name="Filter_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Filter_Own" xml:space="preserve">
+    <value>Mine</value>
+  </data>
+  <data name="Filter_Players" xml:space="preserve">
+    <value>Players</value>
+  </data>
+  <data name="Filter_Roster" xml:space="preserve">
+    <value>Roster</value>
+  </data>
+  <data name="Import_FolderUnusable" xml:space="preserve">
+    <value>The player folder {0} cannot be used: {1}</value>
+  </data>
+  <data name="Import_Summary" xml:space="preserve">
+    <value>Imported {0} · already there {1} · not a replay {2} · failed {3}</value>
+  </data>
+  <data name="Install_Found" xml:space="preserve">
+    <value>League {0} · {1}</value>
+  </data>
+  <data name="Install_NotFound" xml:space="preserve">
+    <value>League of Legends not found. Set its folder in Settings.</value>
+  </data>
+  <data name="Kda_Perfect" xml:space="preserve">
+    <value>Perfect</value>
+  </data>
+  <data name="Launch_Confirm_DifferentBuild" xml:space="preserve">
+    <value>This replay was recorded on {0}; your game is {1}. Same patch, but another build, so the replay may not load.
+
+Start it anyway?</value>
+  </data>
+  <data name="Launch_Confirm_DifferentPatch" xml:space="preserve">
+    <value>This replay was recorded on {0}; your game is {1}. League only plays replays from its own patch, so this will most likely fail.
+
+Start it anyway?</value>
+  </data>
+  <data name="Launch_Confirm_Unknown" xml:space="preserve">
+    <value>The version of your installed game could not be read (replay: {0}, game: {1}). The replay may not load.
+
+Start it anyway?</value>
+  </data>
+  <data name="Launch_NoInstall" xml:space="preserve">
+    <value>League of Legends was not found, so the replay cannot start. Set the League folder in Settings.
+
+Details: {0}</value>
+  </data>
+  <data name="Launch_Started" xml:space="preserve">
+    <value>Starting {0} in League of Legends…</value>
+  </data>
+  <data name="Legal_Disclaimer" xml:space="preserve">
+    <value>Rift Review isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</value>
+  </data>
+  <data name="Library_Empty" xml:space="preserve">
+    <value>Your own replays appear here when you download them in the League client ({0}).
+
+For player replays, drop .rofl files onto this window, use Add replays, or put them into {1}.</value>
+  </data>
+  <data name="Library_EmptyTitle" xml:space="preserve">
+    <value>No replays yet</value>
+  </data>
+  <data name="Notes_Hint" xml:space="preserve">
+    <value>Your notes on this game. Saved when you click elsewhere.</value>
+  </data>
+  <data name="Replay_GameTitle" xml:space="preserve">
+    <value>Game {0}</value>
+  </data>
+  <data name="Replay_NoPlayerStats" xml:space="preserve">
+    <value>No player stats in this replay (custom or very short game).</value>
+  </data>
+  <data name="Result_Defeat" xml:space="preserve">
+    <value>DEFEAT</value>
+  </data>
+  <data name="Result_Victory" xml:space="preserve">
+    <value>VICTORY</value>
+  </data>
+  <data name="RoflError_InvalidMetadata" xml:space="preserve">
+    <value>The match data inside this replay could not be read.</value>
+  </data>
+  <data name="RoflError_NotAReplay" xml:space="preserve">
+    <value>This file is not a League of Legends replay.</value>
+  </data>
+  <data name="RoflError_Truncated" xml:space="preserve">
+    <value>This replay file is incomplete. It may still be downloading, or the transfer was cut off.</value>
+  </data>
+  <data name="RoflError_Unreadable" xml:space="preserve">
+    <value>The file could not be opened. Another program may be using it.</value>
+  </data>
+  <data name="RoflError_UnsupportedFormat" xml:space="preserve">
+    <value>This replay uses an older file format that Rift Review cannot read.</value>
+  </data>
+  <data name="Role_Bottom" xml:space="preserve">
+    <value>Bot</value>
+  </data>
+  <data name="Role_Jungle" xml:space="preserve">
+    <value>Jungle</value>
+  </data>
+  <data name="Role_Middle" xml:space="preserve">
+    <value>Mid</value>
+  </data>
+  <data name="Role_None" xml:space="preserve">
+    <value>No role</value>
+  </data>
+  <data name="Role_Top" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="Role_Utility" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="Roster_Toggle" xml:space="preserve">
+    <value>Add to or remove from your roster</value>
+  </data>
+  <data name="Search_Placeholder" xml:space="preserve">
+    <value>Search players, champions, files, patch…</value>
+  </data>
+  <data name="Settings_Browse" xml:space="preserve">
+    <value>Browse…</value>
+  </data>
+  <data name="Settings_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Settings_Folders" xml:space="preserve">
+    <value>Folders</value>
+  </data>
+  <data name="Settings_LeagueFolder" xml:space="preserve">
+    <value>League of Legends folder (leave empty to detect it)</value>
+  </data>
+  <data name="Settings_LeagueHintFound" xml:space="preserve">
+    <value>Detected: {0}</value>
+  </data>
+  <data name="Settings_LeagueHintNotFound" xml:space="preserve">
+    <value>Not detected. Pick the folder that contains the Game folder, usually C:Riot GamesLeague of Legends.</value>
+  </data>
+  <data name="Settings_OwnFolder" xml:space="preserve">
+    <value>My replays (the League client's replay folder)</value>
+  </data>
+  <data name="Settings_PlayerFolder" xml:space="preserve">
+    <value>Player replays</value>
+  </data>
+  <data name="Settings_Roster" xml:space="preserve">
+    <value>Roster</value>
+  </data>
+  <data name="Settings_RosterHint" xml:space="preserve">
+    <value>Riot IDs of your players, one per line, like Name#TAG. Their games and scoreboard rows are highlighted. The star on a scoreboard row does the same.</value>
+  </data>
+  <data name="Settings_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Stats_FilterHint" xml:space="preserve">
+    <value>Filter stats by name</value>
+  </data>
+  <data name="Stats_Stat" xml:space="preserve">
+    <value>Stat</value>
+  </data>
+  <data name="Tab_AllStats" xml:space="preserve">
+    <value>All stats</value>
+  </data>
+  <data name="Tab_Charts" xml:space="preserve">
+    <value>Charts</value>
+  </data>
+  <data name="Tab_Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="Tab_Scoreboard" xml:space="preserve">
+    <value>Scoreboard</value>
+  </data>
+  <data name="Team_Blue" xml:space="preserve">
+    <value>Blue side</value>
+  </data>
+  <data name="Team_Red" xml:space="preserve">
+    <value>Red side</value>
+  </data>
+  <data name="Unit_Gold" xml:space="preserve">
+    <value> gold</value>
+  </data>
+  <data name="Unit_PerMinute" xml:space="preserve">
+    <value> /min</value>
+  </data>
+  <data name="Winner_Blue" xml:space="preserve">
+    <value>Blue side won</value>
+  </data>
+  <data name="Winner_Red" xml:space="preserve">
+    <value>Red side won</value>
+  </data>
+  <data name="Winner_Unknown" xml:space="preserve">
+    <value>No winner recorded</value>
+  </data>
+  <data name="Source_Own" xml:space="preserve">
+    <value>My replay</value>
+  </data>
+  <data name="Source_Players" xml:space="preserve">
+    <value>Player replay</value>
+  </data>
+  <data name="Launch_Preparing" xml:space="preserve">
+    <value>Handing {0} to the League client…</value>
+  </data>
+  <data name="Launch_StartClient" xml:space="preserve">
+    <value>Replays start through the League client, and it is not running.
+
+Start the League client now? Log in if it asks; the replay starts once you are logged in.</value>
+  </data>
+  <data name="Launch_ClientStartFailed" xml:space="preserve">
+    <value>The League client could not be started.
+
+Details: {0}</value>
+  </data>
+  <data name="Launch_WaitingForClient" xml:space="preserve">
+    <value>Waiting for the League client… log in if it asks.</value>
+  </data>
+  <data name="Launch_ClientTimeout" xml:space="preserve">
+    <value>The League client did not finish starting within five minutes. Log in, then press Watch in League again.</value>
+  </data>
+  <data name="Watch_Failed_ClientNotRunning" xml:space="preserve">
+    <value>The League client is not running. Start it and press Watch in League again.</value>
+  </data>
+  <data name="Watch_Failed_NotLoggedIn" xml:space="preserve">
+    <value>Log in to the League client, then press Watch in League again.</value>
+  </data>
+  <data name="Watch_Failed_Patching" xml:space="preserve">
+    <value>The League client is updating. Wait until it is done, then press Watch in League again.</value>
+  </data>
+  <data name="Watch_Failed_GameRunning" xml:space="preserve">
+    <value>A game or replay is already running. Close it first, then press Watch in League again.</value>
+  </data>
+  <data name="Watch_Failed_ReplaysDisabled" xml:space="preserve">
+    <value>Replays are turned off in the League client, so it cannot play this one.</value>
+  </data>
+  <data name="Watch_Failed_ReplayMissing" xml:space="preserve">
+    <value>The replay file no longer exists: {0}</value>
+  </data>
+  <data name="Watch_Failed_NameTaken" xml:space="preserve">
+    <value>The League replay folder already has a different file with this replay's name:
+{0}
+
+Move or rename that file, then try again.</value>
+  </data>
+  <data name="Watch_Failed_CopyFailed" xml:space="preserve">
+    <value>The replay could not be copied into the League replay folder.
+
+Details: {0}</value>
+  </data>
+  <data name="Watch_Failed_UnknownPlatform" xml:space="preserve">
+    <value>This file was renamed, and your client's region ({0}) is not one Rift Review knows. Rename the file to the client's format, for example EUW1-1234567890.rofl.</value>
+  </data>
+  <data name="Watch_Failed_Incompatible" xml:space="preserve">
+    <value>The League client says it cannot play this replay ({0}). Replays only play on the patch they were recorded on.</value>
+  </data>
+  <data name="Watch_Failed_NotReady" xml:space="preserve">
+    <value>The League client did not get the replay ready in time (state: {0}). Try again in a moment.</value>
+  </data>
+  <data name="Watch_Failed_ClientError" xml:space="preserve">
+    <value>The League client did not accept the request.
+
+Details: {0}</value>
+  </data>
+  <data name="Tab_Timeline" xml:space="preserve">
+    <value>Timeline</value>
+  </data>
+  <data name="Timeline_Loading" xml:space="preserve">
+    <value>Reading the game data…</value>
+  </data>
+  <data name="Timeline_Failed" xml:space="preserve">
+    <value>The timeline could not be read: {0}</value>
+  </data>
+  <data name="Timeline_Died" xml:space="preserve">
+    <value>died</value>
+  </data>
+  <data name="Timeline_LevelUp" xml:space="preserve">
+    <value>reached level {0}</value>
+  </data>
+  <data name="Timeline_Empty" xml:space="preserve">
+    <value>This replay has no champion events.</value>
+  </data>
+  <data name="Timeline_ShowLevelUps" xml:space="preserve">
+    <value>Show level-ups</value>
+  </data>
+  <data name="Timeline_Hint" xml:space="preserve">
+    <value>From the replay file: deaths are exact; level-ups can be off by one or two.</value>
+  </data>
+  <data name="Viewer_PlayPause" xml:space="preserve">
+    <value>Play or pause</value>
+  </data>
+  <data name="Viewer_Slower" xml:space="preserve">
+    <value>Slower</value>
+  </data>
+  <data name="Viewer_Faster" xml:space="preserve">
+    <value>Faster</value>
+  </data>
+  <data name="Capture_EnableReplayApi" xml:space="preserve">
+    <value>Capturing needs League's replay API, which is switched off in your game settings.
+
+Switch it on? Rift Review adds the line EnableReplayApi=1 to League's game.cfg and keeps a backup of the file.</value>
+  </data>
+  <data name="Capture_Failed" xml:space="preserve">
+    <value>The capture stopped: {0}</value>
+  </data>
+  <data name="Settings_TabGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Settings_Reset" xml:space="preserve">
+    <value>Reset to defaults</value>
+  </data>
+  <data name="Settings_ResetHint" xml:space="preserve">
+    <value>Puts display, viewer and capture settings back to their defaults. Folders and roster stay.</value>
+  </data>
+  <data name="Settings_Percent" xml:space="preserve">
+    <value>{0} %</value>
+  </data>
+  <data name="Settings_Seconds" xml:space="preserve">
+    <value>{0} s</value>
+  </data>
+  <data name="Settings_Display" xml:space="preserve">
+    <value>Display</value>
+  </data>
+  <data name="Settings_InterfaceScale" xml:space="preserve">
+    <value>Interface size</value>
+  </data>
+  <data name="Settings_InterfaceScaleHint" xml:space="preserve">
+    <value>Scales the whole main window: text, lists and the viewer.</value>
+  </data>
+  <data name="Settings_TabOverlay" xml:space="preserve">
+    <value>Overlay</value>
+  </data>
+  <data name="Settings_OverlayPanels" xml:space="preserve">
+    <value>Rift Review's panels</value>
+  </data>
+  <data name="Settings_OverlayScale" xml:space="preserve">
+    <value>Panel size</value>
+  </data>
+  <data name="Settings_OverlayScaleHint" xml:space="preserve">
+    <value>Size of the overlay's panels on the game window.</value>
+  </data>
+  <data name="Settings_OverlayLeague" xml:space="preserve">
+    <value>League's own interface</value>
+  </data>
+  <data name="Settings_HideLeagueControls" xml:space="preserve">
+    <value>Hide League's timeline</value>
+  </data>
+  <data name="Settings_HideLeagueControlsHint" xml:space="preserve">
+    <value>The overlay's control bar replaces it.</value>
+  </data>
+  <data name="Settings_HideLeagueCameraPanel" xml:space="preserve">
+    <value>Hide League's camera and vision panel</value>
+  </data>
+  <data name="Settings_HideLeagueCameraPanelHint" xml:space="preserve">
+    <value>The panel at the bottom left with the camera mode and whose vision the fog shows (blue, red or all). Riot's replay API cannot choose the team, so the overlay leaves this panel to League.</value>
+  </data>
+  <data name="Overlay_Title" xml:space="preserve">
+    <value>Rift Review overlay</value>
+  </data>
+  <data name="Overlay_Back" xml:space="preserve">
+    <value>−10s</value>
+  </data>
+  <data name="Overlay_Forward" xml:space="preserve">
+    <value>+10s</value>
+  </data>
+  <data name="Overlay_BackTip" xml:space="preserve">
+    <value>10 seconds back</value>
+  </data>
+  <data name="Overlay_ForwardTip" xml:space="preserve">
+    <value>10 seconds forward</value>
+  </data>
+  <data name="Overlay_CloseTip" xml:space="preserve">
+    <value>Close the overlay; the replay keeps running</value>
+  </data>
+  <data name="Overlay_EndTip" xml:space="preserve">
+    <value>End the replay and close the overlay</value>
+  </data>
+  <data name="Action_WatchOverlay" xml:space="preserve">
+    <value>Watch with overlay</value>
+  </data>
+  <data name="Action_WatchOverlayTip" xml:space="preserve">
+    <value>Plays the replay in League with Rift Review's controls, team panels, kill feed and a camera that follows a player on top. League must run in borderless or windowed mode.</value>
+  </data>
+  <data name="Overlay_Waiting" xml:space="preserve">
+    <value>Waiting for the replay to open in League…</value>
+  </data>
+  <data name="Overlay_NoReplay" xml:space="preserve">
+    <value>The replay did not open in League within four minutes.</value>
+  </data>
+  <data name="Overlay_Open" xml:space="preserve">
+    <value>Overlay open on the replay. Click a portrait to follow that player.</value>
+  </data>
+  <data name="Overlay_Closed" xml:space="preserve">
+    <value>Overlay closed.</value>
+  </data>
+  <data name="Overlay_OtherReplay" xml:space="preserve">
+    <value>Another game or replay is running in League. Close it first, then press Watch with overlay again.</value>
+  </data>
+  <data name="Overlay_EnableDirectedCamera" xml:space="preserve">
+    <value>Open replays in League's directed camera?
+
+Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup of the file. Following a player still works; freeing the camera hands it back to the director.</value>
+  </data>
+  <data name="Settings_DirectedCamera" xml:space="preserve">
+    <value>Start in League's directed camera</value>
+  </data>
+  <data name="Settings_DirectedCameraHint" xml:space="preserve">
+    <value>League's camera director follows the action until you follow a player. Changes one line of League's game.cfg (asked once, with a backup).</value>
+  </data>
+  <data name="Settings_Drawing" xml:space="preserve">
+    <value>Drawing</value>
+  </data>
+  <data name="Settings_PauseWhenDrawing" xml:space="preserve">
+    <value>Pause when drawing starts</value>
+  </data>
+  <data name="Settings_PauseWhenDrawingHint" xml:space="preserve">
+    <value>The replay stops while you explain.</value>
+  </data>
+  <data name="Settings_ClearDrawingsOnJump" xml:space="preserve">
+    <value>Clear drawings when jumping</value>
+  </data>
+  <data name="Settings_ClearDrawingsOnJumpHint" xml:space="preserve">
+    <value>Jumping on the timeline or by ten seconds removes what was drawn for the old moment.</value>
+  </data>
+  <data name="Settings_DrawingFade" xml:space="preserve">
+    <value>Drawings fade after</value>
+  </data>
+  <data name="Settings_DrawingFadeHint" xml:space="preserve">
+    <value>Removes each drawing after this many seconds.</value>
+  </data>
+  <data name="Settings_Never" xml:space="preserve">
+    <value>never</value>
+  </data>
+  <data name="Draw_Toggle" xml:space="preserve">
+    <value>Draw on the screen (Ctrl+Alt+D). While on, the game gets no clicks.</value>
+  </data>
+  <data name="Draw_Pointer" xml:space="preserve">
+    <value>Normal mouse: the tools stay open, clicks go to the game</value>
+  </data>
+  <data name="Draw_Pen" xml:space="preserve">
+    <value>Pen</value>
+  </data>
+  <data name="Draw_Highlighter" xml:space="preserve">
+    <value>Highlighter</value>
+  </data>
+  <data name="Draw_Line" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="Draw_Arrow" xml:space="preserve">
+    <value>Arrow</value>
+  </data>
+  <data name="Draw_Circle" xml:space="preserve">
+    <value>Circle: drag from the centre</value>
+  </data>
+  <data name="Draw_Eraser" xml:space="preserve">
+    <value>Eraser: click a drawing to remove it</value>
+  </data>
+  <data name="Draw_CurrentColour" xml:space="preserve">
+    <value>Current colour</value>
+  </data>
+  <data name="Draw_Thickness" xml:space="preserve">
+    <value>Width</value>
+  </data>
+  <data name="Draw_Undo" xml:space="preserve">
+    <value>Undo (Ctrl+Alt+Z, or right-click)</value>
+  </data>
+  <data name="Draw_Clear" xml:space="preserve">
+    <value>Clear all drawings (Ctrl+Alt+X)</value>
+  </data>
+  <data name="Overlay_PlayPauseTip" xml:space="preserve">
+    <value>Play or pause (Space while League is in front)</value>
+  </data>
+  <data name="Overlay_Quest_None" xml:space="preserve">
+    <value>Role quest</value>
+  </data>
+  <data name="Overlay_Quest_Top" xml:space="preserve">
+    <value>Top lane quest</value>
+  </data>
+  <data name="Overlay_Quest_Jungle" xml:space="preserve">
+    <value>Jungle quest</value>
+  </data>
+  <data name="Overlay_Quest_Middle" xml:space="preserve">
+    <value>Mid lane quest</value>
+  </data>
+  <data name="Overlay_Quest_Bottom" xml:space="preserve">
+    <value>Bot lane quest</value>
+  </data>
+  <data name="Overlay_Quest_Utility" xml:space="preserve">
+    <value>Support quest</value>
+  </data>
+  <data name="Bookmark_Title" xml:space="preserve">
+    <value>Bookmark note</value>
+  </data>
+  <data name="Bookmark_Keys" xml:space="preserve">
+    <value>Enter saves · Shift+Enter new line · Esc cancels</value>
+  </data>
+  <data name="Bookmark_New" xml:space="preserve">
+    <value>Bookmark at {0}</value>
+  </data>
+  <data name="Bookmark_Edit" xml:space="preserve">
+    <value>Edit bookmark at {0}</value>
+  </data>
+  <data name="Bookmark_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Bookmark_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Bookmark_AddTip" xml:space="preserve">
+    <value>Bookmark this moment with a note (Ctrl+Alt+B)</value>
+  </data>
+  <data name="Bookmark_ListTip" xml:space="preserve">
+    <value>Bookmarks of this replay</value>
+  </data>
+  <data name="Bookmark_Heading" xml:space="preserve">
+    <value>Bookmarks</value>
+  </data>
+  <data name="Bookmark_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Bookmark_Empty" xml:space="preserve">
+    <value>No bookmarks yet. Press Ctrl+Alt+B while you watch to mark a moment and write a note.</value>
+  </data>
+  <data name="Bookmark_Delete" xml:space="preserve">
+    <value>Delete bookmark</value>
+  </data>
+  <data name="Bookmark_EditTip" xml:space="preserve">
+    <value>Edit the note</value>
+  </data>
+  <data name="Bookmark_JumpTip" xml:space="preserve">
+    <value>Jump there (3 seconds before)</value>
+  </data>
+  <data name="Bookmark_NoText" xml:space="preserve">
+    <value>(no note)</value>
+  </data>
+  <data name="Settings_Bookmarks" xml:space="preserve">
+    <value>Bookmarks</value>
+  </data>
+  <data name="Settings_PauseWhileNoting" xml:space="preserve">
+    <value>Pause while writing a note</value>
+  </data>
+  <data name="Settings_PauseWhileNotingHint" xml:space="preserve">
+    <value>Off: the replay keeps playing while you type, and the bookmark keeps the moment you pressed Ctrl+Alt+B.</value>
+  </data>
+  <data name="Bookmark_More" xml:space="preserve">
+    <value>+{0} more</value>
+  </data>
+  <data name="Bookmark_NoneInApp" xml:space="preserve">
+    <value>No bookmarks yet. While you watch with the overlay, press Ctrl+Alt+B to mark a moment with a note; it shows here with its time.</value>
+  </data>
+  <data name="Scoreboard_Blue" xml:space="preserve">
+    <value>Blue</value>
+  </data>
+  <data name="Scoreboard_Red" xml:space="preserve">
+    <value>Red</value>
+  </data>
+  <data name="Scoreboard_Totals" xml:space="preserve">
+    <value>{0} kills · {1} towers · {2} dragons · {3} barons · {4} item gold</value>
+  </data>
+  <data name="Scoreboard_Tip" xml:space="preserve">
+    <value>Scoreboard (Tab)</value>
+  </data>
+  <data name="Scoreboard_Kda" xml:space="preserve">
+    <value>K / D / A</value>
+  </data>
+  <data name="Scoreboard_Cs" xml:space="preserve">
+    <value>CS · per min</value>
+  </data>
+  <data name="Scoreboard_Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="Scoreboard_Wards" xml:space="preserve">
+    <value>Wards</value>
+  </data>
+  <data name="Scoreboard_Gold" xml:space="preserve">
+    <value>Item gold</value>
+  </data>
+  <data name="Scoreboard_Note" xml:space="preserve">
+    <value>Item gold is what the held items cost; League does not tell a replay how much gold a player has.</value>
+  </data>
+</root>

@@ -1,0 +1,143 @@
+<Window x:Class="RiftReview.App.Shell.SettingsWindow"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:RiftReview.App.Localization"
+        xmlns:settings="clr-namespace:RiftReview.App.Settings"
+        Title="{loc:Text Settings_Title}"
+        Icon="/Assets/RiftReview.ico"
+        Width="720" Height="760" MinWidth="600" MinHeight="480"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{StaticResource Brush.Background}" Foreground="{StaticResource Brush.Text}"
+        FontFamily="{StaticResource Font.Body}">
+    <Window.Resources>
+        <!-- Label with an optional hint line; the control sits to the right or below. -->
+        <DataTemplate x:Key="RowText" DataType="{x:Type settings:SettingRow}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource Text.Label}" Text="{Binding Label}" TextWrapping="Wrap" />
+                <TextBlock Style="{StaticResource Text.Muted}" Margin="0,2,0,0" TextWrapping="Wrap" Text="{Binding Hint}"
+                           Visibility="{Binding Hint, Converter={StaticResource VisibleWhen}}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type settings:HeadingRow}">
+            <TextBlock Style="{StaticResource Text.SectionTitle}" Margin="0,22,0,2" Text="{Binding Label}" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type settings:ToggleRow}">
+            <DockPanel Margin="0,12,0,0">
+                <CheckBox DockPanel.Dock="Right" Margin="16,0,0,0" VerticalAlignment="Top" Style="{StaticResource Toggle}"
+                          IsChecked="{Binding IsOn}" AutomationProperties.Name="{Binding Label}" />
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource RowText}" Focusable="False" />
+            </DockPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type settings:RangeRow}">
+            <StackPanel Margin="0,12,0,0" IsEnabled="{Binding IsEnabled}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Right" Margin="16,0,0,0" VerticalAlignment="Top" Style="{StaticResource Text.Number}"
+                               Foreground="{StaticResource Brush.GoldBright}" Text="{Binding Text}" />
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource RowText}" Focusable="False" />
+                </DockPanel>
+                <Slider Margin="0,6,0,0" Style="{StaticResource Slider}" Minimum="{Binding Minimum}" Maximum="{Binding Maximum}"
+                        SmallChange="{Binding Step}" LargeChange="{Binding Step}" TickFrequency="{Binding Step}" IsSnapToTickEnabled="True"
+                        Value="{Binding Value}" AutomationProperties.Name="{Binding Label}" />
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type settings:ChoiceRow}">
+            <StackPanel Margin="0,12,0,0">
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource RowText}" Focusable="False" />
+                <ItemsControl Margin="0,8,0,0" ItemsSource="{Binding Options}" Focusable="False">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type settings:Choice}">
+                            <RadioButton Style="{StaticResource Chip}" Margin="0,0,6,4" Content="{Binding Label}" IsChecked="{Binding IsSelected}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Tab headers set a display font; the pages go back to the body font. -->
+        <Style x:Key="Page" TargetType="ScrollViewer">
+            <Setter Property="FontFamily" Value="{StaticResource Font.Body}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="Padding" Value="0,4,12,16" />
+        </Style>
+    </Window.Resources>
+
+    <DockPanel Margin="24,16,24,20">
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
+            <Button DockPanel.Dock="Left" Style="{StaticResource Button.Ghost}" Content="{loc:Text Settings_Reset}"
+                    ToolTip="{loc:Text Settings_ResetHint}" Click="OnReset" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource Button.Ghost}" Content="{loc:Text Settings_Cancel}" IsCancel="True" />
+                <Button Style="{StaticResource Button.Primary}" Margin="12,0,0,0" Content="{loc:Text Settings_Save}"
+                        IsDefault="True" Click="OnSave" />
+            </StackPanel>
+        </DockPanel>
+
+        <TabControl Style="{StaticResource Tabs}">
+            <TabItem Header="{loc:Text Settings_TabGeneral}">
+                <ScrollViewer Style="{StaticResource Page}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Text.SectionTitle}" Margin="0,16,0,0" Text="{loc:Text Settings_Folders}" />
+
+                        <TextBlock Style="{StaticResource Text.Label}" Margin="0,12,0,6" Text="{loc:Text Settings_OwnFolder}" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource Button.Ghost}"
+                                    Content="{loc:Text Settings_Browse}" Click="OnBrowseOwn" />
+                            <TextBox x:Name="OwnFolder" Style="{StaticResource Input}" />
+                        </DockPanel>
+
+                        <TextBlock Style="{StaticResource Text.Label}" Margin="0,16,0,6" Text="{loc:Text Settings_PlayerFolder}" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource Button.Ghost}"
+                                    Content="{loc:Text Settings_Browse}" Click="OnBrowsePlayers" />
+                            <TextBox x:Name="PlayerFolder" Style="{StaticResource Input}" />
+                        </DockPanel>
+
+                        <TextBlock Style="{StaticResource Text.Label}" Margin="0,16,0,6" Text="{loc:Text Settings_LeagueFolder}" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource Button.Ghost}"
+                                    Content="{loc:Text Settings_Browse}" Click="OnBrowseLeague" />
+                            <TextBox x:Name="LeagueFolder" Style="{StaticResource Input}" />
+                        </DockPanel>
+                        <TextBlock x:Name="LeagueHint" Style="{StaticResource Text.Muted}" Margin="0,6,0,0" TextWrapping="Wrap" />
+
+                        <TextBlock Style="{StaticResource Text.SectionTitle}" Margin="0,24,0,0" Text="{loc:Text Settings_Roster}" />
+                        <TextBlock Style="{StaticResource Text.Muted}" Margin="0,6,0,6" TextWrapping="Wrap" Text="{loc:Text Settings_RosterHint}" />
+                        <TextBox x:Name="Roster" Style="{StaticResource Input}" Height="110" AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" />
+
+                        <ItemsControl ItemsSource="{Binding GeneralRows}" Focusable="False" />
+
+                        <TextBlock Style="{StaticResource Text.Muted}" Margin="0,28,0,0" FontSize="11" TextWrapping="Wrap"
+                                   Text="{loc:Text Legal_Disclaimer}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+
+            <TabItem Header="{loc:Text Settings_TabOverlay}">
+                <ScrollViewer Style="{StaticResource Page}">
+                    <ItemsControl ItemsSource="{Binding OverlayRows}" Focusable="False" />
+                </ScrollViewer>
+            </TabItem>
+
+        </TabControl>
+    </DockPanel>
+</Window>

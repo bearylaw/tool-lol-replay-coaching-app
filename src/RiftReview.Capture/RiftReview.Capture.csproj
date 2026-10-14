@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Feature: record a replay while it plays in the League client (decision 0006). References only Core. -->
+    <PropertyGroup>
+        <!-- Screen capture goes through Win32 GDI; the whole feature is Windows-only. -->
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\RiftReview.Core\RiftReview.Core.csproj" />
+    </ItemGroup>
+</Project>
