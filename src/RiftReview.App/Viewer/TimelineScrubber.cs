@@ -147,13 +147,8 @@ internal sealed class TimelineScrubber : FrameworkElement
         drawingContext.DrawRoundedRectangle(Track, null, new Rect(Inset, middle - (TrackHeight / 2), width, TrackHeight), 3, 3);
         drawingContext.DrawRoundedRectangle(Played, null, new Rect(Inset, middle - (TrackHeight / 2), width * Share(Position), TrackHeight), 3, 3);
 
-        DrawDeaths(drawingContext, width, middle);
-
-        foreach (var turret in Turrets ?? [])
-        {
-            DrawTower(drawingContext, Inset + (width * Share(turret.Time)), turret.IsBlue ? middle - 18 : middle + 5, turret.IsBlue ? Blue : Red, TowerOutline);
-        }
-
+        DrawEvents(drawingContext, width, middle);
+        DrawFocus(drawingContext, width, middle);
         DrawObjectives(drawingContext, width, middle);
 
         foreach (var time in Bookmarks ?? [])
@@ -166,10 +161,10 @@ internal sealed class TimelineScrubber : FrameworkElement
         drawingContext.DrawEllipse(Handle, null, new Point(Inset + (width * Share(Position)), middle), 7, 7);
     }
 
-    private void DrawDeaths(DrawingContext context, double width, double middle)
+    // Deaths and turrets of everyone; they step back while a player is selected.
+    private void DrawEvents(DrawingContext context, double width, double middle)
     {
-        var focused = FocusMarks is { Count: > 0 };
-        context.PushOpacity(focused ? Dimmed : 1);
+        context.PushOpacity(FocusMarks is { Count: > 0 } ? Dimmed : 1);
         foreach (var mark in Marks ?? [])
         {
             var x = Inset + (width * Share(mark.Time));
@@ -177,7 +172,16 @@ internal sealed class TimelineScrubber : FrameworkElement
             context.DrawRectangle(mark.IsBlue ? Blue : Red, null, new Rect(x - 1, top, 2, 9));
         }
 
+        foreach (var turret in Turrets ?? [])
+        {
+            DrawTower(context, Inset + (width * Share(turret.Time)), turret.IsBlue ? middle - 18 : middle + 5, turret.IsBlue ? Blue : Red, TowerOutline);
+        }
+
         context.Pop();
+    }
+
+    private void DrawFocus(DrawingContext context, double width, double middle)
+    {
         foreach (var mark in FocusMarks ?? [])
         {
             var x = Inset + (width * Share(mark.Time));
