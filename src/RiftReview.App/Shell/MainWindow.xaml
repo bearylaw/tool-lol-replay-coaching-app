@@ -687,15 +687,17 @@
                                     <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
                                         <ItemsControl ItemsSource="{Binding DataContext.SelectedBookmarks, RelativeSource={RelativeSource AncestorType=Window}}">
                                             <ItemsControl.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type replays:BookmarkLine}">
+                                                <DataTemplate DataType="{x:Type replays:BookmarkEdit}">
                                                     <Border Margin="0,0,0,4" Padding="8,5" CornerRadius="5" Background="{StaticResource Brush.Surface}">
                                                         <DockPanel>
                                                             <Button DockPanel.Dock="Right" Style="{StaticResource Button.Icon}" Padding="6,3" Content="&#xE74D;"
                                                                     Command="{Binding DataContext.DeleteBookmarkCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
                                                                     ToolTip="{loc:Text Bookmark_Delete}" AutomationProperties.Name="{loc:Text Bookmark_Delete}" />
                                                             <TextBlock DockPanel.Dock="Left" Width="52" FontFamily="{StaticResource Font.Numbers}" FontSize="14"
-                                                                       Foreground="{StaticResource Brush.GoldBright}" Text="{Binding Time}" />
-                                                            <TextBlock FontSize="14" TextWrapping="Wrap" Text="{Binding Bookmark.Text}" />
+                                                                       VerticalAlignment="Center" Foreground="{StaticResource Brush.GoldBright}" Text="{Binding Time}" />
+                                                            <TextBox Style="{StaticResource Input}" FontSize="14" TextWrapping="Wrap" AcceptsReturn="False"
+                                                                     ToolTip="{loc:Text Bookmark_EditInApp}" AutomationProperties.Name="{loc:Text Bookmark_EditInApp}"
+                                                                     Text="{Binding Text, UpdateSourceTrigger=LostFocus}" />
                                                         </DockPanel>
                                                     </Border>
                                                 </DataTemplate>

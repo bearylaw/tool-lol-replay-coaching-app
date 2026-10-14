@@ -718,4 +718,7 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
   <data name="Export_CopyFailed" xml:space="preserve">
     <value>The notes could not be copied: another program is using the clipboard. Try again.</value>
   </data>
+  <data name="Bookmark_EditInApp" xml:space="preserve">
+    <value>The note of this bookmark. Click to change it; saved when you click elsewhere.</value>
+  </data>
 </root>

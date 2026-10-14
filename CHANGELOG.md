@@ -8,6 +8,8 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Bookmark notes can be changed in a match's Notes tab, not only in the
+  overlay.
 - Copy for Discord in a match's Notes tab: the game, both teams, every
   bookmark in time order (`- **2:23** – note`) and the free notes, as
   Markdown on the clipboard.

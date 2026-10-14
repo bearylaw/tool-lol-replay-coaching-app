@@ -40,3 +40,20 @@ public sealed class NotesExportTests
         Assert.Equal("## Game 1\n", text);
     }
 }
+
+public sealed class BookmarkEditTests
+{
+    [Fact]
+    public void SavesAChangedNoteTrimmedAndOnlyWhenItChanged()
+    {
+        var saved = new List<Bookmark>();
+        var edit = new BookmarkEdit(new Bookmark(Guid.NewGuid(), 143, "Go bot", DateTimeOffset.UnixEpoch), saved.Add);
+
+        edit.Text = "Go bot";
+        edit.Text = "  Team should have gone bot  ";
+
+        var bookmark = Assert.Single(saved);
+        Assert.Equal("Team should have gone bot", bookmark.Text);
+        Assert.Equal("2:23", edit.Time);
+    }
+}

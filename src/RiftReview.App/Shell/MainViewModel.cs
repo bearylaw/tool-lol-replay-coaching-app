@@ -31,7 +31,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
     private readonly SettingsStore settingsStore;
     private readonly NotesStore notes;
     private readonly BookmarkStore bookmarks;
-    private IReadOnlyList<BookmarkLine> selectedBookmarks = [];
+    private IReadOnlyList<BookmarkEdit> selectedBookmarks = [];
     private readonly IconProvider icons;
     private readonly Dialogs dialogs;
     private readonly AppLog log;
@@ -66,7 +66,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         bookmarks.Changed += (_, key) => OnBookmarksChanged(key);
         DeleteBookmarkCommand = new RelayCommand(p =>
         {
-            if (p is BookmarkLine line && Selected is not null)
+            if (p is BookmarkEdit line && Selected is not null)
             {
                 bookmarks.Remove(Selected.NoteKey, line.Bookmark.Id);
             }
@@ -204,7 +204,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>The selected replay's bookmarks, all of them, in time order.</summary>
-    public IReadOnlyList<BookmarkLine> SelectedBookmarks
+    public IReadOnlyList<BookmarkEdit> SelectedBookmarks
     {
         get => selectedBookmarks;
         private set
@@ -259,9 +259,16 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
 
         if (Selected is not null && string.Equals(Selected.NoteKey, key, StringComparison.OrdinalIgnoreCase))
         {
-            SelectedBookmarks = [.. saved.Select(BookmarkLine.From)];
+            // An edit made here is already shown; rebuilding would take the focus from the next note box.
+            if (!saved.Select(b => (b.Id, b.Time, b.Text)).SequenceEqual(SelectedBookmarks.Select(e => (e.Bookmark.Id, e.Bookmark.Time, e.Bookmark.Text))))
+            {
+                SelectedBookmarks = Editable(key, saved);
+            }
         }
     }
+
+    private List<BookmarkEdit> Editable(string key, IReadOnlyList<Bookmark> saved) =>
+        [.. saved.Select(b => new BookmarkEdit(b, changed => bookmarks.Put(key, changed)))];
 
     /// <summary>The coach's note on the selected replay; saved when the text box loses focus.</summary>
     public string NoteText
@@ -476,7 +483,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         // async void: a UI event boundary; everything awaited here handles its own failures.
         noteText = item is null ? string.Empty : notes.Get(item.NoteKey);
         OnPropertyChanged(nameof(NoteText));
-        SelectedBookmarks = item is null ? [] : [.. bookmarks.Get(item.NoteKey).Select(BookmarkLine.From)];
+        SelectedBookmarks = item is null ? [] : Editable(item.NoteKey, bookmarks.Get(item.NoteKey));
         if (item?.Metadata is null)
         {
             Detail = null;
