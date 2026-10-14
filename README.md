@@ -180,7 +180,7 @@ instead (a portable copy).
 
 ## Building from source
 
-**Needs:** .NET SDK 10 (`global.json` pins the feature band),
+**Needs:** .NET SDK 10.0.401 exactly (`global.json` pins it, so the lock files match),
 [just](https://github.com/casey/just) and PowerShell 7;
 [lefthook](https://github.com/evilmartians/lefthook) and
 [gitleaks](https://github.com/gitleaks/gitleaks) for the git hooks.
