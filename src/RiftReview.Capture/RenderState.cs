@@ -3,8 +3,12 @@ using RiftReview.Core.Results;
 
 namespace RiftReview.Capture;
 
-/// <summary>Where League's replay camera is: position, rotation (degrees) and field of view.</summary>
-public sealed record CameraView(double X, double Y, double Z, double Pitch, double Yaw, double Roll, double FieldOfView);
+/// <summary>
+/// Where League's replay camera is: position, rotation (degrees, as the replay API's x, y, z; y is the
+/// downward tilt of the top camera), field of view and camera mode ("top" is League's normal camera,
+/// "fps" its free camera).
+/// </summary>
+public sealed record CameraView(double X, double Y, double Z, double Pitch, double Yaw, double Roll, double FieldOfView, string Mode = "top");
 
 /// <summary>
 /// The parts of <c>/replay/render</c> Rift Review reads: the selected player (League's target
@@ -29,9 +33,10 @@ public static class RenderStateParser
 
             var selection = root.TryGetProperty("selectionName", out var name) && name.ValueKind == JsonValueKind.String ? name.GetString()! : string.Empty;
             var fieldOfView = root.TryGetProperty("fieldOfView", out var fov) && fov.TryGetDouble(out var f) ? f : 40;
+            var mode = root.TryGetProperty("cameraMode", out var m) && m.ValueKind == JsonValueKind.String ? m.GetString()! : "top";
             return Result<RenderState, string>.Success(new RenderState(
                 selection,
-                new CameraView(Axis(position, "x"), Axis(position, "y"), Axis(position, "z"), Axis(rotation, "x"), Axis(rotation, "y"), Axis(rotation, "z"), fieldOfView)));
+                new CameraView(Axis(position, "x"), Axis(position, "y"), Axis(position, "z"), Axis(rotation, "x"), Axis(rotation, "y"), Axis(rotation, "z"), fieldOfView, mode)));
         }
         catch (Exception exception) when (exception is JsonException or InvalidOperationException or KeyNotFoundException)
         {

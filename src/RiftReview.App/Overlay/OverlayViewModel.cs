@@ -134,7 +134,7 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     // A jump to a bookmark starts this long before it, to see what led up to it; a jump to a death
     // longer, to see the mistake rather than the grey screen.
     private const double BookmarkLead = 3;
-    private const double DeathLead = 10;
+    private const double EventLead = 10;
 
     // League needs a moment after a seek before a camera it is given stays.
     private static readonly TimeSpan SettleAfterSeek = TimeSpan.FromMilliseconds(400);
@@ -153,7 +153,6 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     private int ticks;
     private bool showBookmarks;
     private bool pausedForNote;
-    private readonly IReadOnlyList<(double Time, int Player)> deaths;
     private int? focus;
     private readonly MatchTimeline? timeline;
 
@@ -172,7 +171,6 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         Marks = DeathMarksOf(timeline, rows);
         this.timeline = timeline;
         Objectives = TimelineMarks.Objectives(timeline);
-        deaths = [.. (timeline?.Events ?? []).Where(e => e.Kind == TimelineEventKind.Death && e.Champion < rows.Count).Select(e => (e.Time, e.Champion)).OrderBy(d => d.Time)];
 
         poll = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(250) };
         poll.Tick += async (_, _) => await PollAsync();
@@ -191,8 +189,10 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         JumpToBookmarkCommand = new RelayCommand(async p => await JumpToAsync(p as BookmarkItem));
         EditBookmarkCommand = new RelayCommand(async p => await EditAsync(p as BookmarkItem));
         DeleteBookmarkCommand = new RelayCommand(p => Delete(p as BookmarkItem));
-        PreviousDeathCommand = new RelayCommand(() => StepDeath(-1), () => focus is not null);
-        NextDeathCommand = new RelayCommand(() => StepDeath(+1), () => focus is not null);
+        PreviousDeathCommand = new RelayCommand(() => Step(FocusKind.Death, -1), () => focus is not null);
+        NextDeathCommand = new RelayCommand(() => Step(FocusKind.Death, +1), () => focus is not null);
+        PreviousKillCommand = new RelayCommand(() => Step(FocusKind.Kill, -1), () => focus is not null);
+        NextKillCommand = new RelayCommand(() => Step(FocusKind.Kill, +1), () => focus is not null);
     }
 
     /// <summary>Raised when a note box should open over the game.</summary>
@@ -242,6 +242,12 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
 
     /// <summary>Jumps to the selected player's next death, ten seconds before it.</summary>
     public ICommand NextDeathCommand { get; }
+
+    /// <summary>Jumps to the selected player's previous kill, ten seconds before it.</summary>
+    public ICommand PreviousKillCommand { get; }
+
+    /// <summary>Jumps to the selected player's next kill, ten seconds before it.</summary>
+    public ICommand NextKillCommand { get; }
 
     /// <summary>Both teams' stats and items at the current time (Tab or the scoreboard button).</summary>
     public Scoreboard Scoreboard { get; }
@@ -421,15 +427,15 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         await SelectFocusAgainAsync();
     }
 
-    // The previous or next death of the selected player, measured from where its jump would land.
-    private void StepDeath(int direction)
+    // The selected player's previous or next death or kill, measured from where its jump would land.
+    private void Step(FocusKind kind, int direction)
     {
-        if (focus is not { } player)
+        if (focus is null)
         {
             return;
         }
 
-        var times = deaths.Where(d => d.Player == player).Select(d => Math.Max(0, d.Time - DeathLead)).ToList();
+        var times = FocusMarks.Where(m => m.Kind == kind).Select(m => Math.Max(0, m.Time - EventLead)).Order().ToList();
         var now = Now;
         var target = direction > 0
             ? times.Where(t => t > now + 1).Cast<double?>().FirstOrDefault()

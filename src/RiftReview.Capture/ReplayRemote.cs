@@ -69,22 +69,29 @@ public sealed class ReplayRemote(GameApi game)
         game.SetRenderAsync(new Dictionary<string, object> { ["selectionName"] = gameName }, cancellationToken);
 
     /// <summary>
-    /// Puts the camera where <paramref name="view"/> says. League keeps a set camera only in its free
-    /// camera ("fps"); the directed camera would move it straight back.
+    /// Puts the camera where <paramref name="view"/> says, in its camera mode. League takes a position
+    /// only in its free camera ("fps"); the top camera, switched to from there, keeps the view but sits
+    /// height / tan(tilt) further south, so the free camera is placed that much north first.
     /// </summary>
-    public Task SetCameraAsync(CameraView view, CancellationToken cancellationToken)
+    public async Task SetCameraAsync(CameraView view, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(view);
-        return game.SetRenderAsync(
+        var top = view.Mode != "fps";
+        var z = top && view.Yaw is > 1 and < 89 ? view.Z + (view.Y / Math.Tan(view.Yaw * Math.PI / 180)) : view.Z;
+        await game.SetRenderAsync(
             new Dictionary<string, object>
             {
                 ["cameraMode"] = "fps",
                 ["cameraAttached"] = false,
-                ["cameraPosition"] = new Dictionary<string, double> { ["x"] = view.X, ["y"] = view.Y, ["z"] = view.Z },
+                ["cameraPosition"] = new Dictionary<string, double> { ["x"] = view.X, ["y"] = view.Y, ["z"] = z },
                 ["cameraRotation"] = new Dictionary<string, double> { ["x"] = view.Pitch, ["y"] = view.Yaw, ["z"] = view.Roll },
                 ["fieldOfView"] = view.FieldOfView,
             },
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+        if (top)
+        {
+            await game.SetRenderAsync(new Dictionary<string, object> { ["cameraMode"] = "top" }, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     /// <summary>Shows or hides parts of League's own interface.</summary>

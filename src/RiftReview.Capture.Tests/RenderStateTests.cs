@@ -18,7 +18,7 @@ public sealed class RenderStateTests
         Assert.True(RenderStateParser.Parse(Render).TryGetValue(out var state, out var error), error);
 
         Assert.Equal("BearY", state.SelectionName);
-        Assert.Equal(new CameraView(4520.07, 1911.85, 4249.95, 0, 56, 0, 40), state.Camera);
+        Assert.Equal(new CameraView(4520.07, 1911.85, 4249.95, 0, 56, 0, 40, "top"), state.Camera);
     }
 
     [Theory]
@@ -30,34 +30,45 @@ public sealed class RenderStateTests
         Assert.NotEmpty(error);
     }
 
-    // League keeps a set camera only in its free camera, so the camera mode goes with it.
+    // Checked on a running 16.20 replay: the free camera at z = 3710.44 + 1911.85 / tan(56°), then
+    // the top camera, gives back the top camera at z = 3710.44.
     [Fact]
-    public async Task PutsTheCameraInFreeModeWhereItWas()
+    public async Task RestoresTheTopCameraThroughTheFreeCamera()
     {
         var handler = new Recorder();
         using var game = new GameApi(handler);
 
-        await new ReplayRemote(game).SetCameraAsync(new CameraView(7000, 1911.85, 7000, 0, 56, 0, 40), CancellationToken.None);
+        await new ReplayRemote(game).SetCameraAsync(new CameraView(7000, 1911.848, 3710.442, 0, 56, 0, 40, "top"), CancellationToken.None);
 
-        using var body = JsonDocument.Parse(handler.Body!);
-        var root = body.RootElement;
-        Assert.Equal("replay/render", handler.Path);
-        Assert.Equal("fps", root.GetProperty("cameraMode").GetString());
-        Assert.False(root.GetProperty("cameraAttached").GetBoolean());
-        Assert.Equal(7000, root.GetProperty("cameraPosition").GetProperty("z").GetDouble());
-        Assert.Equal(56, root.GetProperty("cameraRotation").GetProperty("y").GetDouble());
+        Assert.Equal(2, handler.Bodies.Count);
+        using var free = JsonDocument.Parse(handler.Bodies[0]);
+        Assert.Equal("fps", free.RootElement.GetProperty("cameraMode").GetString());
+        Assert.Equal(5000, free.RootElement.GetProperty("cameraPosition").GetProperty("z").GetDouble(), 0);
+        using var back = JsonDocument.Parse(handler.Bodies[1]);
+        Assert.Equal("top", back.RootElement.GetProperty("cameraMode").GetString());
+    }
+
+    [Fact]
+    public async Task LeavesAFreeCameraFree()
+    {
+        var handler = new Recorder();
+        using var game = new GameApi(handler);
+
+        await new ReplayRemote(game).SetCameraAsync(new CameraView(7000, 1911.85, 7000, 227, 3, 0, 40, "fps"), CancellationToken.None);
+
+        using var body = JsonDocument.Parse(Assert.Single(handler.Bodies));
+        Assert.Equal(7000, body.RootElement.GetProperty("cameraPosition").GetProperty("z").GetDouble());
+        Assert.Equal("fps", body.RootElement.GetProperty("cameraMode").GetString());
     }
 
     private sealed class Recorder : HttpMessageHandler
     {
-        public string? Path { get; private set; }
-
-        public string? Body { get; private set; }
+        public List<string> Bodies { get; } = [];
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            Path = request.RequestUri!.AbsolutePath.TrimStart('/');
-            Body = await request.Content!.ReadAsStringAsync(cancellationToken);
+            Assert.Equal("/replay/render", request.RequestUri!.AbsolutePath);
+            Bodies.Add(await request.Content!.ReadAsStringAsync(cancellationToken));
             return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{}") };
         }
     }

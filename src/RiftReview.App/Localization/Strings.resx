@@ -751,4 +751,16 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
   <data name="Objective_GrubLetter" xml:space="preserve">
     <value>G</value>
   </data>
+  <data name="Focus_PreviousKill" xml:space="preserve">
+    <value>◀ Kill</value>
+  </data>
+  <data name="Focus_NextKill" xml:space="preserve">
+    <value>Kill ▶</value>
+  </data>
+  <data name="Focus_PreviousKillTip" xml:space="preserve">
+    <value>Previous kill of the player selected in League, ten seconds before it</value>
+  </data>
+  <data name="Focus_NextKillTip" xml:space="preserve">
+    <value>Next kill of the player selected in League, ten seconds before it</value>
+  </data>
 </root>

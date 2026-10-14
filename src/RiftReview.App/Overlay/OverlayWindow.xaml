@@ -238,6 +238,10 @@
                         Command="{Binding PreviousDeathCommand}" ToolTip="{loc:Text Focus_PreviousTip}" AutomationProperties.Name="{loc:Text Focus_PreviousTip}" />
                 <Button Margin="4,0,0,0" Style="{StaticResource Button.Ghost}" Padding="8,3" Content="{loc:Text Focus_Next}"
                         Command="{Binding NextDeathCommand}" ToolTip="{loc:Text Focus_NextTip}" AutomationProperties.Name="{loc:Text Focus_NextTip}" />
+                <Button Margin="10,0,0,0" Style="{StaticResource Button.Ghost}" Padding="8,3" Content="{loc:Text Focus_PreviousKill}"
+                        Command="{Binding PreviousKillCommand}" ToolTip="{loc:Text Focus_PreviousKillTip}" AutomationProperties.Name="{loc:Text Focus_PreviousKillTip}" />
+                <Button Margin="4,0,0,0" Style="{StaticResource Button.Ghost}" Padding="8,3" Content="{loc:Text Focus_NextKill}"
+                        Command="{Binding NextKillCommand}" ToolTip="{loc:Text Focus_NextKillTip}" AutomationProperties.Name="{loc:Text Focus_NextKillTip}" />
             </StackPanel>
         </Border>
 

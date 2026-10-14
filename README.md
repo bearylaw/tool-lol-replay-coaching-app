@@ -36,7 +36,7 @@ Review adds on top of League's own replay:
   without scrubbing.
 - **One player at a time.** Select a champion in League and the timeline shows their
   deaths, kills, assists and turret takedowns; ◀ Death / Death ▶ jumps to each death,
-  ten seconds before it.
+  ten seconds before it; ◀ Kill / Kill ▶ does the same for their kills.
 - **One library for the whole team.** Your own replays and the `.rofl` files your
   players send, with every stat Riot records.
 
@@ -91,7 +91,8 @@ sorted by time, ready to paste for your player:
   took it) and your bookmarks (gold). Click or drag to jump; ±10 s and 0.25× to 8×.
 - **Selected player:** click a champion in League (their frame shows bottom left) and the
   timeline highlights their deaths (outlined), kills (gold), assists (gold outline) and
-  turret takedowns; the others dim. ◀ Death / Death ▶ steps through their deaths.
+  turret takedowns; the others dim. ◀ Death / Death ▶ and ◀ Kill / Kill ▶ step through
+  their deaths and kills.
 - **Scoreboard (Tab):** both teams with level, K/D/A, CS and CS per minute, items,
   ward score and the gold value of their items at this moment, with kills and towers
   per team (dragons and barons stay on League's score bar).
