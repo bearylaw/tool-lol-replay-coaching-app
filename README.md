@@ -11,7 +11,7 @@ happened. Every note waits on the timeline for the next review.
 
 [![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6?logo=windows&logoColor=white)](#getting-started)
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-C8AA6E.svg)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-C8AA6E.svg)](LICENSE)
 
 </div>
 
@@ -226,4 +226,7 @@ trademarks of Riot Games, Inc.
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+Copyright © 2026 bearylaw. Rift Review is free software under the
+[GNU General Public License v3.0 or later](LICENSE): use it, study it, change it and share
+it, as long as what you share keeps this notice, says what you changed, and stays under the
+same license with its source.

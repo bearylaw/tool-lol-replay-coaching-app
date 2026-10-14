@@ -6,6 +6,10 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- License: GPL-3.0-or-later instead of MIT (decision 0009).
+
 ### Added
 
 - Bookmark notes can be changed in a match's Notes tab, not only in the
