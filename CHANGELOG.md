@@ -12,9 +12,11 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- Holding Tab brings up League's own scoreboard (League reads the key itself);
-  the overlay's bar slides up above it until Tab is let go. Rift Review's
-  scoreboard opens with its button.
+- Holding Tab, or pressing O, brings up League's own scoreboard (League reads
+  the keys itself); the overlay's bar slides up above it until Tab is let go or
+  O is pressed again.
+- Setting *Rift Review's scoreboard* (off by default): its button next to the
+  timeline and the live data behind it; off, nothing of it is loaded.
 - Kills and assists per player, turret takedowns, and dragons, barons, heralds
   and grubs per team, read from the replay file's packet timing.
 - Overlay timeline: objectives as lettered dots (D, B, H, G) in the colour of

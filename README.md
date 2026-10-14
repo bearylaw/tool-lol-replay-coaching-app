@@ -29,8 +29,8 @@ Review adds on top of League's own replay:
   pathing, a highlighter for areas. The drawing sits over the live replay; pause, draw,
   explain, clear, play on.
 - **Notes at the second they matter.** One key bookmarks the moment and opens a note
-  box; the replay pauses while you type. Each note sits on the timeline and in the
-  replay list, and one click jumps back to it.
+  box. Each note sits on the timeline and in the replay list, and one click jumps back
+  to it, with whatever you had drawn and the camera where it was.
 - **A timeline that reads the game.** Every death, every turret that fell and every
   dragon, baron, herald and grub camp, per team, so you find the fights and the throws
   without scrubbing.
@@ -59,8 +59,11 @@ or clear when you jump.
 </p>
 
 Ctrl+Alt+B (or the pin button) bookmarks this moment with a note. The list jumps
-to each note three seconds before it, so you see the build-up. The same notes appear
-in the replay list and the match view, next to free notes for the whole game.
+to each note three seconds before it, so you see the build-up. A bookmark made while
+something is drawn keeps the drawing (a pen icon in the list): its jump pauses at that
+exact moment, puts League's camera back where it was and shows the drawing again.
+The same notes appear in the replay list and the match view, next to free notes for
+the whole game, and can be edited there.
 **Copy for Discord** in the match's Notes tab puts them on the clipboard as Markdown,
 sorted by time, ready to paste for your player:
 
@@ -82,7 +85,7 @@ sorted by time, ready to paste for your player:
 ### Timeline and scoreboard
 
 <p align="center">
-  <img src="docs/images/ingame-scoreboard.jpg" alt="The scoreboard over the replay" width="100%" />
+  <img src="docs/images/ingame-scoreboard.jpg" alt="Rift Review's optional scoreboard over the replay" width="100%" />
 </p>
 
 - **Timeline:** every death (blue above, red below), every turret that fell (a small
@@ -93,9 +96,12 @@ sorted by time, ready to paste for your player:
   timeline highlights their deaths (outlined), kills (gold), assists (gold outline) and
   turret takedowns; the others dim. ◀ Death / Death ▶ and ◀ Kill / Kill ▶ step through
   their deaths and kills.
-- **Scoreboard (its button):** both teams with level, K/D/A, CS and CS per minute, items,
+- **Scoreboards:** League's own comes up while Tab is held, or from one O to the next;
+  Rift Review's bar slides up above it meanwhile. Rift Review's scoreboard is optional
+  (*Rift Review's scoreboard* in the overlay settings, off by default): a button next to
+  the timeline then shows both teams with level, K/D/A, CS and CS per minute, items,
   ward score and the gold value of their items at this moment, with kills and towers
-  per team (dragons and barons stay on League's score bar).
+  per team.
 - **League's own interface** stays for what it shows best: team frames, kill
   call-outs, objective timers, the minimap and the camera and vision panel, where
   you choose whose vision the fog of war shows (blue, red or both).
@@ -106,7 +112,7 @@ front.
 | Key (while League is in front) | Does |
 |---|---|
 | Space | Play / pause |
-| Tab (hold) | League's scoreboard; Rift Review's bar slides up above it |
+| Tab (hold) / O | League's scoreboard, held or until the next O; Rift Review's bar slides up above it |
 | Ctrl+Alt+B | Bookmark this moment with a note |
 | Ctrl+Alt+D | Drawing tools on / off |
 | Ctrl+Alt+Z / Ctrl+Alt+X | Undo the last drawing / clear all |

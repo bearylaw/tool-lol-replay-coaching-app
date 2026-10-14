@@ -273,6 +273,7 @@
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Margin="12,0" VerticalAlignment="Center" Style="{StaticResource Text.Number}" Text="{Binding TimeText}" MinWidth="104" TextAlignment="Right" />
                     <ToggleButton Style="{StaticResource Overlay.Toggle}" IsChecked="{Binding Scoreboard.IsOpen, Mode=OneWay}" Command="{Binding Scoreboard.ToggleCommand}"
+                                  Visibility="{Binding Settings.ShowOwnScoreboard, Converter={StaticResource VisibleWhen}}"
                                   ToolTip="{loc:Text Scoreboard_Tip}" AutomationProperties.Name="{loc:Text Scoreboard_Tip}">
                         <Path Data="M0,0 H16 M0,5 H16 M0,10 H16 M5,-2 V12" Stroke="{StaticResource Brush.Text}" StrokeThickness="1.6" Margin="0,2,0,0" />
                     </ToggleButton>

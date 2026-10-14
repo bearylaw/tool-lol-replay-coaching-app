@@ -546,7 +546,8 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(IsPlaying));
         OnPropertyChanged(nameof(SpeedText));
         OnPropertyChanged(nameof(TimeText));
-        if (ticks % 4 == 1)
+        // Live player data feeds only Rift Review's scoreboard; without it nothing is loaded.
+        if (ticks % 4 == 1 && Settings.ShowOwnScoreboard)
         {
             await UpdatePlayersAsync();
         }

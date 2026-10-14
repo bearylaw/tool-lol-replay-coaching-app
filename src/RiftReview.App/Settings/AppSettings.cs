@@ -41,6 +41,12 @@ internal sealed record OverlaySettings
     /// <summary>Size of the overlay's panels, 0.6–1.6.</summary>
     public double Scale { get; init; } = 1;
 
+    /// <summary>
+    /// Rift Review's own scoreboard (its button next to the timeline); off, it is not loaded and the
+    /// button is gone, and League's scoreboard (Tab, O) is the only one.
+    /// </summary>
+    public bool ShowOwnScoreboard { get; init; }
+
     /// <summary>Hide League's replay controls and timeline; the overlay's bar replaces them.</summary>
     public bool HideLeagueControls { get; init; } = true;
 

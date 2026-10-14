@@ -24,10 +24,12 @@ internal sealed partial class OverlayWindow : Window
 
     private readonly DispatcherTimer track = new() { Interval = TimeSpan.FromMilliseconds(300) };
 
-    // Tab is League's (it reads the keyboard itself, so its scoreboard comes up whatever is registered);
+    // Tab and O are League's (it reads the keyboard itself, so its scoreboard comes up whatever is registered);
     // the overlay watches the key this often, only reading it.
     private readonly DispatcherTimer tabWatch = new() { Interval = TimeSpan.FromMilliseconds(30) };
-    private bool tabDown;
+    private bool oDown;
+    private bool scoreboardToggled;
+    private bool shifted;
     private ScreenRect? placed;
     private NoteWindow? note;
 
@@ -120,24 +122,34 @@ internal sealed partial class OverlayWindow : Window
     };
 
     private const int TabKey = 0x09;
+    private const int OKey = 0x4F;
 
     // League's Tab scoreboard covers the bottom 231 of 1080 pixels of the game window (16.20, measured
     // at 308 of 1440); the bottom column, 12 above the bottom, slides up past it with a small gap.
     private const double LeagueScoreboardHeight = 231 + 8 - 12;
     private static readonly Duration Slide = new(TimeSpan.FromMilliseconds(180));
 
-    // While Tab is held League shows its scoreboard at the bottom; the bar moves out of its way.
+    // League shows its scoreboard at the bottom while Tab is held, and from one O to the next; the
+    // bar moves out of its way meanwhile.
     private void WatchTab()
     {
-        var down = (NativeMethods.GetAsyncKeyState(TabKey) & 0x8000) != 0;
-        if (down == tabDown)
+        var o = (NativeMethods.GetAsyncKeyState(OKey) & 0x8000) != 0;
+        if (o && !oDown)
+        {
+            scoreboardToggled = !scoreboardToggled;
+        }
+
+        oDown = o;
+        var shift = (NativeMethods.GetAsyncKeyState(TabKey) & 0x8000) != 0 || scoreboardToggled;
+        if (shift == shifted)
         {
             return;
         }
 
-        tabDown = down;
+        shifted = shift;
+
         // The column is scaled with the overlay's own size setting; League's scoreboard is not.
-        var to = down ? -LeagueScoreboardHeight / ViewModel.Settings.Scale : 0;
+        var to = shift ? -LeagueScoreboardHeight / ViewModel.Settings.Scale : 0;
         BottomShift.BeginAnimation(
             System.Windows.Media.TranslateTransform.YProperty,
             new System.Windows.Media.Animation.DoubleAnimation(to, Slide) { EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut } });
