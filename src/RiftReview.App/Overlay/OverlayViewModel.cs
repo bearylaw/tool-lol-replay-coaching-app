@@ -138,8 +138,6 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
     private readonly DispatcherTimer poll;
     private readonly DispatcherTimer seekDelay;
     private readonly Stopwatch sincePoll = new();
-    private readonly HashSet<string> seenEvents = new(StringComparer.Ordinal);
-    private readonly List<ObjectiveTaken> objectivesTaken = [];
     private Playback? playback;
     private double position;
     private double? pendingSeek;
@@ -336,9 +334,6 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         seekDelay.Stop();
     }
 
-    internal static string EventKey(LiveEvent e) =>
-        string.Create(CultureInfo.InvariantCulture, $"{e.Name}|{Math.Round(e.Time)}|{e.Killer}|{e.Victim}|{e.Detail}");
-
     private static IReadOnlyList<ScrubberMark> DeathMarksOf(MatchTimeline? timeline, IReadOnlyList<PlayerRowViewModel> rows) => timeline is null
         ? []
         : [.. timeline.Events.Where(e => e.Kind == TimelineEventKind.Death && e.Champion < rows.Count)
@@ -414,11 +409,6 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(IsPlaying));
         OnPropertyChanged(nameof(SpeedText));
         OnPropertyChanged(nameof(TimeText));
-        if (ticks % 8 == 2)
-        {
-            await UpdateObjectivesAsync();
-        }
-
         if (ticks % 4 == 1)
         {
             await UpdatePlayersAsync();
@@ -439,58 +429,13 @@ internal sealed class OverlayViewModel : ObservableObject, IDisposable
                     }
                 }
 
-                Scoreboard.Update(snapshot.GameTime, objectivesTaken);
+                Scoreboard.Update(snapshot.GameTime);
             }
         }
         catch (HttpRequestException exception)
         {
             log.Warning("overlay.live_data", exception);
         }
-    }
-
-    // Dragons and barons per team for the scoreboard, from League's event feed.
-    private async Task UpdateObjectivesAsync()
-    {
-        try
-        {
-            if (LiveGameDataParser.ParseEvents(await game.GetEventsAsync(CancellationToken.None)).TryGetValue(out var all, out _))
-            {
-                // A replay lists some events twice under different ids: one entry per what, when and who.
-                foreach (var e in all.Where(e => seenEvents.Add(EventKey(e))))
-                {
-                    if (e.Name is "DragonKill" or "BaronKill" or "HeraldKill" && IndexOf(e.Killer) is { } killer)
-                    {
-                        objectivesTaken.Add(new ObjectiveTaken(e.Time, e.Name, rows[killer].Stats.Team == Team.Blue));
-                    }
-                }
-            }
-        }
-        catch (HttpRequestException exception)
-        {
-            log.Warning("overlay.events", exception);
-        }
-    }
-
-    // The feed names players by Riot ID game name (sometimes with tag) or by champion.
-    private int? IndexOf(string? name)
-    {
-        if (string.IsNullOrEmpty(name))
-        {
-            return null;
-        }
-
-        for (var i = 0; i < rows.Count; i++)
-        {
-            var stats = rows[i].Stats;
-            if (string.Equals(name, stats.GameName, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(name, stats.RiotId, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(name, stats.Champion, StringComparison.OrdinalIgnoreCase))
-            {
-                return i;
-            }
-        }
-
-        return null;
     }
 
     private async Task SendSeekAsync()

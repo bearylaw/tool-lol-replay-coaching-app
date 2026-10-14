@@ -32,8 +32,7 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   camera.
 - Scoreboard in the overlay (Tab or its button): both teams with level,
   K/D/A, CS and CS per minute, items, ward score and item gold at the
-  replay's current time, and per team the kills, towers, dragons and
-  barons so far.
+  replay's current time, and per team the kills and towers so far.
 - Drawing on the overlay: pointer (the tools stay open, clicks reach the
   game), pen, highlighter, line, arrow with a head that grows with it,
   circle, eraser; six colours, width; undo (also right-click) and clear;

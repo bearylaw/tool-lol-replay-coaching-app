@@ -674,7 +674,7 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
     <value>Red</value>
   </data>
   <data name="Scoreboard_Totals" xml:space="preserve">
-    <value>{0} kills · {1} towers · {2} dragons · {3} barons · {4} item gold</value>
+    <value>{0} kills · {1} towers · {2} item gold</value>
   </data>
   <data name="Scoreboard_Tip" xml:space="preserve">
     <value>Scoreboard (Tab)</value>

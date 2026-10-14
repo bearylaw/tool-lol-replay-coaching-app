@@ -61,8 +61,8 @@ another program is in front.
   tower in the colour of the team that lost it) and your bookmarks (gold). Click or
   drag to jump.
 - **Scoreboard (Tab):** both teams with level, K/D/A, CS and CS per minute, items,
-  ward score and the gold value of their items at this moment, with kills, towers,
-  dragons and barons per team.
+  ward score and the gold value of their items at this moment, with kills and towers
+  per team (dragons and barons stay on League's score bar).
 - **Drawing:** pointer, pen, highlighter, line, arrow, circle and eraser, six colours,
   any width. Right-click undoes.
 - **Bookmarks:** a note box over the game; the list jumps to each one, three seconds

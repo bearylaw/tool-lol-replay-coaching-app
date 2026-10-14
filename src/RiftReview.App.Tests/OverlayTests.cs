@@ -1,6 +1,5 @@
 using System.Windows;
 using RiftReview.App.Overlay;
-using RiftReview.Capture;
 
 namespace RiftReview.App.Tests;
 
@@ -65,14 +64,4 @@ public sealed class OverlayTests
         Assert.Equal(24, drawing.Thickness);
     }
 
-    [Fact]
-    public void TheSameEventUnderTwoIdsHasOneKey()
-    {
-        var first = new LiveEvent(10, "ChampionKill", 201.21, "Player A", "Player B", ["Player C"], null);
-        var copy = first with { Id = 57, Time = 201.24 };
-        var other = first with { Id = 11, Victim = "coffee" };
-
-        Assert.Equal(OverlayViewModel.EventKey(first), OverlayViewModel.EventKey(copy));
-        Assert.NotEqual(OverlayViewModel.EventKey(first), OverlayViewModel.EventKey(other));
-    }
 }
