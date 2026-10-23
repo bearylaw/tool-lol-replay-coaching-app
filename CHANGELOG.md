@@ -12,6 +12,10 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   game data records have one more header byte. They now load with their
   timeline; a replay whose data cannot be decompressed shows a timeline
   error instead of the crash dialog.
+- Timelines of patch 16.21 replays: a replay where a pet outnumbered a
+  champion's packets showed no timeline at all; level-ups went missing when
+  one champion was a few packets short; turret takedowns went missing when the
+  replay has no last-hit packet, and are now shown as "X, Y took a turret".
 
 ### Added
 

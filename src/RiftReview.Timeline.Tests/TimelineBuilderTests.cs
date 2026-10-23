@@ -128,6 +128,43 @@ public sealed class TimelineBuilderTests
     }
 
     [Fact]
+    public void FindsAQuietChampionBehindABusierUnit()
+    {
+        // Regression (16.21): a pet with more packets than the red champion hid the champions.
+        var chunk = Activity();
+        for (var i = 0; i < 50; i++)
+        {
+            chunk.Full(1f + (i * 0.1f), Movement, Red + 40);
+        }
+
+        var timeline = Build(chunk, blueDeaths: 0, redDeaths: 0, blueLevel: 1, redLevel: 1);
+
+        Assert.Equal([Blue, Red], timeline.Champions.Select(c => c.NetworkId));
+    }
+
+    [Fact]
+    public void KeepsLevelUpsAFewShortForOneChampion()
+    {
+        // Regression (16.21): levels vary little between players, so a type a packet short for one
+        // champion missed the correlation and all level-ups were dropped.
+        var chunk = Activity();
+        for (var i = 0; i < 12; i++)
+        {
+            chunk.Full(60f + (i * 60), LevelUp, Blue);
+        }
+
+        for (var i = 0; i < 11; i++)
+        {
+            chunk.Full(60f + (i * 60), LevelUp, Red);
+        }
+
+        var timeline = Build(chunk, blueDeaths: 0, redDeaths: 0, blueLevel: 13, redLevel: 13);
+
+        Assert.Equal(12, timeline.Events.Count(e => e.Kind == TimelineEventKind.LevelUp && e.Champion == 0));
+        Assert.Equal(11, timeline.Events.Count(e => e.Kind == TimelineEventKind.LevelUp && e.Champion == 1));
+    }
+
+    [Fact]
     public void ReturnsNoChampionsWhenTheUnitIdsAreNotConsecutive()
     {
         var chunk = new Blocks();

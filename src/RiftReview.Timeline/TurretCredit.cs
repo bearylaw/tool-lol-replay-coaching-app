@@ -7,7 +7,8 @@ namespace RiftReview.Timeline;
 /// Who destroyed each turret, from the reward burst in the tick it fell (docs/research/rofl2-payload.md):
 /// the last hit is the first attacker to get the killer type, the takedowns are the attackers that get
 /// the participant type, and the killer. Both types are found per replay against the end-of-game
-/// turret kills and takedowns. A fall without a killer was the minions'.
+/// turret kills and takedowns. A fall without a killer or participants was the minions'. Some 16.21
+/// replays lack the killer type altogether; their falls get the participants alone.
 /// </summary>
 internal static class TurretCredit
 {
@@ -27,15 +28,15 @@ internal static class TurretCredit
         var bursts = falls.Select(f => (Fall: f, Attackers: ticks.At(f.Time).Where(p => ticks.Teams[p.Hero] != f.Owner).ToArray())).ToList();
         var types = ticks.ChampionTypes();
         var killerType = Best(types, t => Killers(bursts, t, players.Count), killed);
-        if (killerType is null)
+        var participantType = Best(types, t => Participants(bursts, killerType, t, players.Count), takedowns);
+        if (killerType is null && participantType is null)
         {
             return falls;
         }
 
-        var participantType = Best(types, t => Participants(bursts, killerType.Value, t, players.Count), takedowns);
         return [.. bursts.Select(b =>
         {
-            var killer = KillerOf(b.Attackers, killerType.Value);
+            var killer = KillerOf(b.Attackers, killerType);
             return b.Fall with
             {
                 Killer = killer,
@@ -50,7 +51,7 @@ internal static class TurretCredit
         return stat.Sum() > 0 && best.Off <= Math.Max(2, stat.Sum() * MaxShareOff) ? best.Type : null;
     }
 
-    private static int KillerOf(ChampionPacket[] attackers, ushort killerType) =>
+    private static int KillerOf(ChampionPacket[] attackers, ushort? killerType) =>
         attackers.Where(p => p.Type == killerType).Select(p => p.Hero).DefaultIfEmpty(-1).First();
 
     private static HashSet<int> TakedownsOf(ChampionPacket[] attackers, int killer, ushort participantType)
@@ -75,7 +76,7 @@ internal static class TurretCredit
         return counts;
     }
 
-    private static int[] Participants(List<(TurretFall Fall, ChampionPacket[] Attackers)> bursts, ushort killerType, ushort type, int players)
+    private static int[] Participants(List<(TurretFall Fall, ChampionPacket[] Attackers)> bursts, ushort? killerType, ushort type, int players)
     {
         var counts = new int[players];
         foreach (var hero in bursts.SelectMany(b => TakedownsOf(b.Attackers, KillerOf(b.Attackers, killerType), type)))

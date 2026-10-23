@@ -47,9 +47,12 @@ internal static class TimelineMoments
         foreach (var turret in timeline.TurretFalls)
         {
             var owner = Loc.Get(turret.Owner == Team.Blue ? "Scoreboard_Blue" : "Scoreboard_Red");
-            var text = turret.Killer >= 0
-                ? With(Loc.Format("Moment_TurretBy", Name(turret.Killer), owner), turret.Participants, turret.Killer, Name)
-                : Loc.Format("Moment_Turret", owner);
+            var text = turret switch
+            {
+                { Killer: >= 0 } => With(Loc.Format("Moment_TurretBy", Name(turret.Killer), owner), turret.Participants, turret.Killer, Name),
+                { Participants.Count: > 0 } => Loc.Format("Moment_TurretTakenBy", string.Join(", ", turret.Participants.Select(Name)), owner),
+                _ => Loc.Format("Moment_Turret", owner),
+            };
             moments.Add(new TimelineMoment(turret.Time, text, turret.Owner != Team.Blue));
         }
 

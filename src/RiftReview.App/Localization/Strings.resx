@@ -886,6 +886,9 @@ Rift Review sets EnableDirectedCamera=1 in League's game.cfg and keeps a backup 
   <data name="Moment_TurretBy" xml:space="preserve">
     <value>{0} destroyed a {1} turret</value>
   </data>
+  <data name="Moment_TurretTakenBy" xml:space="preserve">
+    <value>{0} took a {1} turret</value>
+  </data>
   <data name="Moment_Turret" xml:space="preserve">
     <value>A {0} turret fell</value>
   </data>

@@ -15,7 +15,7 @@ namespace RiftReview.Timeline;
 public static class TimelineBuilder
 {
     /// <summary>Raised whenever what a timeline gets from the file changes; stored timelines below it are rebuilt.</summary>
-    public const int Version = 8;
+    public const int Version = 9;
 
     // A packet type is accepted as an event when its per-champion counts follow the stat this
     // closely, and its total is within this share of the stat's total.
@@ -104,8 +104,10 @@ public static class TimelineBuilder
     }
 
     /// <summary>
-    /// The champions' unit ids: the most frequent non-zero packet parameters, which in every replay
-    /// seen are consecutive and in player-list order. <c>null</c> when that pattern does not hold.
+    /// The champions' unit ids: consecutive non-zero packet parameters in player-list order, the run
+    /// with the most packets among the frequent parameters. Usually they are the most frequent ones
+    /// outright; in some 16.21 replays a pet or minion outranks a quiet champion. <c>null</c> when
+    /// no such run exists.
     /// </summary>
     internal static uint[]? FindChampionIds(IReadOnlyList<GameDataRecord> chunks, int playerCount)
     {
@@ -127,8 +129,21 @@ public static class TimelineBuilder
             }
         }
 
-        var top = counts.OrderByDescending(c => c.Value).Take(playerCount).Select(c => c.Key).Order().ToArray();
-        return top.Length == playerCount && top[^1] - top[0] == (uint)(playerCount - 1) ? top : null;
+        var frequent = counts.OrderByDescending(c => c.Value).Take(playerCount * 2).Select(c => c.Key).ToHashSet();
+        uint[]? best = null;
+        long bestPackets = 0;
+        foreach (var start in frequent)
+        {
+            var run = Enumerable.Range(0, playerCount).Select(i => start + (uint)i).ToArray();
+            var packets = run.All(frequent.Contains) ? run.Sum(id => (long)counts[id]) : 0;
+            if (packets > bestPackets)
+            {
+                best = run;
+                bestPackets = packets;
+            }
+        }
+
+        return best;
     }
 
     private static ScanResult Scan(IReadOnlyList<GameDataRecord> chunks, uint[] heroIds, TimeSpan gameLength)
@@ -177,7 +192,7 @@ public static class TimelineBuilder
     // champion's real final level from the end-of-game stats.
     private static IEnumerable<TimelineEvent> LevelUps(Dictionary<ushort, List<float>[]> times, int[] stat, int[] finalLevels)
     {
-        if (BestMatch(times, stat, dedupe: false) is not { } perHero)
+        if ((BestMatch(times, stat, dedupe: false) ?? ClosestCounts(times, stat)) is not { } perHero)
         {
             yield break;
         }
@@ -196,6 +211,19 @@ public static class TimelineBuilder
 
     private static List<float>[]? BestMatch(Dictionary<ushort, List<float>[]> times, int[] stat, bool dedupe) =>
         Matches(times, stat, dedupe, MinCorrelation, MaxTotalDeviation).OrderByDescending(m => m.Correlation).Select(m => m.PerHero).FirstOrDefault();
+
+    // Final levels differ little between players, so a level-up type a few packets short for one
+    // champion can miss the correlation; it still counts when it is this close player by player.
+    private const double MaxLevelShareOff = 0.08;
+
+    private static List<float>[]? ClosestCounts(Dictionary<ushort, List<float>[]> times, int[] stat)
+    {
+        var best = times.Values
+            .Select(perHero => (PerHero: perHero, Off: perHero.Select(t => t.Count).Zip(stat, (a, b) => Math.Abs(a - b)).Sum()))
+            .OrderBy(m => m.Off)
+            .FirstOrDefault();
+        return best.PerHero is not null && stat.Sum() > 0 && best.Off <= stat.Sum() * MaxLevelShareOff ? best.PerHero : null;
+    }
 
     // Packet types whose per-champion counts follow the stat closely and add up to about its total.
     private static IEnumerable<(List<float>[] PerHero, double Correlation)> Matches(Dictionary<ushort, List<float>[]> times, int[] stat, bool dedupe, double minCorrelation, double maxDeviation)

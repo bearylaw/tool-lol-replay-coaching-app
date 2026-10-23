@@ -54,6 +54,23 @@ public sealed class RewardBurstTests
     }
 
     [Fact]
+    public void CreditsTheParticipantsWhenTheReplayHasNoKillerType()
+    {
+        // As in some 16.21 replays: the burst pays the takedowns but no type marks the last hits.
+        var blocks = Background();
+        Burst(blocks, 300, (0, Reward), (1, Reward), (2, Noise));
+        Burst(blocks, 400, (1, Reward), (2, Noise));
+        var ticks = Ticks(blocks);
+        var players = Players(kills: [0, 0, 0, 0], assists: [0, 0, 0, 0], turretsKilled: [3, 3, 0, 0], turretTakedowns: [1, 2, 0, 0]);
+
+        var falls = TurretCredit.Add([new TurretFall(300, Team.Red), new TurretFall(400, Team.Red)], ticks, players);
+
+        Assert.All(falls, f => Assert.Equal(-1, f.Killer));
+        Assert.Equal([0, 1], falls[0].Participants);
+        Assert.Equal([1], falls[1].Participants);
+    }
+
+    [Fact]
     public void LeavesKillsOutWhenNoTypeFitsTheStats()
     {
         var ticks = Ticks(Background());

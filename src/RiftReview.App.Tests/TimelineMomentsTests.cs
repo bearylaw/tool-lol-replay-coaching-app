@@ -62,6 +62,14 @@ public sealed class TimelineMomentsTests
     }
 
     [Fact]
+    public void ATurretWithTakedownsButNoKnownLastHitNamesWhoTookIt()
+    {
+        var timeline = Sample with { Events = [], Objectives = [], TurretFalls = [new TurretFall(115, Team.Red, -1, [0, 1])] };
+
+        Assert.Equal(["Ahri, Vi took a Red turret"], TimelineMoments.All(timeline, Names).Select(m => m.Text));
+    }
+
+    [Fact]
     public void TheHoverCardShowsTheWholeFightUnderTheMouse()
     {
         var moments = TimelineMoments.All(Sample, Names);

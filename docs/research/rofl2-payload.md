@@ -30,6 +30,19 @@ data. The sizes do not count it. 16.21 replays also have far fewer, larger
 chunks (55 to 440 per game instead of tens of thousands). The reader tells
 the two layouts apart by where the first record's zstd magic starts.
 
+Other 16.21 differences seen in the timing layer (decision 0008: only when
+packets come and for whom):
+
+- A pet or minion can have more packets than the quietest champion, so the
+  champions are the consecutive run of ids with the most packets among the
+  frequent ones, not simply the ten most frequent.
+- One replay (15,639 small chunks instead of a few dozen large ones) has no
+  packet type that marks a turret's last hit; its turret falls get the
+  takedowns alone.
+- Level-up packets can be a few short for one champion; since final levels
+  vary little, the type is accepted when its counts are within 8 % of the
+  stats player by player, even with a weak correlation.
+
 | Tag | Count | Meaning |
 |---|---|---|
 | 3 | 1, first | initial keyframe, 12 to 19 KB |
