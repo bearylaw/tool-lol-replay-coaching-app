@@ -24,6 +24,12 @@ header, matching the independent description in ROFL-X
 | 13 | 4 | compressed size; 0 means the data is stored raw |
 | 17 | n | data: one zstd frame, or raw bytes |
 
+From patch 16.21 the header is 18 bytes: one more byte (4 in every record
+of the six 16.21 replays checked) sits between the compressed size and the
+data. The sizes do not count it. 16.21 replays also have far fewer, larger
+chunks (55 to 440 per game instead of tens of thousands). The reader tells
+the two layouts apart by where the first record's zstd magic starts.
+
 | Tag | Count | Meaning |
 |---|---|---|
 | 3 | 1, first | initial keyframe, 12 to 19 KB |

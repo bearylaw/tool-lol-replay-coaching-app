@@ -11,6 +11,8 @@ internal sealed class SyntheticReplay(int gameSeconds = 600)
     private readonly List<(RecordKind Kind, uint Id, byte[] Data, bool Compress)> records = [];
     private readonly List<Dictionary<string, string>> players = [];
     private int? corruptSizeOf;
+    private int? garbleDataOf;
+    private bool longHeaders;
 
     public SyntheticReplay WithRecord(RecordKind kind, uint id, byte[] data, bool compress = true)
     {
@@ -46,6 +48,20 @@ internal sealed class SyntheticReplay(int gameSeconds = 600)
         return this;
     }
 
+    /// <summary>Writes the record headers as patch 16.21 does: one more byte (4) before the data.</summary>
+    public SyntheticReplay WithLongHeaders()
+    {
+        longHeaders = true;
+        return this;
+    }
+
+    /// <summary>Makes record <paramref name="index"/> claim compression but hold bytes that are not zstd.</summary>
+    public SyntheticReplay WithUndecodableRecord(int index)
+    {
+        garbleDataOf = index;
+        return this;
+    }
+
     public MemoryStream Build()
     {
         using var stream = new MemoryStream();
@@ -55,12 +71,22 @@ internal sealed class SyntheticReplay(int gameSeconds = 600)
         stream.Write(version);
 
         using var compressor = new Compressor();
-        var header = new byte[17];
+        var header = new byte[longHeaders ? 18 : 17];
         for (var i = 0; i < records.Count; i++)
         {
             var (kind, id, data, compress) = records[i];
             var stored = compress ? compressor.Wrap(data).ToArray() : data;
+            if (garbleDataOf == i)
+            {
+                Array.Fill(stored, (byte)0x5A);
+            }
+
             Array.Clear(header);
+            if (longHeaders)
+            {
+                header[17] = 4;
+            }
+
             BinaryPrimitives.WriteUInt32LittleEndian(header, id);
             header[4] = (byte)(id + 1);
             header[8] = (byte)kind;

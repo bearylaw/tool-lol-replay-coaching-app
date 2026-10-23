@@ -6,6 +6,13 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Replays of patch 16.21 showed "Something went wrong" when selected: their
+  game data records have one more header byte. They now load with their
+  timeline; a replay whose data cannot be decompressed shows a timeline
+  error instead of the crash dialog.
+
 ### Added
 
 - **Live overlay:** a button in the header puts the overlay on the replay or

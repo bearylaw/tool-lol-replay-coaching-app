@@ -712,7 +712,10 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
             var path = Path.Combine(Path.GetTempPath(), "RiftReview", "live-bookmarks.json");
             try
             {
-                File.Delete(path);
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {

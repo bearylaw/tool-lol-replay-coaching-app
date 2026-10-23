@@ -27,11 +27,14 @@ public sealed record GameDataRecord(RecordKind Kind, uint Id, byte[] Data);
 /// <summary>
 /// Reads the records between the header and the trailer of a ROFL2 file: a 17-byte header
 /// (id, counter, zero bytes, kind, uncompressed size, compressed size) and a zstd frame, or raw
-/// bytes when the compressed size is 0. Layout in docs/research/rofl2-payload.md.
+/// bytes when the compressed size is 0. From patch 16.21 the header has one more byte (seen: 4)
+/// before the data. Layout in docs/research/rofl2-payload.md.
 /// </summary>
 public static class GameDataRecords
 {
     private const int HeaderLength = 17;
+    private const int LongHeaderLength = 18;
+    private static readonly byte[] ZstdMagic = [0x28, 0xB5, 0x2F, 0xFD];
 
     // The largest record seen is under 1 MB uncompressed; the cap stops a corrupt size from
     // allocating gigabytes.
@@ -48,13 +51,14 @@ public static class GameDataRecords
         }
 
         var records = new List<GameDataRecord>();
-        var header = new byte[HeaderLength];
+        var headerLength = HeaderLengthAt(stream, bounds.Start);
+        var header = new byte[headerLength];
         using var decompressor = new Decompressor();
         stream.Position = bounds.Start;
         while (stream.Position < bounds.End)
         {
             var at = stream.Position;
-            if (bounds.End - at < HeaderLength)
+            if (bounds.End - at < headerLength)
             {
                 return Fail($"record header at {at} runs past the game data end {bounds.End}");
             }
@@ -72,16 +76,44 @@ public static class GameDataRecords
 
             var raw = new byte[stored];
             stream.ReadExactly(raw);
-            var data = compressed > 0 ? decompressor.Unwrap(raw).ToArray() : raw;
-            if (data.Length != uncompressed)
+            var data = raw;
+            if (compressed > 0)
             {
-                return Fail($"record at {at} decompressed to {data.Length} bytes, header says {uncompressed}");
+                // Newer patches write frames without their size; the record header has it.
+                data = new byte[uncompressed];
+                int written;
+                try
+                {
+                    written = decompressor.Unwrap(raw, data);
+                }
+                catch (ZstdException exception)
+                {
+                    return Fail($"record at {at} does not decompress: {exception.Message}");
+                }
+
+                if (written != uncompressed)
+                {
+                    return Fail($"record at {at} decompressed to {written} bytes, header says {uncompressed}");
+                }
             }
 
             records.Add(new GameDataRecord(kind, id, data));
         }
 
         return Result<IReadOnlyList<GameDataRecord>, string>.Success(records);
+    }
+
+    // The first record is a compressed keyframe: its zstd frame starts right after the header,
+    // which tells the header's length.
+    private static int HeaderLengthAt(Stream stream, long start)
+    {
+        var probe = new byte[LongHeaderLength + ZstdMagic.Length];
+        stream.Position = start;
+        var read = stream.ReadAtLeast(probe, probe.Length, throwOnEndOfStream: false);
+        return read == probe.Length && probe.AsSpan(LongHeaderLength, ZstdMagic.Length).SequenceEqual(ZstdMagic)
+            && !probe.AsSpan(HeaderLength, ZstdMagic.Length).SequenceEqual(ZstdMagic)
+            ? LongHeaderLength
+            : HeaderLength;
     }
 
     private static Result<IReadOnlyList<GameDataRecord>, string> Fail(string detail) =>
