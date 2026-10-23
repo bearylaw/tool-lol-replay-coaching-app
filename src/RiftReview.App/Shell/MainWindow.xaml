@@ -346,6 +346,13 @@
                                VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Margin="0,0,8,0" Style="{StaticResource Button.Ghost}" Command="{Binding LiveOverlayCommand}"
+                            ToolTip="{loc:Text Action_LiveOverlayTip}" AutomationProperties.Name="{loc:Text Action_LiveOverlay}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE7F4;" VerticalAlignment="Center" />
+                            <TextBlock Margin="8,0,0,0" Text="{loc:Text Action_LiveOverlay}" />
+                        </StackPanel>
+                    </Button>
                     <Button Style="{StaticResource Button.Ghost}" Command="{Binding AddReplaysCommand}" ToolTip="{loc:Text Action_AddReplaysHint}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE710;" VerticalAlignment="Center" />

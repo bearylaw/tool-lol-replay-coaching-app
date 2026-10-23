@@ -56,6 +56,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
     private string statusText = string.Empty;
     private string noteText = string.Empty;
     private bool isLaunching;
+    private Task detailLoad = Task.CompletedTask;
 
     public MainViewModel(AppSettings settings, SettingsStore settingsStore, NotesStore notes, BookmarkStore bookmarks, IconProvider icons, Dialogs dialogs, AppLog log, InstallSearchPaths installPaths, TimelineCache timelines, Overlay.OverlayCoordinator overlay)
     {
@@ -90,6 +91,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         AddReplaysCommand = new RelayCommand(async () => await ImportAsync(dialogs.PickReplayFiles()));
         WatchCommand = new RelayCommand(async () => await WatchAsync(), () => Detail is not null && !IsLaunching);
         WatchWithOverlayCommand = new RelayCommand(async () => await WatchWithOverlayAsync(), () => Detail is not null && !IsLaunching);
+        LiveOverlayCommand = new RelayCommand(async () => await LiveOverlayAsync(), () => !IsLaunching);
         ShowInExplorerCommand = new RelayCommand(() => Dialogs.ShowFile(Selected!.Entry.FilePath), () => Selected is not null);
         OpenPlayerFolderCommand = new RelayCommand(() => Dialogs.OpenFolder(this.settings.PlayerReplaysFolder));
         OpenOwnFolderCommand = new RelayCommand(() => Dialogs.OpenFolder(this.settings.OwnReplaysFolder));
@@ -117,6 +119,9 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
 
     /// <summary>Starts the replay in League with Rift Review's overlay on top.</summary>
     public ICommand WatchWithOverlayCommand { get; }
+
+    /// <summary>Opens the overlay over the replay already open in League, found in the library.</summary>
+    public ICommand LiveOverlayCommand { get; }
 
     public ICommand ShowInExplorerCommand { get; }
 
@@ -573,6 +578,12 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
     private async void ShowDetail(ReplayItemViewModel? item)
     {
         // async void: a UI event boundary; everything awaited here handles its own failures.
+        detailLoad = LoadDetailAsync(item);
+        await detailLoad;
+    }
+
+    private async Task LoadDetailAsync(ReplayItemViewModel? item)
+    {
         noteText = item is null ? string.Empty : notes.Get(item.NoteKey);
         OnPropertyChanged(nameof(NoteText));
         SelectedBookmarks = item is null ? [] : Editable(item.NoteKey, bookmarks.Get(item.NoteKey));
@@ -618,7 +629,45 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
 
         var catalog = await icons.GetCatalogAsync(detail.Metadata.Version);
         var marks = Selected is { } replay ? new Overlay.BookmarkList(bookmarks, replay.NoteKey, settings.Tags) : null;
-        await overlay.OpenAsync(detail.LoadedTimeline, detail.AllPlayers, detail.ItemIcon, settings.Overlay, installation!, StartInClientAsync, text => StatusText = text, marks, catalog?.ItemPrices);
+        await overlay.OpenAsync(detail.Metadata.GameLength, detail.LoadedTimeline, detail.AllPlayers, detail.ItemIcon, settings.Overlay, installation!, StartInClientAsync, text => StatusText = text, marks, catalog?.ItemPrices);
+    }
+
+    /// <summary>
+    /// Finds the replay open in League in the library, selects it and attaches the overlay; the
+    /// coach may have started it from the client's match history rather than from here.
+    /// </summary>
+    private async Task LiveOverlayAsync()
+    {
+        if (installation is null && !LocateInstall())
+        {
+            dialogs.Error(Loc.Format("Launch_NoInstall", installError));
+            return;
+        }
+
+        if (!overlay.EnsureReplayApi(installation!))
+        {
+            return;
+        }
+
+        if (await overlay.FindRunningReplayAsync() is not { } running)
+        {
+            dialogs.Error(Loc.Get("LiveOverlay_NoReplay"));
+            return;
+        }
+
+        if (running.FindIn(allItems, i => i.Metadata) is not { } item)
+        {
+            log.Info("overlay.live_not_in_library", ("length", running.LengthSeconds), ("players", running.RiotIds.Count));
+            dialogs.Error(Loc.Format("LiveOverlay_NotInLibrary", settings.OwnReplaysFolder));
+            return;
+        }
+
+        // The replay must be in the list for the selection to show.
+        SearchText = string.Empty;
+        Filter = LibraryFilter.All;
+        Selected = item;
+        await detailLoad;
+        await WatchWithOverlayAsync();
     }
 
     /// <summary>Hands the selected replay to the League client (the Watch flow); true when it started.</summary>

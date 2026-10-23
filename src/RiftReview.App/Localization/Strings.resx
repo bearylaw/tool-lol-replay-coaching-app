@@ -497,6 +497,18 @@ Switch it on? Rift Review adds the line EnableReplayApi=1 to League's game.cfg a
   <data name="Action_WatchOverlay" xml:space="preserve">
     <value>Watch with overlay</value>
   </data>
+  <data name="Action_LiveOverlay" xml:space="preserve">
+    <value>Live overlay</value>
+  </data>
+  <data name="Action_LiveOverlayTip" xml:space="preserve">
+    <value>Puts Rift Review's overlay on the replay that is open in League right now, also one started from the client's match history. The replay must be in your library.</value>
+  </data>
+  <data name="LiveOverlay_NoReplay" xml:space="preserve">
+    <value>No replay is open in League. Open a replay in the League client first, then press Live overlay. If the replay API was just switched on, close the replay and open it again.</value>
+  </data>
+  <data name="LiveOverlay_NotInLibrary" xml:space="preserve">
+    <value>The replay open in League is not in your library. Add its .rofl file (the client keeps its replays in {0}) or press Refresh, then press Live overlay again.</value>
+  </data>
   <data name="Action_WatchOverlayTip" xml:space="preserve">
     <value>Plays the replay in League with Rift Review's controls, team panels, kill feed and a camera that follows a player on top. League must run in borderless or windowed mode.</value>
   </data>

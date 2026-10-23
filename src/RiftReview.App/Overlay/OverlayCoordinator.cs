@@ -19,13 +19,44 @@ namespace RiftReview.App.Overlay;
 internal sealed class OverlayCoordinator(AppLog log, ReplayGame replayGame, Shell.Dialogs dialogs)
 {
     private static readonly TimeSpan StartTimeout = TimeSpan.FromMinutes(4);
-
-    // A running replay is this match when the lengths agree this closely (the replay runs a few
-    // seconds past the game's end).
-    private const double SameReplaySeconds = 20;
     private OverlayWindow? window;
 
+    /// <summary>Makes sure Riot's replay API is on (asked, with a backup); false when it is not.</summary>
+    public bool EnsureReplayApi(LeagueInstallation league) => replayGame.EnsureReplayApi(league);
+
+    /// <summary>
+    /// The replay open in League right now with the replay API on, and its players when the Live
+    /// Client Data API answers; <c>null</c> when none runs.
+    /// </summary>
+    public async Task<RunningReplay?> FindRunningReplayAsync()
+    {
+        using var game = new GameApi();
+        if (await game.GetPlaybackAsync(CancellationToken.None) is not { Length: > 0 } playback)
+        {
+            return null;
+        }
+
+        try
+        {
+            var parsed = LiveGameDataParser.ParseAllGameData(await game.GetAllGameDataAsync(CancellationToken.None));
+            if (parsed.TryGetValue(out var snapshot, out var failure))
+            {
+                return new RunningReplay(playback.Length, [.. snapshot.Players.Select(p => p.RiotId).Where(id => id.Length > 0)]);
+            }
+
+            log.Warning("overlay.live_players", null, ("detail", failure));
+        }
+        catch (Exception exception) when (exception is HttpRequestException or TaskCanceledException)
+        {
+            // Without the players the replay is still found when only one library replay has its length.
+            log.Warning("overlay.live_players", exception);
+        }
+
+        return new RunningReplay(playback.Length, []);
+    }
+
     /// <summary>Starts the replay and opens the overlay; reports progress through <paramref name="status"/>.</summary>
+    /// <param name="gameLength">The match's length, to tell whether a replay already running is this one.</param>
     /// <param name="timeline">The replay's timeline, for the scrubber marks and the follow camera; <c>null</c> when not loaded.</param>
     /// <param name="rows">The players in player order.</param>
     /// <param name="itemIcon">Item icons by id.</param>
@@ -36,7 +67,7 @@ internal sealed class OverlayCoordinator(AppLog log, ReplayGame replayGame, Shel
     /// <param name="bookmarks">The replay's bookmarks; <c>null</c> when the replay cannot be identified.</param>
     /// <param name="itemPrices">Item prices by id, for the scoreboard's item gold.</param>
     public async Task OpenAsync(
-        MatchTimeline? timeline, IReadOnlyList<PlayerRowViewModel> rows, Func<int, IconSlot> itemIcon, OverlaySettings settings,
+        TimeSpan gameLength, MatchTimeline? timeline, IReadOnlyList<PlayerRowViewModel> rows, Func<int, IconSlot> itemIcon, OverlaySettings settings,
         LeagueInstallation league, Func<Task<bool>> startInClient, Action<string> status, BookmarkList? bookmarks = null, IReadOnlyDictionary<int, int>? itemPrices = null)
     {
         ArgumentNullException.ThrowIfNull(startInClient);
@@ -54,7 +85,7 @@ internal sealed class OverlayCoordinator(AppLog log, ReplayGame replayGame, Shel
 
         var game = new GameApi();
         var started = DateTime.Now;
-        var attached = await RunningReplayAsync(game, timeline);
+        var attached = await RunningReplayAsync(game, gameLength);
         if (attached is false || (attached is null && !await StartAsync(game, startInClient, status)))
         {
             game.Dispose();
@@ -90,14 +121,14 @@ internal sealed class OverlayCoordinator(AppLog log, ReplayGame replayGame, Shel
     }
 
     // true: this replay already runs (attach); false: another one runs (reported); null: none runs.
-    private async Task<bool?> RunningReplayAsync(GameApi game, MatchTimeline? timeline)
+    private async Task<bool?> RunningReplayAsync(GameApi game, TimeSpan gameLength)
     {
         if (await game.GetPlaybackAsync(CancellationToken.None) is not { Length: > 0 } running)
         {
             return null;
         }
 
-        if (timeline is not null && Math.Abs(running.Length - timeline.GameLength.TotalSeconds) <= SameReplaySeconds)
+        if (new RunningReplay(running.Length, []).HasLength(gameLength))
         {
             log.Info("overlay.attached", ("length", running.Length));
             return true;

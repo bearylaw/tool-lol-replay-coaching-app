@@ -6,6 +6,12 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Live overlay:** a button in the header puts the overlay on the replay that
+  is already open in League, also one started from the client's match
+  history. The replay is found in the library by its length and players.
+
 ## [1.0.0] - 2026-10-14
 
 First release: one self-contained `RiftReview.exe` for Windows 10 and 11 (x64),
