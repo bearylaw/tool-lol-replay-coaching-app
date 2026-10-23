@@ -8,9 +8,12 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- **Live overlay:** a button in the header puts the overlay on the replay that
-  is already open in League, also one started from the client's match
-  history. The replay is found in the library by its length and players.
+- **Live overlay:** a button in the header puts the overlay on the replay or
+  spectated game open in League, also a replay started from the client's match
+  history. A replay in the library is found by its length and players; any
+  other game, such as one spectated live, gets the overlay with pen and
+  bookmarks from League's live data, its bookmarks lasting until Rift Review
+  closes.
 
 ## [1.0.0] - 2026-10-14
 

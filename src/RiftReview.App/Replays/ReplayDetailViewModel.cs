@@ -87,8 +87,14 @@ internal sealed class ReplayDetailViewModel : ObservableObject, IDisposable
     {
         LoadedTimeline = timeline;
         Timeline.Show(timeline, AllPlayers);
+        ItemIcon = ItemIconsFor(catalog, icons);
+    }
+
+    /// <summary>Item icons by item id for a patch's catalog, each loaded once.</summary>
+    public static Func<int, IconSlot> ItemIconsFor(GameCatalog? catalog, IconProvider icons)
+    {
         var itemIcons = new Dictionary<int, IconSlot>();
-        ItemIcon = id =>
+        return id =>
         {
             if (!itemIcons.TryGetValue(id, out var slot))
             {

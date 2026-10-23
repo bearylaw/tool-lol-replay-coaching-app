@@ -1,12 +1,14 @@
+using RiftReview.Capture;
 using RiftReview.Core.Matches;
 
 namespace RiftReview.App.Overlay;
 
 /// <summary>
-/// A replay open in League right now, as the game's local APIs describe it: its length and the
-/// players' Riot IDs (empty when the Live Client Data API did not answer).
+/// A replay or spectated game open in League right now, as the game's local APIs describe it: its
+/// length (for a spectated game, up to now) and the players' Riot IDs, with the players' live data;
+/// both empty when the Live Client Data API did not answer.
 /// </summary>
-internal sealed record RunningReplay(double LengthSeconds, IReadOnlyList<string> RiotIds)
+internal sealed record RunningReplay(double LengthSeconds, IReadOnlyList<string> RiotIds, LiveSnapshot? Snapshot = null)
 {
     // The replay runs a few seconds past the game's end, so lengths agree only this closely.
     private const double SameLengthSeconds = 20;

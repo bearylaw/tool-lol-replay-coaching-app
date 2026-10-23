@@ -23,6 +23,24 @@ public sealed class LiveGameDataTests
         """;
 
     [Fact]
+    public void AReplayOrSpectatedGameHasNoActivePlayer()
+    {
+        Assert.True(LiveGameDataParser.ParseAllGameData(AllGameData).TryGetValue(out var snapshot, out var error), error);
+
+        Assert.False(snapshot.HasActivePlayer);
+    }
+
+    [Fact]
+    public void AGamePlayedOnThisMachineHasAnActivePlayer()
+    {
+        var playing = AllGameData.Replace(
+            "{\"error\":\"Spectator mode doesn't currently support this feature\"}", "{\"riotId\":\"Northwind#EUW\",\"level\":7}", StringComparison.Ordinal);
+
+        Assert.True(LiveGameDataParser.ParseAllGameData(playing).TryGetValue(out var snapshot, out var error), error);
+        Assert.True(snapshot.HasActivePlayer);
+    }
+
+    [Fact]
     public void ReadsPlayersFromAllGameData()
     {
         Assert.True(LiveGameDataParser.ParseAllGameData(AllGameData).TryGetValue(out var snapshot, out var error), error);

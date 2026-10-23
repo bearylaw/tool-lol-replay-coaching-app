@@ -41,7 +41,7 @@ internal sealed class OverlayCoordinator(AppLog log, ReplayGame replayGame, Shel
             var parsed = LiveGameDataParser.ParseAllGameData(await game.GetAllGameDataAsync(CancellationToken.None));
             if (parsed.TryGetValue(out var snapshot, out var failure))
             {
-                return new RunningReplay(playback.Length, [.. snapshot.Players.Select(p => p.RiotId).Where(id => id.Length > 0)]);
+                return new RunningReplay(playback.Length, [.. snapshot.Players.Select(p => p.RiotId).Where(id => id.Length > 0)], snapshot);
             }
 
             log.Warning("overlay.live_players", null, ("detail", failure));
@@ -93,6 +93,12 @@ internal sealed class OverlayCoordinator(AppLog log, ReplayGame replayGame, Shel
         }
 
         var viewModel = new OverlayViewModel(new ReplayRemote(game), game, timeline, rows, itemIcon, settings, log, canEndReplay: attached is null, bookmarks, itemPrices);
+        await ShowAsync(viewModel, game, started, status);
+        log.Info("overlay.opened", ("bookmarks", bookmarks is not null));
+    }
+
+    private async Task ShowAsync(OverlayViewModel viewModel, GameApi game, DateTime started, Action<string> status)
+    {
         window = new OverlayWindow(viewModel);
         viewModel.Closed += async (_, end) =>
         {
@@ -116,8 +122,27 @@ internal sealed class OverlayCoordinator(AppLog log, ReplayGame replayGame, Shel
         };
         window.Show();
         await viewModel.StartAsync();
-        log.Info("overlay.opened", ("bookmarks", bookmarks is not null));
         status(Loc.Get("Overlay_Open"));
+    }
+
+    /// <summary>
+    /// Opens the overlay over a game that has no replay file here, typically one spectated live:
+    /// the players come from League's live data, there is no timeline, and the bookmarks are the
+    /// caller's. The game is never ended from here.
+    /// </summary>
+    public async Task OpenLiveAsync(
+        IReadOnlyList<PlayerRowViewModel> rows, Func<int, IconSlot> itemIcon, OverlaySettings settings, Action<string> status, BookmarkList bookmarks, IReadOnlyDictionary<int, int>? itemPrices)
+    {
+        ArgumentNullException.ThrowIfNull(status);
+        if (window is not null)
+        {
+            return;
+        }
+
+        var game = new GameApi();
+        var viewModel = new OverlayViewModel(new ReplayRemote(game), game, null, rows, itemIcon, settings, log, canEndReplay: false, bookmarks, itemPrices);
+        await ShowAsync(viewModel, game, DateTime.Now, status);
+        log.Info("overlay.opened_live", ("players", rows.Count));
     }
 
     // true: this replay already runs (attach); false: another one runs (reported); null: none runs.

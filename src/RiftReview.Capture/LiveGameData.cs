@@ -27,8 +27,11 @@ public sealed record LivePlayer(
     IReadOnlyList<LiveItem> Items,
     IReadOnlyList<string> SummonerSpellNames);
 
-/// <summary>Everything about the players at one game time.</summary>
-public sealed record LiveSnapshot(double GameTime, IReadOnlyList<LivePlayer> Players);
+/// <summary>
+/// Everything about the players at one game time. <c>HasActivePlayer</c> is true only when this
+/// machine plays in the game; replays and spectated games have none.
+/// </summary>
+public sealed record LiveSnapshot(double GameTime, IReadOnlyList<LivePlayer> Players, bool HasActivePlayer = false);
 
 /// <summary>
 /// An entry of the game's event feed (kills, objectives, structures, multikills). <c>Name</c> is
@@ -56,7 +59,8 @@ public static class LiveGameDataParser
                 return Result<LiveSnapshot, string>.Failure("allgamedata has no gameData.gameTime or allPlayers");
             }
 
-            return Result<LiveSnapshot, string>.Success(new LiveSnapshot(time, [.. players.EnumerateArray().Select(Player)]));
+            var hasActivePlayer = root.TryGetProperty("activePlayer", out var active) && (Text(active, "riotId") ?? Text(active, "summonerName")) is { Length: > 0 };
+            return Result<LiveSnapshot, string>.Success(new LiveSnapshot(time, [.. players.EnumerateArray().Select(Player)], hasActivePlayer));
         }
         catch (Exception exception) when (exception is JsonException or InvalidOperationException or FormatException)
         {

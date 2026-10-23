@@ -57,6 +57,7 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
     private string noteText = string.Empty;
     private bool isLaunching;
     private Task detailLoad = Task.CompletedTask;
+    private BookmarkStore? liveBookmarks;
 
     public MainViewModel(AppSettings settings, SettingsStore settingsStore, NotesStore notes, BookmarkStore bookmarks, IconProvider icons, Dialogs dialogs, AppLog log, InstallSearchPaths installPaths, TimelineCache timelines, Overlay.OverlayCoordinator overlay)
     {
@@ -120,7 +121,10 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
     /// <summary>Starts the replay in League with Rift Review's overlay on top.</summary>
     public ICommand WatchWithOverlayCommand { get; }
 
-    /// <summary>Opens the overlay over the replay already open in League, found in the library.</summary>
+    /// <summary>
+    /// Opens the overlay over the replay or spectated game already open in League: a replay found in
+    /// the library gets everything, any other game the players from League's live data.
+    /// </summary>
     public ICommand LiveOverlayCommand { get; }
 
     public ICommand ShowInExplorerCommand { get; }
@@ -634,7 +638,8 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
 
     /// <summary>
     /// Finds the replay open in League in the library, selects it and attaches the overlay; the
-    /// coach may have started it from the client's match history rather than from here.
+    /// coach may have started it from the client's match history rather than from here. A game not
+    /// in the library, such as one spectated live, gets the overlay with League's live data.
     /// </summary>
     private async Task LiveOverlayAsync()
     {
@@ -655,10 +660,15 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
+        if (running.Snapshot is { HasActivePlayer: true })
+        {
+            dialogs.Error(Loc.Get("LiveOverlay_OwnGame"));
+            return;
+        }
+
         if (running.FindIn(allItems, i => i.Metadata) is not { } item)
         {
-            log.Info("overlay.live_not_in_library", ("length", running.LengthSeconds), ("players", running.RiotIds.Count));
-            dialogs.Error(Loc.Format("LiveOverlay_NotInLibrary", settings.OwnReplaysFolder));
+            await OpenLiveOverlayAsync(running);
             return;
         }
 
@@ -668,6 +678,52 @@ internal sealed class MainViewModel : ObservableObject, IDisposable
         Selected = item;
         await detailLoad;
         await WatchWithOverlayAsync();
+    }
+
+    // A game with no replay file here: players from League's live data, bookmarks for this run of
+    // the app only.
+    private async Task OpenLiveOverlayAsync(Overlay.RunningReplay running)
+    {
+        if (running.Snapshot is not { Players.Count: > 0 } snapshot)
+        {
+            log.Info("overlay.live_not_in_library", ("length", running.LengthSeconds));
+            dialogs.Error(Loc.Format("LiveOverlay_NotInLibrary", settings.OwnReplaysFolder));
+            return;
+        }
+
+        var catalog = installation?.Version is { } version ? await icons.GetCatalogAsync(version) : null;
+        var spells = catalog?.SummonerSpells.Values.GroupBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First().Id, StringComparer.OrdinalIgnoreCase) ?? [];
+        var length = TimeSpan.FromSeconds(snapshot.GameTime);
+        var rows = Overlay.LivePlayers.From(snapshot, spells)
+            .Select(p => new PlayerRowViewModel(p, length, 0, catalog, icons, settings.IsOnRoster(p.RiotId)))
+            .ToList();
+        var key = "live:" + string.Join(',', running.RiotIds.Order(StringComparer.OrdinalIgnoreCase));
+        var marks = new Overlay.BookmarkList(LiveBookmarks(), key, settings.Tags);
+        await overlay.OpenLiveAsync(rows, ReplayDetailViewModel.ItemIconsFor(catalog, icons), settings.Overlay, text => StatusText = text, marks, catalog?.ItemPrices);
+    }
+
+    // Bookmarks of games without a replay file live in a temporary file that each start of the app
+    // begins empty; reopening the overlay on the same game keeps them.
+    private BookmarkStore LiveBookmarks()
+    {
+        if (liveBookmarks is null)
+        {
+            var path = Path.Combine(Path.GetTempPath(), "RiftReview", "live-bookmarks.json");
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                // An earlier run's bookmarks then stay visible; nothing is lost.
+                log.Warning("bookmarks.live_reset", exception, ("path", path));
+            }
+
+            liveBookmarks = new BookmarkStore(path, log);
+        }
+
+        return liveBookmarks;
     }
 
     /// <summary>Hands the selected replay to the League client (the Watch flow); true when it started.</summary>

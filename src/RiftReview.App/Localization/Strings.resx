@@ -501,10 +501,13 @@ Switch it on? Rift Review adds the line EnableReplayApi=1 to League's game.cfg a
     <value>Live overlay</value>
   </data>
   <data name="Action_LiveOverlayTip" xml:space="preserve">
-    <value>Puts Rift Review's overlay on the replay that is open in League right now, also one started from the client's match history. The replay must be in your library.</value>
+    <value>Puts Rift Review's overlay on the replay or spectated game open in League right now, also one started from the client's match history. Bookmarks of a game that is not in your library last until Rift Review closes.</value>
   </data>
   <data name="LiveOverlay_NoReplay" xml:space="preserve">
-    <value>No replay is open in League. Open a replay in the League client first, then press Live overlay. If the replay API was just switched on, close the replay and open it again.</value>
+    <value>No replay or spectated game is open in League. Open one in the League client first, then press Live overlay. If the replay API was just switched on, close it and open it again.</value>
+  </data>
+  <data name="LiveOverlay_OwnGame" xml:space="preserve">
+    <value>You are playing in this game. Live overlay works on replays and games you spectate.</value>
   </data>
   <data name="LiveOverlay_NotInLibrary" xml:space="preserve">
     <value>The replay open in League is not in your library. Add its .rofl file (the client keeps its replays in {0}) or press Refresh, then press Live overlay again.</value>
